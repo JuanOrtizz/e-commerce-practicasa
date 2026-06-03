@@ -149,8 +149,5 @@ __pycache__/
 # Archivos de empaquetado
 build/
 
-# Archivos de N8N (En este caso)
-n8n/data/
-
 # Archivos de Docker
 docker-compose.override.yml
