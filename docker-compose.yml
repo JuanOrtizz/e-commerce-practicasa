@@ -1,10 +1,10 @@
 services:
   django:
-    build: ./django
+    build: .
     ports:
       - "8000:8000"
     volumes:
-      - ./django/project:/app
+      - ./project:/app
     command: sh -c "sleep 5 && python manage.py migrate && python manage.py createsuperuser --noinput || true && python manage.py runserver 0.0.0.0:8000"
     depends_on:
         - postgres
@@ -17,7 +17,7 @@ services:
     ports:
       - "5433:5432"
     environment:
-      POSTGRES_DB: ${POSTGRES_DB_DJANGO}
+      POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
