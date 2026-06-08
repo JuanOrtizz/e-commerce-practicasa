@@ -1,4 +1,4 @@
-FROM python
+FROM python:3.12.3
 
 WORKDIR /app
 
@@ -7,6 +7,4 @@ RUN pip install -r requirements.txt
 
 COPY project .
 
-RUN python manage.py collectstatic --noinput
-
-CMD ["sh", "-c", "python manage.py migrate && gunicorn project.wsgi:application --bind 0.0.0.0:$PORT"]
+CMD ["sh", "-c", "python manage.py collectstatic --noinput && python manage.py migrate && gunicorn project.wsgi:application --bind 0.0.0.0:$PORT"]
