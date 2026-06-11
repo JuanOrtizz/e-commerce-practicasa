@@ -1,0 +1,135 @@
+/* Colors */
+:root {
+    --primary-color: #F2F2F2 ;
+    --secondary-color: #700909;
+    --tertiary-color: #A25630;
+    --primary-color-hover: #DBDBDB;
+    --secondary-color-hover: #4D1207 ;
+    --tertiary-color-hover: #7E4326 ;
+    --black: #000000;
+    --white: #ffffff;
+}
+
+/* General Design (Body and Main) */
+body {
+    font-family: Roboto, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: var(--white);
+    height: 100dvh;
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+    flex: 1;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+/*Inputs Design*/
+.input-group {
+    border: 2px solid var(--primary-color);
+    transition: border-color 0.3s ease;
+}
+
+.input-group:hover {
+    border-color: var(--primary-color-hover) !important;
+}
+
+.input-group:focus-within {
+    border-color: var(--tertiary-color-hover) !important;
+}
+
+/* Header Design */
+header{
+    background-color: var(--primary-color);
+}
+
+header h1{
+    font:'Roboto', sans-serif;
+    font-style: italic;
+    color: var(--tertiary-color);
+    font-size: 1rem;
+}
+
+.btn-busqueda{
+    background-color: var(--white) !important;
+    transition: background-color 0.3s ease;
+}
+
+.btn-busqueda:hover {
+    background-color: var(--primary-color-hover) !important;
+}
+
+.menu-link a {
+    color: var(--black) !important;
+    text-decoration: none;
+    transition: color 0.4s ease;
+}
+
+.menu-link a:hover {
+    color: var(--tertiary-color-hover) !important;
+}
+
+.nav-link .material-symbols-outlined {
+    transition: transform 0.3s ease;
+}
+
+.nav-link:not(.collapsed) .material-symbols-outlined {
+    transform: rotate(90deg);
+}
+
+/* Footer Design */
+footer{
+    background-color: var(--primary-color);
+    padding: 40px;
+    text-align: center;
+    box-sizing:border-box;
+}
+
+footer p{
+    font-attribute: bold;
+}
+
+footer .accordion-item,
+footer .accordion-button,
+footer .accordion-body {
+    background-color: transparent;
+}
+
+footer .accordion-item {
+    border: none;
+}
+
+footer .accordion-button:not(.collapsed) {
+    background-color: transparent;
+    color: inherit;
+    box-shadow: none;
+}
+
+footer .accordion-button:focus {
+    box-shadow: none;
+    border-color: transparent;
+    outline: none;
+}
+
+footer .accordion-button:not(.collapsed)::after {
+    background-image: var(--bs-accordion-btn-icon);
+}
+
+footer a {
+    color: var(--black);
+    text-decoration: none;
+    border-bottom: 2px solid transparent;
+    transition: border-bottom 0.4s ease;
+}
+
+.informacion button:hover{
+    color: var(--tertiary-color-hover) !important;
+}
+
+.informacion a:hover {
+    border-bottom: 2px solid var(--tertiary-color-hover);
+    color: var(--tertiary-color-hover) !important;
+}
