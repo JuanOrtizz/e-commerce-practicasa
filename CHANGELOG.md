@@ -1,6 +1,6 @@
 # Changelog
 ---
-## [v0.4.0] - Junio 2026
+## [v0.4.0] - 2026-06-11
 ### Rama: feature/setup-apps
 #### Features
 - Agregado de aplicaciones: base, usuarios, productos, carrito, ventas
