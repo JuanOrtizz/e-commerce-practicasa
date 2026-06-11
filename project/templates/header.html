@@ -1,0 +1,65 @@
+{% load static %}
+
+<header class="container-fluid">
+    <nav class="navbar">
+        <div class="container-fluid d-flex flex-wrap flex-lg-nowrap align-items-center gap-0 gap-lg-3">
+            <a class="navbar-brand d-flex flex-column justify-content-center align-items-center" href="#">
+                <img src="{% static 'img/logo_practicasa.png' %}" alt="Logo Practicasa" width="55"/>
+                <h1>practicasa</h1>
+            </a>
+
+            <button class="navbar-toggler ms-auto border-0 shadow-none order-lg-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <form class="d-flex justify-content-center w-100 order-3 order-lg-1 pb-2 pb-lg-0" role="search">
+                <div class="input-group w-75 w-lg-50 border-2 rounded-pill shadow-sm overflow-hidden">
+                    <input class="form-control shadow-none border-0" type="search" placeholder="Buscar..."/>
+                    <button class="btn btn-busqueda d-flex justify-content-center align-items-center " type="submit">
+                        <span class="material-symbols-outlined">search</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+        <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasNavbar" aria-labelledby="offcanvasNavbarLabel">
+            <div class="offcanvas-header">
+                <h5 class="offcanvas-title fw-bold" id="offcanvasNavbarLabel">Menú</h5>
+                <button type="button" class="btn-close shadow-none" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+            </div>
+            <div class="offcanvas-body">
+                <ul class="navbar-nav justify-content-end flex-grow-1 p-3 text-start">
+                    <li class="nav-item menu-link fw-bold">
+                        <a class="nav-link activo" aria-current="page" href="#">Inicio</a>
+                    </li>
+                    <li class="nav-item menu-link fw-bold">
+                        <a class="nav-link" href="#">Contacto</a>
+                    </li>
+                    <li class="nav-item menu-link fw-bold">
+                        <a class="nav-link" href="#">Locales</a>
+                    </li>
+                    <li class="nav-item menu-link">
+                        <a class="nav-link collapsed d-flex justify-content-between align-items-center fw-bold" data-bs-toggle="collapse" href="#collapseProductos" role="button" aria-expanded="false">
+                            Productos <span class="material-symbols-outlined">chevron_right</span>
+                        </a>
+                        <div class="collapse" id="collapseProductos">
+                            <ul class="nav flex-column ms-3 border-start border-2 ps-2">
+                                <li class="nav-item">
+                                    <!--FOR CATEGORIAS-->
+                                    <a class="nav-link collapsed d-flex justify-content-between align-items-center fw-bold" data-bs-toggle="collapse" href="#collapseRopa" role="button">
+                                        Ropa <span class="material-symbols-outlined">chevron_right</span>
+                                    </a>
+                                    <div class="collapse" id="collapseRopa">
+                                        <ul class="nav flex-column ms-3">
+                                            <!--FOR SUBCATEGORIAS-->
+                                            <li class="menu-link"><a class="nav-link" href="#">Remeras</a></li>
+                                        </ul>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+</header>
