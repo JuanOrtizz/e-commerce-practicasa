@@ -1,0 +1,50 @@
+{% load static %}
+
+<footer class="d-flex flex-column justify-content-center align-items-center">
+    <section class="container d-flex flex-column justify-content-center align-items-center gap-5 m-0">
+        <div class="row d-flex justify-content-center align-items-center">
+            <div class="col-4 animacion-caida-y">
+                <a href="https://www.tiktok.com/@practicasa.arg">
+                    <img src="{% static 'img/logo_tiktok.png' %}" alt="Logo de TikTok" class="img-fluid" width="25">
+                </a>
+            </div>
+            <div class="col-4 animacion-caida-y">
+                <a href="https://www.facebook.com/practicasa.nogoya#">
+                    <img src="{% static 'img/logo_facebook.png' %}" alt="Logo de Facebook" class="img-fluid" width="25">
+                </a>
+            </div>
+            <div class="col-4 animacion-caida-y">
+                <a href="https://www.instagram.com/practicasa.nogoya?igsh=MW43bWNldGM1OHEzOQ==">
+                    <img src="{% static 'img/logo_instagram.png' %}" alt="Logo de Instagram" class="img-fluid" width="25">
+                </a>
+            </div>
+        </div>
+        <div class="row d-flex justify-content-center align-items-center w-100 informacion">
+            <div class="accordion accordion-flush" id="accordionFlush">
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseOne" aria-expanded="false" aria-controls="flush-collapseOne">
+                            Información
+                        </button>
+                    </h2>
+                    <div id="flush-collapseOne" class="accordion-collapse collapse" data-bs-parent="#accordionFlush">
+                        <div class="accordion-body d-flex flex-column gap-3 align-items-start">
+                            <a href="">FAQs</a>
+                            <a href="">Términos y Condiciones</a>
+                            <a href="">Política de Privacidad</a>
+                            <a href="">Cambios y devoluciones</a>
+                            <a href="">Nuestra historia :D</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <p class="copyright fs-6">&copy; Copyright PractiCasa 2026 - Todos los derechos reservados</p>
+            <div>
+                <p class="fw-bold">Creado por PoshiNet</p>
+                <img src="{% static 'img/poshinet.png' %}" alt="Logo PoshiNet" class="img-fluid animacion-aparicion-escalada" width="100"/>
+            </div>
+        </div>
+    </section>
+</footer>
