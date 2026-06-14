@@ -115,12 +115,12 @@ AUTH_PASSWORD_VALIDATORS = [
 
 #Emails SMTP
 EMAIL_BACKEND='django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST=config("EMAIL_HOST")
-EMAIL_PORT=config("EMAIL_PORT")
-EMAIL_USE_TLS=config("EMAIL_USE_TLS", cast=bool)
-EMAIL_HOST_USER=config("EMAIL_HOST_USER")
-EMAIL_HOST_PASSWORD=config("EMAIL_HOST_PASSWORD")
-DEFAULT_FROM_EMAIL=config("DEFAULT_FROM_EMAIL")
+EMAIL_HOST = config("EMAIL_HOST", default="")
+EMAIL_PORT = config("EMAIL_PORT", default="", cast=int)
+EMAIL_USE_TLS = config("EMAIL_USE_TLS", default=False, cast=bool)
+EMAIL_HOST_USER = config("EMAIL_HOST_USER", default="")
+EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD", default="")
+DEFAULT_FROM_EMAIL = config("DEFAULT_FROM_EMAIL", default="webmaster@localhost")
 
 # Internationalization
 # https://docs.djangoproject.com/en/6.0/topics/i18n/
