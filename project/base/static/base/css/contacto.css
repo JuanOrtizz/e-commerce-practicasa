@@ -15,3 +15,10 @@
     background-color: #063816 !important;
     border-color: transparent !important;
 }
+
+.btn-enviar:disabled {
+    opacity: 1 !important;
+    cursor: not-allowed;
+    background-color: var(--secondary-color) !important;
+    border: none;
+}

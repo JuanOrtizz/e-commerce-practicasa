@@ -65,7 +65,7 @@ async function postForm(formData, csrfToken, form){
     }
     finally {
         btnSubmit.disabled = false
-        text.textContent = "Registrar Sesión"
+        text.textContent = "Enviar"
         spinner.classList.add("d-none")
     }
 }
