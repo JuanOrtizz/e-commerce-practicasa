@@ -23,7 +23,7 @@ body {
 
 main {
     flex: 1;
-    padding: 40px;
+    padding: 40px 20px;
     box-sizing: border-box;
 }
 
@@ -35,7 +35,7 @@ main {
 
 .input-group:hover,
 .form-control:hover{
-    border-color: var(--primary-color-hover) !important;
+    border-color: var(--secondary-color-hover) !important;
     box-shadow: none !important;
 }
 
@@ -64,6 +64,13 @@ main {
     opacity: 1;
 }
 
+.form-floating:has(.is-invalid) > .form-control,
+.form-floating:has(.is-invalid) > .form-control:hover,
+.form-floating:has(.is-invalid) > .form-control:focus {
+    border: none !important;
+    box-shadow: none !important;
+}
+
 textarea{
     height: 250px !important;
     max-height: 250px;
@@ -80,6 +87,7 @@ header h1{
     font-style: italic;
     color: var(--tertiary-color);
     font-size: 1rem;
+    font-weight: 600;
 }
 
 .btn-busqueda{
@@ -97,7 +105,8 @@ header h1{
     transition: color 0.4s ease;
 }
 
-.menu-link a:hover {
+.menu-link a:hover,
+.menu-link button:hover{
     color: var(--tertiary-color-hover) !important;
 }
 
@@ -107,6 +116,32 @@ header h1{
 
 .nav-link:not(.collapsed) .material-symbols-outlined {
     transform: rotate(90deg);
+}
+
+/*Button Submit*/
+button.btn-enviar,
+a.btn-enviar{
+    background-color: #A25630 !important;
+    transition: color 0.5 ease, background-color 0.5 ease !important;
+}
+
+button.btn-enviar:hover,
+a.btn-enviar:hover{
+     background-color: #7E4326 !important;
+}
+
+button.btn-enviar:active,
+a.btn-enviar:active{
+    background-color: #4D2816 !important;
+    border-color: transparent !important;
+}
+
+button.btn-enviar:disabled,
+a.btn-enviar:disabled{
+    opacity: 1 !important;
+    cursor: not-allowed;
+    background-color: #C4B6A8 !important;
+    border: none;
 }
 
 /* Footer Design */

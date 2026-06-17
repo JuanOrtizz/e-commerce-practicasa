@@ -1,5 +1,5 @@
-import {validateForm, textErrorInput} from './validacionesContacto.js'
-import {successAlert, errorAlert} from '/static/js/alertas.js'
+import {validateForm, textErrorInput} from './validacionesAuth.js'
+import {errorAlert} from '/static/js/alertas.js'
 
 document.addEventListener('DOMContentLoaded', ()=>{
     // capturo el formulario y el token
@@ -23,6 +23,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
 async function postForm(formData, csrfToken, form){
     const btnSubmit = document.getElementById("btn-submit") // Obtiene el botón de submit
     const text = document.getElementById("btn-text")
+    const textBtnInicial = text.textContent
     const spinner = document.getElementById("btn-spinner")
     btnSubmit.disabled = true // Deshabilita el botón de submit para evitar múltiples envíos
     text.textContent = ""
@@ -31,23 +32,29 @@ async function postForm(formData, csrfToken, form){
     // hago fetch del formulario
     try
     {
-        const response = await fetch("/contacto/",{
+        const response = await fetch("",{
             method:"POST",
             body: formData,
             headers:{
-                "X-CSRFToken": csrfToken
+                "X-CSRFToken": csrfToken,
+                "X-Requested-With": "XMLHttpRequest"
             }
         })
         const data = await response.json()
         if(data.success){
-            // vacio el formulario
-            form.reset()
-            successAlert("¡Recibimos tu consulta!", "Quedate atento a tu email o teléfono porque nos pondremos en contacto lo antes posible")
+            if (data.redirect) {
+                window.location.href = data.redirect
+            } else {
+                form.reset()
+            }
         }else{
             const errors = data.errors //capturo los errores
-            //Si los errores son string (provenientes de la vista)
-            if (typeof errors === "string") {
-                errorAlert(data.errors)//Muestro una alerta
+            if (errors.__all__) {
+                const nonFieldDiv = document.getElementById("non-field-errors")
+                if (nonFieldDiv) {
+                    nonFieldDiv.textContent = errors.__all__[0]
+                    nonFieldDiv.classList.remove("d-none")
+                }
             }
             else{ // Sino (errores en formulario), muestro mediante un for estos errores provenientes de forms.py
                 for (let field in errors) {
@@ -65,7 +72,7 @@ async function postForm(formData, csrfToken, form){
     }
     finally {
         btnSubmit.disabled = false
-        text.textContent = "Enviar"
+        text.textContent = textBtnInicial
         spinner.classList.add("d-none")
     }
 }
