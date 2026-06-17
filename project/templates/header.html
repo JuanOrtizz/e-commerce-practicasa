@@ -59,6 +59,18 @@
                                 </ul>
                             </div>
                         </li>
+                        {% if user.is_authenticated %}
+                            <li class="nav-item menu-link fw-bold">
+                                <form method="post" action="{% url 'logout' %}" class="nav-link">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn  text-black border-0 shadow-none p-0 fw-bold">Cerrar Sesión</button>
+                                </form>
+                            </li>
+                        {% else %}
+                            <li class="nav-item menu-link fw-bold">
+                                <a class="nav-link {% if view_actual == 'login' or view_actual == 'registro' %}enlace-activo{% endif %}" href="{% url 'login' %}">Ingresá/Registrate</a>
+                            </li>
+                        {% endif %}
                     </ul>
                 {% endwith %}
             </div>
