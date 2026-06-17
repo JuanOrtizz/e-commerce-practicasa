@@ -27,7 +27,7 @@ SECRET_KEY = config("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config("DEBUG", cast=bool)
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = config("ALLOWED_HOSTS", default="localhost,127.0.0.1", cast=Csv())
 
 # Application definition
 
@@ -81,7 +81,11 @@ WSGI_APPLICATION = 'project.wsgi.application'
 
 if config("DATABASE_URL", default=""):
     DATABASES = {
-        'default': dj_database_url.parse(config("DATABASE_URL", default=""))
+        'default': dj_database_url.parse(
+            config("DATABASE_URL"),
+            conn_max_age = 600,
+            ssl_require=True
+        )
     }
 else:
     DATABASES = {
