@@ -1,10 +1,10 @@
 import {validateForm, textErrorInput} from './validacionesContacto.js'
-import {successAlert, errorAlert} from './alertas.js'
+import {successAlert, errorAlert} from '/static/js/alertas.js'
 
 document.addEventListener('DOMContentLoaded', ()=>{
     // capturo el formulario y el token
     const form = document.getElementById("form")
-    const csrfToken = document.querySelector('[name = csrfmiddlewaretoken]').value
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value
 
     // Evento para evitar que se mande el form
     form.addEventListener('submit', (e) =>{
