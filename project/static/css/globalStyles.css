@@ -254,3 +254,32 @@ footer a {
 .menu-link .enlace-activo{
     color:var(--tertiary-color-hover) !important;
 }
+
+/* WhatsApp Button */
+.btn-whatsapp {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    z-index: 1050;
+    width: 60px;
+    height: 60px;
+    background-color: #25D366;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    transition: all 0.3s ease;
+}
+
+.btn-whatsapp:hover {
+    background-color: #1DA851;
+    transform: scale(1.1);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.4);
+}
+
+.btn-whatsapp img {
+    width: 35px;
+    height: 35px;
+    filter: brightness(0) invert(1);
+}
