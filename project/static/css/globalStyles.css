@@ -216,7 +216,12 @@ footer a {
 
 #contenedor-facebook:hover {
     background-color: #1877F2 !important;
-    transition-duration: .3s;
+    transition-duration: 0.3s;
+}
+
+#contenedor-email:hover {
+    background-color: #BEE092 !important;
+    transition-duration: 0.3s;
 }
 
 .social-container:active {
