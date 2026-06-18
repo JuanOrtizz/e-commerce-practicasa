@@ -1,5 +1,19 @@
 # Changelog
 ---
+## [v0.7.0] - 2026-06-18
+### Rama: feature/modelos-productos
+#### Features
+- Agrego modelos para app Productos, migracion y registro de modelos en Admin
+- Agrego configuracion de Media en settings y urls del proyecto
+- Agrego Pillow para las imagenes
+- Agrego .gitattributes para forzar LF en archivos .sh
+- Agrego boton flotante de WhatsApp
+- Agrego boton para scrollear al inicio
+- Agrego email en footer
+- Agrego context processor para categorias en el menu
+- Agrego menu dinamico de categorias, barra de busqueda condicional y bullets en subcategorias
+---
+
 ## [v0.6.0] - 2026-06-17
 ### Rama: feature/usuarios
 #### Features
