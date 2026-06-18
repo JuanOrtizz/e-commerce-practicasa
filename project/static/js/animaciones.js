@@ -32,6 +32,16 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     })
 
+    ScrollTrigger.create({
+        start: "300px top",
+        onEnter: () => document.getElementById("btnSubir").classList.add("visible"),
+        onLeaveBack: () => document.getElementById("btnSubir").classList.remove("visible")
+    })
+
+    document.getElementById("btnSubir").addEventListener("click", () => {
+        window.scrollTo({ top: 0, behavior: "smooth" })
+    })
+
     gsap.fromTo(".animacion-aparicion-abajo-fade",
         {
             y: 60,
