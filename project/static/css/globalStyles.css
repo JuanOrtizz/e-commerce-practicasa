@@ -110,11 +110,13 @@ header h1{
     color: var(--tertiary-color-hover) !important;
 }
 
-.nav-link .material-symbols-outlined {
+.nav-link .material-symbols-outlined,
+.nav-item button .material-symbols-outlined {
     transition: transform 0.3s ease;
 }
 
-.nav-link:not(.collapsed) .material-symbols-outlined {
+.nav-link:not(.collapsed) .material-symbols-outlined,
+.nav-item button:not(.collapsed) .material-symbols-outlined {
     transform: rotate(90deg);
 }
 
@@ -216,7 +218,12 @@ footer a {
 
 #contenedor-facebook:hover {
     background-color: #1877F2 !important;
-    transition-duration: .3s;
+    transition-duration: 0.3s;
+}
+
+#contenedor-email:hover {
+    background-color: #BEE092 !important;
+    transition-duration: 0.3s;
 }
 
 .social-container:active {
@@ -245,7 +252,84 @@ footer a {
 }
 
 
+.subcategoria-link::before {
+    content: '';
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    background-color: var(--tertiary-color);
+    border-radius: 50%;
+    margin-right: 8px;
+    vertical-align: middle;
+}
+
 /*Enlace activo (Pagina activa)*/
 .menu-link .enlace-activo{
     color:var(--tertiary-color-hover) !important;
+}
+
+/* WhatsApp Button */
+.btn-whatsapp {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    z-index: 1050;
+    width: 60px;
+    height: 60px;
+    background-color: #25D366;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    transition: all 0.3s ease;
+}
+
+.btn-whatsapp:hover {
+    background-color: #1DA851;
+    transform: scale(1.1);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.4);
+}
+
+.btn-whatsapp img {
+    width: 35px;
+    height: 35px;
+    filter: brightness(0) invert(1);
+}
+
+/* Scroll to Top Button */
+.btn-subir {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1050;
+    width: 50px;
+    height: 50px;
+    background-color: var(--tertiary-color);
+    border: none;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    color: var(--white);
+}
+
+.btn-subir.visible {
+    opacity: 1;
+    visibility: visible;
+}
+
+.btn-subir:hover {
+    background-color: var(--tertiary-color-hover);
+    transform: scale(1.1);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.4);
+}
+
+.btn-subir .material-symbols-outlined {
+    font-size: 28px;
 }
