@@ -11,6 +11,10 @@ from project.services import enviar_email
 def index(request):
     return render(request, 'base/index.html')
 
+# View para FAQs
+def faqs(request):
+    return render(request, 'base/faqs.html')
+
 #View Contacto
 @ratelimit(key='ip', rate='5/m', method='POST', block=True)
 def contacto(request):

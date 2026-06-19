@@ -1,0 +1,190 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block title %}FAQs | Practicasa{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'base/css/faqs.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="container-fluid container-xl">
+   <div class="accordion accordion-flush" id="accordionFlushFaq">
+       <!-- Pregunta #1 / Envios -->
+       <div class="accordion-item  mb-3">
+           <h2 class="accordion-header">
+                <button class="accordion-button collapsed  rounded-3 rounded-bottom-0 fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseOneFaq-envios" aria-expanded="false" aria-controls="flush-collapseOneFaq-envios">
+                  ¿Realizan envíos a todo el país?
+                </button>
+           </h2>
+           <div id="flush-collapseOneFaq-envios" class="accordion-collapse collapse  " data-bs-parent="#accordionFlushFaq">
+               <div class="accordion-body  rounded-3 rounded-top-0">
+                   Sí, realizamos envíos a cada rincón del país para que puedas recibir tus productos estés donde estés.
+               </div>
+           </div>
+       </div>
+
+       <!-- Pregunta #2 / Envios -->
+       <div class="accordion-item  mb-3">
+           <h2 class="accordion-header">
+                <button class="accordion-button collapsed  rounded-3 rounded-bottom-0 fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseTwoFaq-envios" aria-expanded="false" aria-controls="flush-collapseTwoFaq-envios">
+                  ¿Cuáles son las localidades con envío gratuito?
+                </button>
+           </h2>
+           <div id="flush-collapseTwoFaq-envios" class="accordion-collapse collapse  " data-bs-parent="#accordionFlushFaq">
+               <div class="accordion-body  rounded-3 rounded-top-0">
+                   ¡Contamos con envío sin cargo! <br>
+                   El beneficio es exclusivo para las localidades de Paraná, Ramírez, Lucas González y Nogoyá.
+               </div>
+           </div>
+       </div>
+
+       <!-- Pregunta #3 / Envios -->
+       <div class="accordion-item  mb-3">
+           <h2 class="accordion-header">
+                <button class="accordion-button collapsed  rounded-3 rounded-bottom-0 fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseThreeFaq-envios" aria-expanded="false" aria-controls="flush-collapseThreeFaq-envios">
+                  ¿Qué métodos de envío e instalaciones de retiro ofrecen?
+                </button>
+           </h2>
+           <div id="flush-collapseThreeFaq-envios" class="accordion-collapse collapse  " data-bs-parent="#accordionFlushFaq">
+               <div class="accordion-body  rounded-3 rounded-top-0">
+                   Para envíos a todo el país trabajamos con Correo Argentino (directo a tu domicilio o a sucursal). <br>
+                   Si preferís retirar en persona y ahorrarte el envío, podés hacerlo por nuestro
+                   <a class="text-black fw-normal" rel="noopener noreferrer" target="_blank" href="https://maps.app.goo.gl/qnbGySEidAAfJNB78">local. </a>
+               </div>
+           </div>
+       </div>
+
+       <!-- Pregunta #4 / Envios -->
+       <div class="accordion-item  mb-3">
+           <h2 class="accordion-header">
+                <button class="accordion-button collapsed  rounded-3 rounded-bottom-0 fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseFourFaq-envios" aria-expanded="false" aria-controls="flush-collapseFourFaq-envios">
+                  ¿Cuál es el costo del envío de mi pedido?
+                </button>
+           </h2>
+           <div id="flush-collapseFourFaq-envios" class="accordion-collapse collapse  " data-bs-parent="#accordionFlushFaq">
+               <div class="accordion-body  rounded-3 rounded-top-0">
+                   El valor exacto del envío se calcula de forma automática en la web. <br>
+                   Lo vas a poder visualizar justo antes de realizar el pago, ingresando tu ubicación y según el tamaño total de tu compra.
+               </div>
+           </div>
+       </div>
+
+       <!-- Pregunta #5 / Envios -->
+       <div class="accordion-item  mb-3">
+           <h2 class="accordion-header">
+                <button class="accordion-button collapsed  rounded-3 rounded-bottom-0 fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseFiveFaq-envios" aria-expanded="false" aria-controls="flush-collapseFiveFaq-envios">
+                  ¿Cuánto demora en llegar mi compra?
+                </button>
+           </h2>
+           <div id="flush-collapseFiveFaq-envios" class="accordion-collapse collapse  " data-bs-parent="#accordionFlushFaq">
+               <div class="accordion-body  rounded-3 rounded-top-0">
+                   Despachamos tu pedido dentro de las 24 horas una vez confirmada la compra. <br>
+                   El tiempo estimado de entrega del correo es de 3 a 5 días hábiles.
+               </div>
+           </div>
+       </div>
+
+       <!-- Pregunta #6 / Envios -->
+       <div class="accordion-item  mb-3">
+           <h2 class="accordion-header">
+                <button class="accordion-button collapsed  rounded-3 rounded-bottom-0 fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseSixFaq-envios" aria-expanded="false" aria-controls="flush-collapseSixFaq-envios">
+                  ¿Cómo puedo realizar el seguimiento de mi envío?
+                </button>
+           </h2>
+           <div id="flush-collapseSixFaq-envios" class="accordion-collapse collapse  " data-bs-parent="#accordionFlushFaq">
+               <div class="accordion-body  rounded-3 rounded-top-0">
+                   Una vez que despachamos el paquete, te enviamos un mail con el código de seguimiento de Correo Argentino y el enlace para que puedas ver dónde está tu pedido en tiempo real.
+               </div>
+           </div>
+       </div>
+
+       <hr class="w-50 mx-auto">
+
+       <!-- Pregunta #1 / Pago -->
+       <div class="accordion-item  mb-3">
+           <h2 class="accordion-header">
+                <button class="accordion-button collapsed  rounded-3 rounded-bottom-0 fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseOneFaq-pago" aria-expanded="false" aria-controls="flush-collapseOneFaq-pago">
+                  ¿Qué medios de pago aceptan?
+                </button>
+           </h2>
+           <div id="flush-collapseOneFaq-pago" class="accordion-collapse collapse  " data-bs-parent="#accordionFlushFaq">
+               <div class="accordion-body  rounded-3 rounded-top-0">
+                   Procesamos todos nuestros pagos a través de Mercado Pago. <br>
+                   Esto significa que podés abonar de forma segura con tarjetas de crédito, débito, dinero en cuenta o redes de cobranza (como Rapipago o Pago Fácil). <br>
+                   También aceptamos transferencias directas y efectivo si retirás en el
+                   <a class="text-black fw-normal" rel="noopener noreferrer" target="_blank" href="https://maps.app.goo.gl/qnbGySEidAAfJNB78">local. </a>
+               </div>
+           </div>
+       </div>
+
+       <!-- Pregunta #2 / Pago -->
+       <div class="accordion-item  mb-3">
+           <h2 class="accordion-header">
+                <button class="accordion-button collapsed  rounded-3 rounded-bottom-0 fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseTwoFaq-pago" aria-expanded="false" aria-controls="flush-collapseTwoFaq-pago">
+                  ¿Ofrecen cuotas sin interés?
+                </button>
+           </h2>
+           <div id="flush-collapseTwoFaq-pago" class="accordion-collapse collapse  " data-bs-parent="#accordionFlushFaq">
+               <div class="accordion-body  rounded-3 rounded-top-0">
+                   Las cuotas sin interés y las promociones bancarias dependen exclusivamente de los convenios vigentes que ofrece Mercado Pago al momento de tu compra. <br>
+                   Vas a poder visualizar las opciones disponibles para tu tarjeta y banco justo antes de finalizar el pago en el checkout.
+               </div>
+           </div>
+       </div>
+
+       <!-- Pregunta #3 / Pago -->
+       <div class="accordion-item  mb-3">
+           <h2 class="accordion-header">
+                <button class="accordion-button collapsed  rounded-3 rounded-bottom-0 fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseThreeFaq-pago" aria-expanded="false" aria-controls="flush-collapseThreeFaq-pago">
+                  ¿Hay algún descuento por pagar en efectivo o transferencia?
+                </button>
+           </h2>
+           <div id="flush-collapseThreeFaq-pago" class="accordion-collapse collapse  " data-bs-parent="#accordionFlushFaq">
+               <div class="accordion-body  rounded-3 rounded-top-0">
+                   ¡Sí, totalmente! <br>
+                   Los precios publicados en nuestra web corresponden al precio de lista. <br>
+                   Sin embargo, si elegís abonar mediante transferencia bancaria o en efectivo al retirar en el local, te regalamos un porcentaje de descuento especial sobre el total de tu compra para premiar tu pago directo.
+               </div>
+           </div>
+       </div>
+
+       <!-- Pregunta #4 / Pago -->
+       <div class="accordion-item  mb-3">
+           <h2 class="accordion-header">
+                <button class="accordion-button collapsed  rounded-3 rounded-bottom-0 fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseFourFaq-pago" aria-expanded="false" aria-controls="flush-collapseFourFaq-pago">
+                  ¿Puedo modificar o cancelar un pedido que ya pagué?
+                </button>
+           </h2>
+           <div id="flush-collapseFourFaq-pago" class="accordion-collapse collapse  " data-bs-parent="#accordionFlushFaq">
+               <div class="accordion-body  rounded-3 rounded-top-0">
+                   Como los despachos los realizamos prácticamente en el momento, te pedimos que te comuniques con nosotros lo antes posible a nuestro canal de atención (WhatsApp/Instagram) si necesitás hacer algún cambio urgente.
+               </div>
+           </div>
+       </div>
+
+       <hr class="w-50 mx-auto">
+
+       <!-- Pregunta #1 / Devolución -->
+       <div class="accordion-item  mb-3">
+           <h2 class="accordion-header">
+                <button class="accordion-button collapsed  rounded-3 rounded-bottom-0 fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseOneFaq-devo" aria-expanded="false" aria-controls="flush-collapseOneFaq-devo">
+                  ¿Cuál es la política de cambios y devoluciones?
+                </button>
+           </h2>
+           <div id="flush-collapseOneFaq-devo" class="accordion-collapse collapse  " data-bs-parent="#accordionFlushFaq">
+               <div class="accordion-body  rounded-3 rounded-top-0">
+                   Aceptamos devoluciones si el producto presenta fallas de fábrica o si no es lo que esperabas. <br>
+                   Todo el detalle de los plazos, cómo gestionar un reembolso o vales de compra los encontrás explicados paso a paso en nuestra sección exclusiva de
+                   <a class="text-black fw-normal" href="{% url 'cambios_y_devoluciones' %}">Cambios y Devoluciones. </a>
+               </div>
+           </div>
+       </div>
+   </div>
+</section>
+
+{% endblock %}
+
+{% block extra_js %}
+{% endblock %}

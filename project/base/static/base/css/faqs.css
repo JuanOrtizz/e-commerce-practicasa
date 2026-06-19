@@ -1,0 +1,60 @@
+#accordionFlushFaq .accordion-button{
+    border:2px solid var(--primary-color);
+    box-shadow: 0 5px 8px -3px rgba(0, 0, 0, 0.2);
+    transition: border-color 0.5s ease;
+}
+
+
+#accordionFlushFaq .accordion-item,
+#accordionFlushFaq .accordion-button,
+#accordionFlushFaq .accordion-body {
+    background-color: transparent;
+    border: 2px solid (--primary-color);
+}
+
+
+#accordionFlushFaq .accordion-body {
+    border-radius: 8px;
+    background: linear-gradient(135deg, #FDE3D4 0%, #F5C6A0 50%, #EAA57C 100%);;
+}
+
+#accordionFlushFaq .accordion-item {
+   border: none;
+   background-color: transparent;
+}
+
+#accordionFlushFaq .accordion-button:not(.collapsed) {
+    color: black;
+}
+
+#accordionFlushFaq .accordion-button-header:not(.collapsed) {
+    box-shadow: 0 5px 8px -3px rgba(0, 0, 0, 0.2);
+}
+
+#accordionFlushFaq .accordion-button:hover {
+    border-color: var(--secondary-color-hover);
+}
+
+#accordionFlushFaq .accordion-button:not(.collapsed):hover {
+    border-color: var(--secondary-color-hover);
+}
+
+
+#accordionFlushFaq .accordion-button:focus {
+    box-shadow: 0 5px 8px -3px rgba(0, 0, 0, 0.2);
+    border-color: var(--primary-color);
+    color: black;
+    outline: none;
+}
+
+#accordionFlushFaq .accordion-button:not(.collapsed):hover:focus {
+    border-color: var(--secondary-color-hover);
+}
+
+#accordionFlushFaq .accordion-button.collapsed:hover:focus {
+    border-color: var(--secondary-color-hover);
+}
+
+#accordionFlushFaq .accordion-button:not(.collapsed)::after {
+   background-image: var(--bs-accordion-btn-icon);
+}
