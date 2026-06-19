@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gracias por contactarnos</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #F2F2F2; font-family: Roboto, Arial, sans-serif;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color: #F2F2F2; padding: 20px 0;">
+        <tr>
+            <td align="center">
+                <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 12px rgba(0,0,0,0.08);">
+
+                    <!-- Header -->
+                    <tr>
+                        <td style="background-color: #F2F2F2; padding: 30px 40px; text-align: center; border-bottom: 3px solid #A25630;">
+                            <table role="presentation" cellpadding="0" cellspacing="0" style="margin: 0 auto;">
+                                <tr>
+                                    <td style="vertical-align: middle; padding-right: 12px;">
+                                        <img src="{{ logo_url }}" alt="Practicasa" width="55" style="display: block;">
+                                    </td>
+                                    <td style="vertical-align: middle;">
+                                        <h1 style="margin: 0; font-style: italic; color: #A25630; font-size: 28px; font-family: Roboto, Arial, sans-serif; letter-spacing: 2px;">practicasa</h1>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+
+                    <!-- Body -->
+                    <tr>
+                        <td style="padding: 40px 40px 30px;">
+                            <h2 style="margin: 0 0 8px; color: #A25630; font-size: 24px; font-family: Roboto, Arial, sans-serif;">¡Gracias por contactarnos!</h2>
+                            <p style="margin: 0 0 20px; color: #7E4326; font-size: 14px; font-family: Roboto, Arial, sans-serif;">Recibimos tu consulta el {{ fecha }}</p>
+
+                            <p style="margin: 0 0 16px; color: #000000; font-size: 15px; line-height: 1.6; font-family: Roboto, Arial, sans-serif;">
+                                Hola <strong style="color: #7E4326;">{{ nombre }}</strong>,
+                            </p>
+
+                            <p style="margin: 0 0 16px; color: #000000; font-size: 15px; line-height: 1.6; font-family: Roboto, Arial, sans-serif;">
+                                Hemos recibido tu consulta correctamente. Nuestro equipo está revisando tu mensaje y te responderemos a la brevedad.
+                            </p>
+
+                            <p style="margin: 0 0 24px; color: #000000; font-size: 15px; line-height: 1.6; font-family: Roboto, Arial, sans-serif;">
+                                Mientras tanto, te invitamos a seguir explorando nuestros productos y novedades en nuestra página web.
+                            </p>
+
+                            <!-- Resumen de la consulta -->
+                            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color: #F2F2F2; border-radius: 8px; border-left: 4px solid #A25630; margin-bottom: 24px;">
+                                <tr>
+                                    <td style="padding: 20px;">
+                                        <h3 style="margin: 0 0 12px; color: #A25630; font-size: 16px; font-family: Roboto, Arial, sans-serif;">Resumen de tu consulta</h3>
+                                        <table role="presentation" cellpadding="0" cellspacing="0" style="width: 100%;">
+                                            <tr>
+                                                <td style="padding: 4px 0; color: #7E4326; font-size: 13px; font-weight: bold; font-family: Roboto, Arial, sans-serif; width: 80px; vertical-align: top;">Nombre:</td>
+                                                <td style="padding: 4px 0; color: #000000; font-size: 14px; font-family: Roboto, Arial, sans-serif;">{{ nombre }}</td>
+                                            </tr>
+                                            <tr>
+                                                <td style="padding: 4px 0; color: #7E4326; font-size: 13px; font-weight: bold; font-family: Roboto, Arial, sans-serif; width: 80px; vertical-align: top;">Email:</td>
+                                                <td style="padding: 4px 0; color: #000000; font-size: 14px; font-family: Roboto, Arial, sans-serif;">{{ email }}</td>
+                                            </tr>
+                                            <tr>
+                                                <td style="padding: 4px 0; color: #7E4326; font-size: 13px; font-weight: bold; font-family: Roboto, Arial, sans-serif; width: 80px; vertical-align: top;">Asunto:</td>
+                                                <td style="padding: 4px 0; color: #000000; font-size: 14px; font-family: Roboto, Arial, sans-serif;">{{ asunto }}</td>
+                                            </tr>
+                                            <tr>
+                                                <td style="padding: 4px 0; color: #7E4326; font-size: 13px; font-weight: bold; font-family: Roboto, Arial, sans-serif; width: 80px; vertical-align: top;">Mensaje:</td>
+                                                <td style="padding: 4px 0; color: #000000; font-size: 14px; font-family: Roboto, Arial, sans-serif; font-style: italic;">{{ mensaje }}</td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <p style="margin: 0 0 4px; color: #000000; font-size: 14px; line-height: 1.6; font-family: Roboto, Arial, sans-serif;">
+                                Saludos cordiales,
+                            </p>
+                            <p style="margin: 0; color: #A25630; font-size: 15px; font-weight: bold; font-family: Roboto, Arial, sans-serif;">
+                                El equipo de Practicasa
+                            </p>
+                        </td>
+                    </tr>
+
+                    <!-- Footer -->
+                    <tr>
+                        <td style="background-color: #F2F2F2; padding: 24px 40px; text-align: center; border-top: 1px solid #C4C4C4;">
+                            <p style="margin: 0; color: #ADADAD; font-size: 12px; font-family: Roboto, Arial, sans-serif;">
+                                &copy; {% now "Y" %} Practicasa &mdash; Todos los derechos reservados.
+                            </p>
+                            <p style="margin: 4px 0 0; color: #ADADAD; font-size: 12px; font-family: Roboto, Arial, sans-serif;">
+                                Este mensaje fue generado automáticamente, por favor no respondas a este correo.
+                            </p>
+                        </td>
+                    </tr>
+
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>

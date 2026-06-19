@@ -1,0 +1,35 @@
+@property --angle {
+    syntax: '<angle>';
+    initial-value: 0deg;
+    inherits: false;
+}
+
+@keyframes spin {
+    to { --angle: 360deg; }
+}
+
+.card-auth {
+    position: relative;
+    z-index: 1;
+    background: #E8E8E8;
+    border-radius: 12px !important;
+}
+
+.card-auth::before {
+    content: '';
+    position: absolute;
+    inset: -3px;
+    border-radius: inherit;
+    background: conic-gradient(from var(--angle, 0deg), #FDEDE0, #F5C6A0, #DE8A5E, #A25630, #DE8A5E, #F5C6A0, #FDEDE0);
+    z-index: -2;
+    animation: spin 5s linear infinite;
+}
+
+.card-auth::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: #E8E8E8;
+    z-index: -1;
+}

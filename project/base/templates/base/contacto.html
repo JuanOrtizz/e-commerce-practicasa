@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block title %}Contacto | Practicasa{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'base/css/contacto.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="container-xl flex-grow-1">
+    <div class="row glass-card justify-content-between align-items-stretch p-3 gap-1 gap-lg-3 rounded-5 card-contacto shadow-lg animacion-aparicion-abajo-fade ">
+        <div class="col-12 d-flex flex-column col-lg-5 py-3">
+            <h2>Contactanos</h2>
+            <p>¿En qué podemos ayudarte? Completá el formulario con tus dudas sobre productos, envíos o compras previas y nuestro equipo se pondrá en contacto con vos lo antes posible.</p>
+            <div class="d-none d-lg-flex align-items-start justify-content-center flex-column">
+                <p class="fw-bold">Seguinos en nuestras redes</p>
+                <p>Enterate antes que nadie de nuestros nuevos ingresos y promociones exclusivas siguiéndonos en nuestras redes sociales:</p>
+                <p><strong>Instagram:</strong> @practicasa.nogoya</p>
+                <p><strong>TikTok:</strong> @practicasa.arg</p>
+                <p><strong>Facebook:</strong> @practicasa.nogoya</p>
+            </div>
+        </div>
+        <div class="col-12 col-lg-6 p-0 p-lg-3">
+            <form method="post" id="form" novalidate>
+                {% csrf_token %}
+                {% for field in form %}
+                    <div class="input-group has-validation mb-3 border-0">
+                        <div class="form-floating mb-1">
+                            {{ field }}
+                            <label for="{{ field.widget.attrs.id }}">{{ field.label }}</label>
+                        </div>
+                        <div class="invalid-feedback" id="{{ field.name }}-error"></div>
+                    </div>
+                {% endfor %}
+                    <button class="btn btn-enviar text-white fw-bold w-100" type="submit" id="btn-submit">
+                         <span class="btn-text" id="btn-text">
+                             Enviar
+                         </span>
+                        <span class="spinner-border spinner-border-sm d-none text-black" role="status" id="btn-spinner"></span>
+                    </button>
+            </form>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script type="module" src="{% static 'base/js/contactoForm.js'%}"></script>
+{% endblock %}
