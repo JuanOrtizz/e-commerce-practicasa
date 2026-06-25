@@ -32,12 +32,6 @@ class MedidaModelAdmin(admin.ModelAdmin):
     search_fields = ['nombre']
 
 
-@admin.register(TagModel)
-class TagModelAdmin(admin.ModelAdmin):
-    list_display = ['id', 'nombre']
-    list_filter = ['nombre']
-
-
 class ProductoImagenInline(admin.TabularInline):
     model = ProductoImagenModel
     extra = 1
@@ -47,10 +41,11 @@ class ProductoImagenInline(admin.TabularInline):
 class ProductoModelAdmin(admin.ModelAdmin):
     list_display = [
         'id', 'nombre', 'sku', 'precio', 'stock',
-        'subcategoria', 'promocion', 'activo'
+        'subcategoria', 'promocion', 'destacado', 'activo'
     ]
-    list_filter = ['activo', 'subcategoria', 'promocion', 'tags']
+    list_filter = ['activo', 'subcategoria', 'promocion', 'destacado', 'tags']
     search_fields = ['nombre', 'sku', 'descripcion']
     prepopulated_fields = {'slug': ('nombre',)}
     inlines = [ProductoImagenInline]
-    filter_horizontal = ['colores', 'medidas', 'tags']
+    filter_horizontal = ['colores', 'medidas']
+    readonly_fields = ('tags',)
