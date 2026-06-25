@@ -1,6 +1,8 @@
+from datetime import timedelta
+import os
 from django.db import models
 from django.utils.text import slugify
-
+from django.utils import timezone
 
 class CategoriaModel(models.Model):
     nombre = models.CharField(max_length=100)
@@ -109,6 +111,10 @@ class ProductoModel(models.Model):
     slug = models.SlugField(unique=True)
     sku = models.CharField(max_length=50, unique=True)
     precio = models.DecimalField(max_digits=10, decimal_places=2)
+    precio_transferencia = models.DecimalField(
+        max_digits=10, decimal_places=2,
+        help_text='Precio con descuento por transferencia bancaria'
+    )
     stock = models.IntegerField()
     peso = models.DecimalField(
         max_digits=6, decimal_places=2, null=True, blank=True,
@@ -121,6 +127,7 @@ class ProductoModel(models.Model):
         null=True, blank=True
     )
     tags = models.ManyToManyField(TagModel, blank=True)
+    destacado = models.BooleanField(default=False)
     activo = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -138,23 +145,34 @@ class ProductoModel(models.Model):
         if not self.slug:
             self.slug = slugify(self.nombre)
         super().save(*args, **kwargs)
+        self._asignar_tags_automaticos()
 
     def _asignar_tags_automaticos(self):
-        tags_asignar = set(self.tags.values_list('nombre', flat=True))
-
-        if self.promocion:
-            tags_asignar.add(TagModel.TagChoices.OFERTA)
-        else:
-            tags_asignar.discard(TagModel.TagChoices.OFERTA)
+        tags = set()
 
         if self.stock == 0:
-            tags_asignar.add(TagModel.TagChoices.SIN_STOCK)
+            tags.add(TagModel.TagChoices.SIN_STOCK)
         else:
-            tags_asignar.discard(TagModel.TagChoices.SIN_STOCK)
+            if self.destacado:
+                tags.add(TagModel.TagChoices.DESTACADO)
 
-        self.tags.set(
-            TagModel.objects.filter(nombre__in=tags_asignar)
-        )
+            if self.stock == 1:
+                tags.add(TagModel.TagChoices.ULTIMA_UNIDAD)
+
+            if self.promocion:
+                tags.add(TagModel.TagChoices.OFERTA)
+
+            if self.created_at and self.created_at >= timezone.now() - timedelta(days=30):
+                tags.add(TagModel.TagChoices.NUEVO)
+
+        self.tags.set(TagModel.objects.filter(nombre__in=tags))
+
+    @property
+    def primera_imagen_valida(self):
+        primera = self.imagenes.first()
+        if primera and primera.imagen and os.path.exists(primera.imagen.path):
+            return primera
+        return None
 
 
 class ProductoImagenModel(models.Model):
