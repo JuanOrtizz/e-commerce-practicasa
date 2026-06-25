@@ -41,7 +41,7 @@
                         </li>
                         <li class="nav-item menu-link">
                             <div class="d-flex align-items-center">
-                                <a class="nav-link fw-bold flex-grow-1 py-1" href="#">Productos</a>
+                                <a class="nav-link {% if view_actual == 'productos' or view_actual == 'productos_por_categoria' or view_actual == 'productos_por_subcategoria' or view_actual == 'detalle_producto' %}enlace-activo{% endif %} fw-bold flex-grow-1 py-1" href="{% url 'productos' %}">Productos</a>
                                 <button class="btn btn-sm shadow-none border-0 collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseProductos" aria-expanded="false">
                                     <span class="material-symbols-outlined">chevron_right</span>
                                 </button>
@@ -51,7 +51,7 @@
                                     {% for categoria in categorias_menu %}
                                     <li class="nav-item">
                                         <div class="d-flex align-items-center">
-                                            <a class="nav-link fw-bold flex-grow-1 py-1" href="#">{{ categoria.nombre }}</a>
+                                            <a class="nav-link {% if request.resolver_match.kwargs.categoria_slug == categoria.slug %}enlace-activo{% endif %} fw-bold flex-grow-1 py-1" href="{% url 'productos_por_categoria' categoria.slug %}">{{ categoria.nombre }}</a>
                                             <button class="btn btn-sm shadow-none border-0 collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseCat{{ categoria.id }}" aria-expanded="false">
                                                 <span class="material-symbols-outlined">chevron_right</span>
                                             </button>
@@ -59,7 +59,7 @@
                                         <div class="collapse" id="collapseCat{{ categoria.id }}">
                                             <ul class="nav flex-column ms-3">
                                                 {% for subcategoria in categoria.subcategorias.all %}
-                                                <li class="menu-link"><a class="nav-link subcategoria-link" href="#">{{ subcategoria.nombre }}</a></li>
+                                                    <li class="menu-link"><a class="nav-link  {% if request.resolver_match.kwargs.subcategoria_slug == subcategoria.slug %}enlace-activo{% endif %} subcategoria-link" href="{% url 'productos_por_subcategoria' subcategoria.categoria.slug subcategoria.slug %}">{{ subcategoria.nombre }}</a></li>
                                                 {% endfor %}
                                             </ul>
                                         </div>
