@@ -1,0 +1,59 @@
+.card{
+    transition: border 0.3s ease, transform 0.4s ease;
+}
+
+.card:hover{
+    transform: translateY(-4px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    border: 2px solid var(--tertiary-color) !important;
+}
+
+.card-disabled{
+    opacity: 0.6;
+    pointer-events: none;
+    filter: grayscale(0.5);
+}
+
+.card-disabled:hover{
+    transform: none !important;
+    border-color: var(--bs-gray-300) !important;
+}
+
+.flecha-filtros{
+    transition: transform 0.3s ease;
+}
+
+.btn-filtros:not(.collapsed) .flecha-filtros{
+    transform: rotate(180deg);
+}
+
+
+.descripcion-producto p{
+    overflow-wrap: break-word;
+    word-break: break-word;
+}
+
+.input-detalle[name="color"]:checked + label{
+    border-color: var(--tertiary-color) !important;
+    box-shadow: 0 0 0 2px var(--tertiary-color);
+}
+
+.input-detalle[name="medida"]:checked + label{
+    border-color: var(--tertiary-color) !important;
+    background-color: var(--tertiary-color) !important;
+    color: #fff !important;
+}
+
+.page-item.active .page-link{
+    background-color: var(--tertiary-color) !important;
+    border-color: var(--tertiary-color) !important;
+    color: var(--white) !important;
+}
+
+.page-item .page-link{
+    color: var(--black) !important;
+}
+
+.input-filtro{
+    color: var(--tertiary-color) !important;
+}
