@@ -28,13 +28,24 @@ main {
 }
 
 /*Inputs Design*/
-.input-group {
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+input[type=number] {
+    -moz-appearance: textfield;
+}
+
+.input-group,
+.form-select{
     border: 2px solid var(--primary-color);
     transition: border-color 0.3s ease;
 }
 
 .input-group:hover,
-.form-control:hover{
+.form-control:hover,
+.form-select:hover{
     border-color: var(--secondary-color-hover) !important;
     box-shadow: none !important;
 }
