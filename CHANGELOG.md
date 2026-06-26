@@ -30,6 +30,14 @@
 - Reemplazo productos/tests.py por paquete productos/tests/ con __init__.py
 ---
 
+## [v0.8.0] - 2026-06-18
+### Rama: feature/faqs-locales
+#### Features
+- Creación de página de FAQs con acordeón de preguntas organizadas por categorías (Envíos, Pago, Devoluciones)
+- Estilos personalizados para el acordeón de FAQs (faqs.css)
+- Vinculación del enlace "FAQs" en el footer a la vista correspondiente
+---
+
 ## [v0.7.0] - 2026-06-18
 ### Rama: feature/modelos-productos
 #### Features
