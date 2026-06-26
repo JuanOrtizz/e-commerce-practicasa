@@ -1,5 +1,35 @@
 # Changelog
 ---
+## [v0.9.0] - 2026-06-26
+### Rama: feature/views-productos
+#### Features
+- Agrego modelos ProductoModel y ProductoImagenModel con auto-asignación de tags (sin_stock, destacado, oferta, ultima_unidad, nuevo)
+- Agrego services.py con get_productos_activos, aplicar_filtros (categoria, color, precio, orden), get_producto_por_slug y get_contexto_filtros
+- Agrego vistas de lista con paginación y detalle de producto
+- Agrego urls.py con rutas para lista, detalle, filtros por categoría y subcategoría
+- Agrego enrutado de urls de productos en urls del proyecto
+- Agrego templates lista.html (221 líneas) y detalle.html (114 líneas) con Bootstrap 5
+- Agrego estáticos: productos.css (59 líneas), detalle.js, filtros.js, lista.js (44 líneas total), logo_default img
+- Agrego migraciones para campo destacado y precio_transferencia
+- Agrego tests con pytest (39 tests): 17 modelos, 11 servicios, 10 vistas, 1 context processor
+- Agrego conftest.py con fixtures reutilizables para categoria, subcategoria, color, medida, tag y producto
+- Registro modelos en admin.py
+- Agrego constante PRODUCTOS_POR_PAGINA para paginator
+- Actualizo enlaces de productos en header.html dinámicamente
+- Actualizo número de teléfono de botón flotante WhatsApp
+#### Style
+- Oculto spiners numéricos en inputs
+#### Fixes
+- Corrijo fixture subcategoria_data para crear SubcategoriaModel en DB (evita IntegrityError en 26 tests)
+- Corrijo producto_data_completa para usar subcategoria_data como FK directo
+- Corrijo FakeRequest en test_services.py: uso QueryDict en vez de dict (soporta .getlist())
+- Corrijo URLs con namespace 'productos:' inexistente en detalle.html
+- Corrijo test de orden inválido usando .update() para sortear auto_now_add
+- Limpio imports no usados en conftest.py (timedelta, timezone, ProductoImagenModel)
+#### Chore
+- Reemplazo productos/tests.py por paquete productos/tests/ con __init__.py
+---
+
 ## [v0.7.0] - 2026-06-18
 ### Rama: feature/modelos-productos
 #### Features
