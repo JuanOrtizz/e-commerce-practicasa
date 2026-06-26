@@ -1,5 +1,8 @@
+from datetime import timedelta
+
 import pytest
-from django.http import Http404
+from django.http import Http404, QueryDict
+from django.utils import timezone
 
 from productos.models import (
     CategoriaModel, SubcategoriaModel, ColorModel, MedidaModel,
@@ -13,7 +16,7 @@ from productos.services import (
 
 @pytest.mark.django_db
 def test_get_productos_activos_solo_retorna_activos(subcategoria_data):
-    subcategoria = subcategoria_data['categoria'].subcategorias.first()
+    subcategoria = subcategoria_data
     ProductoModel.objects.create(
         subcategoria=subcategoria, nombre='Activo 1', descripcion='Test',
         slug='activo-1', sku='SKU-001', precio=100, precio_transferencia=90,
@@ -44,8 +47,8 @@ def test_get_productos_activos_vacio():
 
 @pytest.mark.django_db
 def test_aplicar_filtros_por_categoria(subcategoria_data):
-    subcategoria = subcategoria_data['categoria'].subcategorias.first()
-    categoria = subcategoria_data['categoria']
+    subcategoria = subcategoria_data
+    categoria = subcategoria_data.categoria
 
     otra_categoria = CategoriaModel.objects.create(
         nombre='Otra', slug='otra'
@@ -66,7 +69,7 @@ def test_aplicar_filtros_por_categoria(subcategoria_data):
     )
 
     class FakeRequest:
-        GET = {'categoria': 'ropa'}
+        GET = QueryDict('categoria=ropa')
 
     qs = aplicar_filtros(FakeRequest(), get_productos_activos())
     assert qs.count() == 1
@@ -75,7 +78,7 @@ def test_aplicar_filtros_por_categoria(subcategoria_data):
 
 @pytest.mark.django_db
 def test_aplicar_filtros_por_color(subcategoria_data, color_data):
-    subcategoria = subcategoria_data['categoria'].subcategorias.first()
+    subcategoria = subcategoria_data
     rojo = ColorModel.objects.create(**color_data)
     azul = ColorModel.objects.create(nombre='Azul', codigo_hex='#0000FF')
 
@@ -94,7 +97,7 @@ def test_aplicar_filtros_por_color(subcategoria_data, color_data):
     p_azul.colores.add(azul)
 
     class FakeRequest:
-        GET = {'color': [str(rojo.id)]}
+        GET = QueryDict(f'color={rojo.id}')
 
     qs = aplicar_filtros(FakeRequest(), get_productos_activos())
     assert qs.count() == 1
@@ -103,7 +106,7 @@ def test_aplicar_filtros_por_color(subcategoria_data, color_data):
 
 @pytest.mark.django_db
 def test_aplicar_filtros_por_precio_min_y_max(subcategoria_data):
-    subcategoria = subcategoria_data['categoria'].subcategorias.first()
+    subcategoria = subcategoria_data
 
     ProductoModel.objects.create(
         subcategoria=subcategoria, nombre='Barato', descripcion='Test',
@@ -122,7 +125,7 @@ def test_aplicar_filtros_por_precio_min_y_max(subcategoria_data):
     )
 
     class FakeRequest:
-        GET = {'precio_min': '100', 'precio_max': '200'}
+        GET = QueryDict('precio_min=100&precio_max=200')
 
     qs = aplicar_filtros(FakeRequest(), get_productos_activos())
     assert qs.count() == 1
@@ -131,7 +134,7 @@ def test_aplicar_filtros_por_precio_min_y_max(subcategoria_data):
 
 @pytest.mark.django_db
 def test_aplicar_filtros_orden_valido(subcategoria_data):
-    subcategoria = subcategoria_data['categoria'].subcategorias.first()
+    subcategoria = subcategoria_data
 
     ProductoModel.objects.create(
         subcategoria=subcategoria, nombre='Zapatilla', descripcion='Test',
@@ -150,7 +153,7 @@ def test_aplicar_filtros_orden_valido(subcategoria_data):
     )
 
     class FakeRequest:
-        GET = {'orden': 'nombre'}
+        GET = QueryDict('orden=nombre')
 
     qs = aplicar_filtros(FakeRequest(), get_productos_activos())
     nombres = [p.nombre for p in qs]
@@ -159,21 +162,24 @@ def test_aplicar_filtros_orden_valido(subcategoria_data):
 
 @pytest.mark.django_db
 def test_aplicar_filtros_orden_invalido_vuelve_default(subcategoria_data):
-    subcategoria = subcategoria_data['categoria'].subcategorias.first()
+    subcategoria = subcategoria_data
 
-    ProductoModel.objects.create(
+    ultimo = ProductoModel.objects.create(
         subcategoria=subcategoria, nombre='Ultimo', descripcion='Test',
         slug='ultimo', sku='SKU-001', precio=100, precio_transferencia=80,
         stock=5,
     )
-    ProductoModel.objects.create(
+    primero = ProductoModel.objects.create(
         subcategoria=subcategoria, nombre='Primero', descripcion='Test',
         slug='primero', sku='SKU-002', precio=200, precio_transferencia=180,
-        stock=3, created_at='2023-01-01 00:00:00+00',
+        stock=3,
+    )
+    ProductoModel.objects.filter(pk=primero.pk).update(
+        created_at=timezone.now() - timedelta(days=365)
     )
 
     class FakeRequest:
-        GET = {'orden': 'invalido'}
+        GET = QueryDict('orden=invalido')
 
     qs = aplicar_filtros(FakeRequest(), get_productos_activos())
     assert qs.first().nombre == 'Ultimo'
@@ -194,7 +200,7 @@ def test_get_producto_por_slug_404_slug_inexistente(producto):
 
 @pytest.mark.django_db
 def test_get_producto_por_slug_404_producto_inactivo(subcategoria_data):
-    subcategoria = subcategoria_data['categoria'].subcategorias.first()
+    subcategoria = subcategoria_data
     ProductoModel.objects.create(
         subcategoria=subcategoria, nombre='Inactivo', descripcion='Test',
         slug='inactivo', sku='SKU-001', precio=100, precio_transferencia=90,

@@ -73,7 +73,7 @@ def test_detalle_producto_404(client):
 
 @pytest.mark.django_db
 def test_paginacion(client, subcategoria_data):
-    subcategoria = subcategoria_data['categoria'].subcategorias.first()
+    subcategoria = subcategoria_data
     for i in range(settings.PRODUCTOS_POR_PAGINA + 1):
         ProductoModel.objects.create(
             subcategoria=subcategoria,

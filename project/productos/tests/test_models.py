@@ -79,7 +79,7 @@ def test_crear_tag_y_str(tag_data):
 def test_crear_producto_completo(
     subcategoria_data, color_data, medida_data, tag_data
 ):
-    subcategoria = subcategoria_data['categoria'].subcategorias.first()
+    subcategoria = subcategoria_data
     color = ColorModel.objects.create(**color_data)
     medida = MedidaModel.objects.create(**medida_data)
     tag = TagModel.objects.create(**tag_data)
@@ -112,7 +112,7 @@ def test_crear_producto_completo(
 
 @pytest.mark.django_db
 def test_str_producto(producto_data, subcategoria_data):
-    subcategoria = subcategoria_data['categoria'].subcategorias.first()
+    subcategoria = subcategoria_data
     producto = ProductoModel.objects.create(
         subcategoria=subcategoria, **producto_data
     )
@@ -121,7 +121,7 @@ def test_str_producto(producto_data, subcategoria_data):
 
 @pytest.mark.django_db
 def test_slug_autogenerado_producto(subcategoria_data):
-    subcategoria = subcategoria_data['categoria'].subcategorias.first()
+    subcategoria = subcategoria_data
     producto = ProductoModel.objects.create(
         subcategoria=subcategoria,
         nombre='Camiseta Deportiva',
@@ -136,7 +136,7 @@ def test_slug_autogenerado_producto(subcategoria_data):
 
 @pytest.mark.django_db
 def test_sku_unico(subcategoria_data):
-    subcategoria = subcategoria_data['categoria'].subcategorias.first()
+    subcategoria = subcategoria_data
     ProductoModel.objects.create(
         subcategoria=subcategoria,
         nombre='Producto A',
@@ -168,7 +168,7 @@ def test_tags_sin_stock_quita_otros(subcategoria_data, tag_data):
     TagModel.objects.create(nombre=TagModel.TagChoices.ULTIMA_UNIDAD)
     TagModel.objects.create(nombre=TagModel.TagChoices.SIN_STOCK)
 
-    subcategoria = subcategoria_data['categoria'].subcategorias.first()
+    subcategoria = subcategoria_data
     producto = ProductoModel.objects.create(
         subcategoria=subcategoria,
         nombre='Test',
@@ -191,7 +191,7 @@ def test_tags_sin_stock_quita_otros(subcategoria_data, tag_data):
 def test_tags_destacado(subcategoria_data):
     TagModel.objects.create(nombre=TagModel.TagChoices.DESTACADO)
 
-    subcategoria = subcategoria_data['categoria'].subcategorias.first()
+    subcategoria = subcategoria_data
     producto = ProductoModel.objects.create(
         subcategoria=subcategoria,
         nombre='Test',
@@ -212,7 +212,7 @@ def test_tags_oferta_ultima_unidad(subcategoria_data):
     TagModel.objects.create(nombre=TagModel.TagChoices.OFERTA)
     TagModel.objects.create(nombre=TagModel.TagChoices.ULTIMA_UNIDAD)
 
-    subcategoria = subcategoria_data['categoria'].subcategorias.first()
+    subcategoria = subcategoria_data
     producto = ProductoModel.objects.create(
         subcategoria=subcategoria,
         nombre='Test',
@@ -234,7 +234,7 @@ def test_tags_oferta_ultima_unidad(subcategoria_data):
 def test_tags_nuevo(subcategoria_data):
     TagModel.objects.create(nombre=TagModel.TagChoices.NUEVO)
 
-    subcategoria = subcategoria_data['categoria'].subcategorias.first()
+    subcategoria = subcategoria_data
     producto = ProductoModel.objects.create(
         subcategoria=subcategoria,
         nombre='Test',
@@ -253,7 +253,7 @@ def test_tags_nuevo(subcategoria_data):
 def test_tags_quita_sin_stock_al_recuperar_stock(subcategoria_data):
     TagModel.objects.create(nombre=TagModel.TagChoices.SIN_STOCK)
 
-    subcategoria = subcategoria_data['categoria'].subcategorias.first()
+    subcategoria = subcategoria_data
     producto = ProductoModel.objects.create(
         subcategoria=subcategoria,
         nombre='Test',

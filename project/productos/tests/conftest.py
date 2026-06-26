@@ -1,12 +1,9 @@
-from datetime import timedelta
-
 import pytest
 from django.test import Client
-from django.utils import timezone
 
 from productos.models import (
     CategoriaModel, SubcategoriaModel, ColorModel, MedidaModel,
-    TagModel, ProductoModel, ProductoImagenModel
+    TagModel, ProductoModel
 )
 
 
@@ -18,7 +15,9 @@ def categoria_data():
 @pytest.fixture
 def subcategoria_data(categoria_data):
     categoria = CategoriaModel.objects.create(**categoria_data)
-    return {'categoria': categoria, 'nombre': 'Camisetas', 'slug': 'camisetas'}
+    return SubcategoriaModel.objects.create(
+        categoria=categoria, nombre='Camisetas', slug='camisetas'
+    )
 
 
 @pytest.fixture
@@ -56,7 +55,7 @@ def producto_data_completa(subcategoria_data, color_data, medida_data, tag_data)
     medida = MedidaModel.objects.create(**medida_data)
     tag = TagModel.objects.create(**tag_data)
     return {
-        'subcategoria': subcategoria_data['categoria'].subcategorias.first(),
+        'subcategoria': subcategoria_data,
         'nombre': 'Camiseta básica',
         'descripcion': 'Camiseta de algodón',
         'slug': 'camiseta-basica',
