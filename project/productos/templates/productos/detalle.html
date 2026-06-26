@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ producto.nombre }} | Practicasa{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'productos/css/productos.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container my-4 animacion-aparicion-abajo-fade">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'productos' %}" class="text-black">Productos</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'productos_por_categoria' producto.subcategoria.categoria.slug %}"  class="text-black">{{ producto.subcategoria.categoria.nombre }}</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'productos_por_subcategoria' producto.subcategoria.categoria.slug producto.subcategoria.slug %}"  class="text-black">{{ producto.subcategoria.nombre }}</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ producto.nombre }}</li>
+        </ol>
+    </nav>
+
+    <div class="row g-4">
+        <div class="col-md-6">
+            <div id="producto-imagenes">
+            {% with primera_imagen=producto.primera_imagen_valida %}
+                {% if primera_imagen %}
+                    <img src="{{ primera_imagen.imagen.url }}" class="img-fluid rounded shadow-sm" alt="{{ producto.nombre }}" id="imagenPrincipal" style="width:100%;max-height:450px;object-fit:contain;">
+                {% else %}
+                    <img src="{% static 'productos/img/logo_default_practicasa.webp' %}" class="img-fluid rounded shadow-sm" alt="{{ producto.nombre }}" id="imagenPrincipal" style="width:100%;max-height:450px;object-fit:contain;">
+                {% endif %}
+            {% endwith %}
+
+            {% if producto.imagenes.count > 1 %}
+                <div class="d-flex gap-2 mt-2">
+                    {% for imagen in producto.imagenes.all %}
+                        <img src="{{ imagen.imagen.url }}" class="img-thumbnail" alt="{{ producto.nombre }}" style="width:80px;height:80px;object-fit:cover;cursor:pointer;">
+                    {% endfor %}
+                </div>
+            {% endif %}
+            </div>
+        </div>
+
+        <hr class="d-block d-lg-none">
+
+        <div class="col-md-6">
+            <h2>{{ producto.nombre }}</h2>
+
+            <h3 class="card-text text-secondary fs-4">${{ producto.precio }}</h3>
+            <h3 class="card-text fw-bold" style="color:var(--tertiary-color)">${{ producto.precio_transferencia }} Con transferencia.</h3>
+
+            {% if producto.promocion %}
+                <span class="badge bg-danger fs-6 mb-2">{{ producto.promocion }}</span>
+            {% endif %}
+
+            <div class="d-flex flex-wrap gap-1 mb-3">
+                {% for tag in producto.tags.all %}
+                    {% if tag.nombre == 'oferta' %}
+                        <span class="badge bg-danger">{{ tag.get_nombre_display }}</span>
+                    {% elif tag.nombre == 'nuevo' %}
+                        <span class="badge bg-success">{{ tag.get_nombre_display }}</span>
+                    {% elif tag.nombre == 'sin_stock' %}
+                        <span class="badge bg-secondary">{{ tag.get_nombre_display }}</span>
+                    {% elif tag.nombre == 'ultima_unidad' %}
+                        <span class="badge bg-warning text-dark">{{ tag.get_nombre_display }}</span>
+                    {% elif tag.nombre == 'destacado' %}
+                        <span class="badge bg-info text-dark">{{ tag.get_nombre_display }}</span>
+                    {% endif %}
+                {% endfor %}
+            </div>
+
+            {% if producto.colores.exists %}
+                <div class="mb-3">
+                    <strong>Colores:</strong>
+                    <div class="d-flex gap-2 mt-1">
+                        {% for color in producto.colores.all %}
+                            <input type="radio" class="btn-check input-detalle" name="color" value="{{ color.id }}" id="color{{ color.id }}" autocomplete="off"{% if forloop.first %} checked{% endif %}>
+                            <label class="btn rounded-circle p-0 d-inline-flex align-items-center justify-content-center" for="color{{ color.id }}"
+                                   style="width:28px;height:28px;background-color:{{ color.codigo_hex }};border:2px solid #adb5bd;cursor:pointer;"
+                                   title="{{ color.nombre }}" data-bs-toggle="tooltip">
+                            </label>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+
+            {% if producto.medidas.exists %}
+            <div class="mb-3">
+                <strong>Medidas:</strong>
+                <div class="d-flex gap-2 mt-1">
+                    {% for medida in producto.medidas.all %}
+                    <input type="radio" class="btn-check input-detalle" name="medida" value="{{ medida.id }}" id="medida{{ medida.id }}" autocomplete="off"{% if forloop.first %} checked{% endif %}>
+                    <label class="btn btn-outline-secondary btn-sm" for="medida{{ medida.id }}">{{ medida.nombre }}</label>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <hr>
+
+            <h5>Descripción</h5>
+            <div class="descripcion-producto text-muted">{{ producto.descripcion|linebreaks }}</div>
+
+            {% if producto.stock > 0 %}
+                <button class="btn btn-enviar w-100 py-2 mt-3" disabled>Agregar al carrito (próximamente)</button>
+            {% else %}
+                <button class="btn btn-secondary w-100 py-2 mt-3" disabled>Sin stock</button>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script type="module" src="{% static 'productos/js/detalle.js' %}"></script>
+{% endblock %}
