@@ -1,5 +1,13 @@
 # Changelog
 ---
+## [v0.9.0] - 2026-06-29
+### Rama: feature/legales-e-historia
+#### Features
+- Creación de páginas Cambios y Devoluciones, Políticas de privacidad, Términos y Condiciones y nuestra historia
+- Estilos personalizados para los templates
+- Vinculación de enlace en el footer a la vista correspondiente
+---
+
 ## [v0.4.0] - 2026-06-11
 ### Rama: feature/setup-apps
 #### Features
