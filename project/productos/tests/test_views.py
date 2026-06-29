@@ -97,3 +97,67 @@ def test_filtros_en_query_params_se_pasan(client, producto):
     assert response.status_code == 200
     assert 'query_params' in response.context
     assert 'orden=nombre' in response.context['query_params']
+
+
+@pytest.mark.django_db
+def test_resultados_busqueda_sin_search(client, producto):
+    response = client.get(reverse('resultados_busqueda'))
+    assert response.status_code == 200
+    assert len(response.context['productos']) == 1
+
+
+@pytest.mark.django_db
+def test_resultados_busqueda_con_search(client, producto):
+    response = client.get(reverse('resultados_busqueda'), {'search': 'Camiseta'})
+    assert response.status_code == 200
+    assert len(response.context['productos']) == 1
+    assert 'Camiseta' in response.context['titulo']
+
+
+@pytest.mark.django_db
+def test_resultados_busqueda_sin_resultados(client, producto):
+    response = client.get(reverse('resultados_busqueda'), {'search': 'zzzzz'})
+    assert response.status_code == 200
+    assert list(response.context['productos']) == []
+
+
+@pytest.mark.django_db
+def test_buscar_productos_json_sin_search(client, producto):
+    response = client.get(reverse('buscar_productos_json'))
+    assert response.status_code == 200
+    assert response.json() == []
+
+
+@pytest.mark.django_db
+def test_buscar_productos_json_con_search(client, producto):
+    response = client.get(reverse('buscar_productos_json'), {'search': 'Camiseta'})
+    assert response.status_code == 200
+    data = response.json()
+    assert len(data) == 1
+    assert data[0]['nombre'] == 'Camiseta básica'
+
+
+@pytest.mark.django_db
+def test_buscar_productos_json_max_4(client, subcategoria_data):
+    subcategoria = subcategoria_data
+    for i in range(6):
+        ProductoModel.objects.create(
+            subcategoria=subcategoria,
+            nombre=f'Producto {i}',
+            descripcion='Test',
+            slug=f'producto-{i}',
+            sku=f'SKU-{i:03d}',
+            precio=100.00 + i,
+            precio_transferencia=90.00 + i,
+            stock=5,
+        )
+    response = client.get(reverse('buscar_productos_json'), {'search': 'Producto'})
+    assert response.status_code == 200
+    assert len(response.json()) == 4
+
+
+@pytest.mark.django_db
+def test_buscar_productos_json_sin_resultados(client, producto):
+    response = client.get(reverse('buscar_productos_json'), {'search': 'zzzzz'})
+    assert response.status_code == 200
+    assert response.json() == []
