@@ -2,7 +2,7 @@
 
 <header class="container-fluid">
     <nav class="navbar">
-        <div class="container-fluid d-flex flex-wrap flex-lg-nowrap justify-content-between align-items-center gap-0 gap-lg-3">
+        <div class="container-fluid d-flex flex-wrap flex-lg-nowrap justify-content-between align-items-center gap-0 gap-lg-3 pb-2 pb-md-0">
             <a class="navbar-brand d-flex flex-column justify-content-center align-items-center" href="{% url 'index' %}">
                 <img src="{% static 'img/logo_practicasa.png' %}" alt="Logo Practicasa" width="55"/>
                 <h1>practicasa</h1>
@@ -13,13 +13,15 @@
             </button>
 
             {% with request.resolver_match.view_name as view_actual %}
-            {% if view_actual == 'index' or request.resolver_match.namespace == 'productos' %}
-            <form class="d-flex justify-content-center w-100 order-3 order-lg-1 pb-2 pb-lg-0 px-0 px-lg-5 " role="search">
-                <div class="input-group border-2 rounded-pill shadow-sm overflow-hidden">
-                    <input class="form-control shadow-none border-0" type="search" placeholder="Buscar..."/>
-                    <button class="btn btn-busqueda d-flex justify-content-center align-items-center " type="submit">
-                        <span class="material-symbols-outlined">search</span>
-                    </button>
+            {% if view_actual == 'index' or view_actual == 'productos' or view_actual == 'productos_por_categoria' or view_actual == 'productos_por_subcategoria' or view_actual == 'resultados_busqueda' or view_actual == 'detalle_producto'  %}
+            <form class="d-flex flex-column justify-content-center w-100 order-3 order-lg-1 pb-0 pb-lg-0 px-0 px-lg-5" role="search" action="{% url 'resultados_busqueda' %}" method="get">
+                <div class="position-relative">
+                    <div class="input-group border-2 rounded-pill shadow-sm overflow-hidden">
+                        <input class="form-control shadow-none border-0" type="search" name="search" placeholder="Buscar productos..." autocomplete="off"/>
+                        <button class="btn btn-busqueda d-flex justify-content-center align-items-center " type="submit">
+                            <span class="material-symbols-outlined">search</span>
+                        </button>
+                    </div>
                 </div>
             </form>
             {% endif %}
