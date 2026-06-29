@@ -151,3 +151,5 @@ build/
 
 # Archivos de Docker
 docker-compose.override.yml
+
+staticfiles/

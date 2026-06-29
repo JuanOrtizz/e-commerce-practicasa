@@ -16,14 +16,14 @@ body {
     margin: 0;
     padding: 0;
     background-color: var(--white);
-    height: 100dvh;
+    min-height: 100dvh;
     display: flex;
     flex-direction: column;
 }
 
 main {
     flex: 1;
-    padding: 20px;
+    padding: 40px 20px;
     box-sizing: border-box;
 }
 
@@ -33,12 +33,48 @@ main {
     transition: border-color 0.3s ease;
 }
 
-.input-group:hover {
-    border-color: var(--primary-color-hover) !important;
+.input-group:hover,
+.form-control:hover{
+    border-color: var(--secondary-color-hover) !important;
+    box-shadow: none !important;
 }
 
-.input-group:focus-within {
-    border-color: var(--tertiary-color-hover) !important;
+.input-group:focus-within,
+.form-control:focus-within{
+    border-color: var(--tertiary-color) !important;
+    box-shadow: none !important;
+}
+
+.form-floating:has(.is-invalid) {
+    border: 2px solid #dc3545 !important;
+    border-radius: 0.375rem;
+}
+
+.form-floating:has(.is-invalid) ~ .invalid-feedback {
+    display: block !important;
+}
+
+.form-floating label {
+    color: gray !important;
+}
+
+.form-floating > .form-control:focus ~ label,
+.form-floating > .form-control:not(:placeholder-shown) ~ label {
+    color: var(--tertiary-color) !important;
+    opacity: 1;
+}
+
+.form-floating:has(.is-invalid) > .form-control,
+.form-floating:has(.is-invalid) > .form-control:hover,
+.form-floating:has(.is-invalid) > .form-control:focus {
+    border: none !important;
+    box-shadow: none !important;
+}
+
+textarea{
+    height: 250px !important;
+    max-height: 250px;
+    resize: none;
 }
 
 /* Header Design */
@@ -51,6 +87,7 @@ header h1{
     font-style: italic;
     color: var(--tertiary-color);
     font-size: 1rem;
+    font-weight: 600;
 }
 
 .btn-busqueda{
@@ -68,16 +105,45 @@ header h1{
     transition: color 0.4s ease;
 }
 
-.menu-link a:hover {
+.menu-link a:hover,
+.menu-link button:hover{
     color: var(--tertiary-color-hover) !important;
 }
 
-.nav-link .material-symbols-outlined {
+.nav-link .material-symbols-outlined,
+.nav-item button .material-symbols-outlined {
     transition: transform 0.3s ease;
 }
 
-.nav-link:not(.collapsed) .material-symbols-outlined {
+.nav-link:not(.collapsed) .material-symbols-outlined,
+.nav-item button:not(.collapsed) .material-symbols-outlined {
     transform: rotate(90deg);
+}
+
+/*Button Submit*/
+button.btn-enviar,
+a.btn-enviar{
+    background-color: #A25630 !important;
+    transition: color 0.5 ease, background-color 0.5 ease !important;
+}
+
+button.btn-enviar:hover,
+a.btn-enviar:hover{
+     background-color: #7E4326 !important;
+}
+
+button.btn-enviar:active,
+a.btn-enviar:active{
+    background-color: #4D2816 !important;
+    border-color: transparent !important;
+}
+
+button.btn-enviar:disabled,
+a.btn-enviar:disabled{
+    opacity: 1 !important;
+    cursor: not-allowed;
+    background-color: #C4B6A8 !important;
+    border: none;
 }
 
 /* Footer Design */
@@ -132,4 +198,138 @@ footer a {
 .informacion a:hover {
     border-bottom: 2px solid var(--tertiary-color-hover);
     color: var(--tertiary-color-hover) !important;
+}
+
+.social-container{
+    background-color: var(--secondary-color);
+    overflow: hidden;
+    transition-duration: 0.3s;
+}
+
+#contenedor-instagram:hover {
+    background-color: #E1306C !important;
+    transition-duration: 0.3s;
+}
+
+#contenedor-tiktok:hover {
+    background-color: #25F4EE;
+    transition-duration: 0.3s;
+}
+
+#contenedor-facebook:hover {
+    background-color: #1877F2 !important;
+    transition-duration: 0.3s;
+}
+
+#contenedor-email:hover {
+    background-color: #BEE092 !important;
+    transition-duration: 0.3s;
+}
+
+.social-container:active {
+    transform: scale(0.9);
+    transition-duration: 0.3s;
+}
+
+.social-container img path {
+    fill: rgb(255, 255, 255) !important;
+}
+
+.social-container:hover img {
+  animation: slide-in-top 0.3s both;
+}
+
+@keyframes slide-in-top {
+    0% {
+        transform: translateY(-50px);
+        opacity: 0;
+    }
+
+    100% {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+
+.subcategoria-link::before {
+    content: '';
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    background-color: var(--tertiary-color);
+    border-radius: 50%;
+    margin-right: 8px;
+    vertical-align: middle;
+}
+
+/*Enlace activo (Pagina activa)*/
+.menu-link .enlace-activo{
+    color:var(--tertiary-color-hover) !important;
+}
+
+/* WhatsApp Button */
+.btn-whatsapp {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    z-index: 1050;
+    width: 60px;
+    height: 60px;
+    background-color: #25D366;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    transition: all 0.3s ease;
+}
+
+.btn-whatsapp:hover {
+    background-color: #1DA851;
+    transform: scale(1.1);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.4);
+}
+
+.btn-whatsapp img {
+    width: 35px;
+    height: 35px;
+    filter: brightness(0) invert(1);
+}
+
+/* Scroll to Top Button */
+.btn-subir {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1050;
+    width: 50px;
+    height: 50px;
+    background-color: var(--tertiary-color);
+    border: none;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    color: var(--white);
+}
+
+.btn-subir.visible {
+    opacity: 1;
+    visibility: visible;
+}
+
+.btn-subir:hover {
+    background-color: var(--tertiary-color-hover);
+    transform: scale(1.1);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.4);
+}
+
+.btn-subir .material-symbols-outlined {
+    font-size: 28px;
 }
