@@ -1,4 +1,5 @@
 from django.core.paginator import Paginator
+from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404
 from django.conf import settings
 from .models import ProductoModel, CategoriaModel, SubcategoriaModel
@@ -70,3 +71,36 @@ def productos_por_subcategoria(request, categoria_slug, subcategoria_slug):
 def detalle_producto(request, categoria_slug, subcategoria_slug, slug):
     producto = get_producto_por_slug(categoria_slug, subcategoria_slug, slug)
     return render(request, 'productos/detalle.html', {'producto': producto})
+
+
+def buscar_productos_json(request):
+    search = request.GET.get('search', '').strip()
+    if not search:
+        return JsonResponse([], safe=False)
+
+    productos = get_productos_activos().filter(nombre__icontains=search)[:4]
+    resultados = []
+    for p in productos:
+        imagen_url = None
+        primera = p.primera_imagen_valida
+        if primera:
+            imagen_url = primera.imagen.url
+        resultados.append({
+            'id': p.id,
+            'nombre': p.nombre,
+            'slug': p.slug,
+            'precio': str(p.precio),
+            'precio_transferencia': str(p.precio_transferencia),
+            'imagen_url': imagen_url,
+            'url': p.subcategoria.categoria.slug,
+            'url_subcategoria': p.subcategoria.slug,
+        })
+    return JsonResponse(resultados, safe=False)
+
+
+def resultados_busqueda(request):
+    search = request.GET.get('search', '').strip()
+    if not search:
+        return _render_lista(request, get_productos_activos(), 'Todos los productos')
+    qs = get_productos_activos().filter(nombre__icontains=search)
+    return _render_lista(request, qs, f'Resultados para: "{search}"')
