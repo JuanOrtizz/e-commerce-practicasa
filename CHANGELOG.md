@@ -1,5 +1,46 @@
 # Changelog
 ---
+## [v0.10.0] - 2026-06-29
+### Rama: feature/views-productos
+#### Features
+- Agrego modelos ProductoModel y ProductoImagenModel con auto-asignación de tags (sin_stock, destacado, oferta, ultima_unidad, nuevo)
+- Agrego services.py con get_productos_activos, aplicar_filtros (categoria, color, precio, orden), get_producto_por_slug y get_contexto_filtros
+- Agrego vistas de lista con paginación y detalle de producto
+- Agrego urls.py con rutas para lista, detalle, filtros por categoría y subcategoría
+- Agrego enrutado de urls de productos en urls del proyecto
+- Agrego templates lista.html (221 líneas) y detalle.html (114 líneas) con Bootstrap 5
+- Agrego estáticos: productos.css (59 líneas), detalle.js, filtros.js, lista.js (44 líneas total), logo_default img
+- Agrego migraciones para campo destacado y precio_transferencia
+- Agrego tests con pytest (39 tests): 17 modelos, 11 servicios, 10 vistas, 1 context processor
+- Agrego 7 tests para vistas de búsqueda (resultados_busqueda y buscar_productos_json)
+- Agrego 5 tests para vistas del footer en base (faqs, terminos_y_condiciones, politicas_de_privacidad, cambios_y_devoluciones, nuestra_historia)
+- Agrego conftest.py con fixtures reutilizables para categoria, subcategoria, color, medida, tag y producto
+- Registro modelos en admin.py
+- Agrego constante PRODUCTOS_POR_PAGINA para paginator
+- Actualizo enlaces de productos en header.html dinámicamente
+- Actualizo número de teléfono de botón flotante WhatsApp
+- Agrego funciones successToast y errorToast en alertas.js
+- Agrego estilos para form-check con color terciario en globalStyles.css
+- Agrego botón agregar al carrito con spinner en listado y detalle de productos
+- Agrego visualización de promociones (porcentaje OFF, precio tachado) en listado y detalle
+- Agrego script agregarCarritoForm.js para manejo del formulario del carrito
+- Agrego vistas de búsqueda: endpoint JSON con top 4 resultados y página de resultados paginada
+- Agrego barra de búsqueda con autocompletado: JS debounce 300ms, dropdown con imagen y precio, navegación por teclado
+#### Style
+- Oculto spiners numéricos en inputs
+#### Fixes
+- Corrijo fixture subcategoria_data para crear SubcategoriaModel en DB (evita IntegrityError en 26 tests)
+- Corrijo producto_data_completa para usar subcategoria_data como FK directo
+- Corrijo FakeRequest en test_services.py: uso QueryDict en vez de dict (soporta .getlist())
+- Corrijo URLs con namespace 'productos:' inexistente en detalle.html
+- Corrijo test de orden inválido usando .update() para sortear auto_now_add
+- Corrijo visibilidad de la barra de búsqueda en páginas de productos: reemplazo namespace por nombres de vista
+- Corrijo ancho del dropdown de búsqueda en pantallas LG+: envuelvo input-group en contenedor position-relative
+- Limpio imports no usados en conftest.py (timedelta, timezone, ProductoImagenModel)
+#### Chore
+- Reemplazo productos/tests.py por paquete productos/tests/ con __init__.py
+--- 
+
 ## [v0.9.0] - 2026-06-29
 ### Rama: feature/legales-e-historia
 #### Features

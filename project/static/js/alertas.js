@@ -89,3 +89,37 @@ export function confirmAlert(text, action, callback){ // funcion para generar al
         }
     })
 }
+
+export async function successToast(texto){
+    const Toast = Swal.mixin({
+        toast: true,
+        position: 'bottom-end',
+        iconColor: 'green',
+        customClass: { popup: 'colored-toast' },
+        showConfirmButton: false,
+        timer: 3500,
+        timerProgressBar: true,
+    })
+
+    await Toast.fire({
+        icon: 'success',
+        title: texto,
+    })
+}
+
+export async function errorToast(texto){
+    const Toast = Swal.mixin({
+        toast: true,
+        position: 'bottom-end',
+        iconColor: 'red',
+        customClass: { popup: 'colored-toast' },
+        showConfirmButton: false,
+        timer: 3500,
+        timerProgressBar: true,
+    });
+
+    await Toast.fire({
+        icon: 'error',
+        title: texto,
+    });
+}

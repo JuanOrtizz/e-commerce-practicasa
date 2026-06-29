@@ -48,3 +48,33 @@ def test_ratelimit_contacto_bloquea(client, consulta_data):
 
     response = client.post(reverse('contacto'), consulta_data)
     assert response.status_code == 403
+
+
+@pytest.mark.django_db
+def test_faqs_status_200(client):
+    response = client.get(reverse('faqs'))
+    assert response.status_code == 200
+
+
+@pytest.mark.django_db
+def test_terminos_y_condiciones_status_200(client):
+    response = client.get(reverse('terminos_y_condiciones'))
+    assert response.status_code == 200
+
+
+@pytest.mark.django_db
+def test_politicas_de_privacidad_status_200(client):
+    response = client.get(reverse('politicas_de_privacidad'))
+    assert response.status_code == 200
+
+
+@pytest.mark.django_db
+def test_cambios_y_devoluciones_status_200(client):
+    response = client.get(reverse('cambios_y_devoluciones'))
+    assert response.status_code == 200
+
+
+@pytest.mark.django_db
+def test_nuestra_historia_status_200(client):
+    response = client.get(reverse('nuestra_historia'))
+    assert response.status_code == 200
