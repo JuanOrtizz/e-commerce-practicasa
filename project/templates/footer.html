@@ -28,11 +28,11 @@
                         <div class="accordion-body d-flex flex-column gap-3 align-items-start">
                             {% with request.resolver_match.view_name as view_actual %}
                                 <a class="{% if view_actual == 'faqs' %}enlace-activo{% endif %}" href="{% url 'faqs' %}">FAQs</a>
-                                <a class="{% if view_actual == 'terminos_y_condiciones' %}enlace-activo{% endif %}" href="#">Términos y Condiciones</a>
-                                <a class="{% if view_actual == 'politicas_de_privacidad' %}enlace-activo{% endif %}" href="#">Política de Privacidad</a>
-                                <a class="{% if view_actual == 'cambios_y_devoluciones' %}enlace-activo{% endif %}" href="#">Cambios y devoluciones</a>
+                                <a class="{% if view_actual == 'terminos_y_condiciones' %}enlace-activo{% endif %}" href="{% url 'terminos_y_condiciones' %}">Términos y Condiciones</a>
+                                <a class="{% if view_actual == 'politicas_de_privacidad' %}enlace-activo{% endif %}" href="{% url 'politicas_de_privacidad' %}">Política de Privacidad</a>
+                                <a class="{% if view_actual == 'cambios_y_devoluciones' %}enlace-activo{% endif %}" href="{% url 'cambios_y_devoluciones' %}">Cambios y devoluciones</a>
                                 <a rel="noopener noreferrer" target="_blank" href="https://maps.app.goo.gl/qnbGySEidAAfJNB78">Local</a>
-                                <a class="{% if view_actual == 'nuestra_historia' %}enlace-activo{% endif %}" href="#">Nuestra historia :D</a>
+                                <a class="{% if view_actual == 'nuestra_historia' %}enlace-activo{% endif %}" href="{% url 'nuestra_historia' %}">Nuestra historia :D</a>
                             {% endwith %}
                         </div>
                     </div>
