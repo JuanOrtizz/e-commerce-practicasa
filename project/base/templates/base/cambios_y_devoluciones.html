@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block title %}Cambios y Devoluciones | Practicasa{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'base/css/legalesHistoria.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <h1 class="text-center mb-2 fw-bold">POLÍTICA DE DEVOLUCIONES</h1>
+            <p class="text-center text-muted mb-5 fs-5">PRACTICASA</p>
+
+            <section class="mb-5 shadow p-2 rounded-2">
+                <h2 class="fs-4 fw-bold mb-3 titulo-legales-historia">1. Devoluciones</h2>
+                <p><strong>1.1</strong> Aceptamos devoluciones únicamente en caso de que el producto llegue dañado, en
+                    mal estado o presente una falla de fábrica.</p>
+            </section>
+
+            <section class="mb-5 shadow p-2 rounded-2">
+                <h2 class="fs-4 fw-bold mb-3 titulo-legales-historia">2. Si el producto llega en mal estado</h2>
+                <p><strong>2.1</strong> Deberás comunicarte con nosotros por correo electrónico
+                    (practicasanogoya@gmail.com) adjuntando fotografías del producto recibido y del embalaje. Una vez
+                    verificada la situación se procederá a confirmar el reembolso. Tendrás 3 días corridos desde la
+                    recepción del pedido para realizar el reclamo y enviar el comprobante de despacho de la devolución.
+                    Una vez verificada la situación, se procederá al reembolso correspondiente.</p>
+                <p><strong>2.2</strong> En caso de que el producto llegue en mal estado por parte del transporte o la
+                    empresa de envío, Practicasa solo reembolsará una parte, dejando a libre elección que el cliente
+                    haga el debido reclamo a la empresa de transporte correspondiente.</p>
+            </section>
+
+            <section class="mb-5 shadow p-2 rounded-2">
+                <h2 class="fs-4 fw-bold mb-3 titulo-legales-historia">3. Si el pedido no es lo que esperaba</h2>
+                <p><strong>3.1</strong> Si el producto recibido no cumple con tus expectativas, podrás solicitar la
+                    devolución dentro de las 48hs hábiles posteriores a la recepción del pedido.</p>
+                <p><strong>3.2</strong> En estos casos:</p>
+                <ul>
+                    <li>El producto deberá encontrarse sin uso y en perfectas condiciones.</li>
+                    <li>Deberá conservar su embalaje original.</li>
+                    <li>Los gastos de devolución correrán por cuenta del comprador.</li>
+                </ul>
+                <p><strong>3.3</strong> Una vez recibido y verificado el producto, no se realizará devolución de
+                    dinero. En su lugar, se emitirá un vale de compra por el mismo importe abonado para utilizar en
+                    futuras compras dentro de Practicasa.</p>
+            </section>
+
+            <section class="mb-5 shadow p-2 rounded-2">
+                <h2 class="fs-4 fw-bold mb-3 titulo-legales-historia">4. Cuáles productos no tienen devolución</h2>
+                <p><strong>4.1</strong> No aceptamos devoluciones de productos que:</p>
+                <ul>
+                    <li>Hayan sido utilizados.</li>
+                    <li>Presenten daños ocasionados por el cliente.</li>
+                    <li>No conserven su embalaje original.</li>
+                    <li>Estén incompletos o modificados respecto de su estado original.</li>
+                </ul>
+            </section>
+
+            <section class="mb-5 shadow p-2 rounded-2">
+                <h2 class="fs-4 fw-bold mb-3 titulo-legales-historia">5. Tiempos de reembolso</h2>
+                <p><strong>5.1</strong> Una vez aprobada la devolución, el reintegro se realizará mediante el mismo
+                    medio de pago utilizado en la compra, dentro de los plazos establecidos por la entidad financiera
+                    correspondiente.</p>
+            </section>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{% endblock %}
