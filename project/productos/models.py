@@ -1,3 +1,4 @@
+from decimal import Decimal
 from datetime import timedelta
 import os
 from django.db import models
@@ -173,6 +174,26 @@ class ProductoModel(models.Model):
         if primera and primera.imagen and os.path.exists(primera.imagen.path):
             return primera
         return None
+
+    @property
+    def tiene_promocion_porcentaje(self):
+        return self.promocion in ('5%', '10%', '20%', '25%', '30%')
+
+    @property
+    def porcentaje_descuento(self):
+        return Decimal(self.promocion.replace('%', '')) if self.tiene_promocion_porcentaje else Decimal('0')
+
+    @property
+    def precio_con_promocion(self):
+        if self.tiene_promocion_porcentaje and self.precio:
+            return (self.precio * (Decimal('100') - self.porcentaje_descuento) / Decimal('100')).quantize(Decimal('0.01'))
+        return self.precio
+
+    @property
+    def precio_transferencia_con_promocion(self):
+        if self.tiene_promocion_porcentaje and self.precio_transferencia:
+            return (self.precio_transferencia * (Decimal('100') - self.porcentaje_descuento) / Decimal('100')).quantize(Decimal('0.01'))
+        return self.precio_transferencia
 
 
 class ProductoImagenModel(models.Model):
