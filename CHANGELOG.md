@@ -12,6 +12,8 @@
 - Agrego estáticos: productos.css (59 líneas), detalle.js, filtros.js, lista.js (44 líneas total), logo_default img
 - Agrego migraciones para campo destacado y precio_transferencia
 - Agrego tests con pytest (39 tests): 17 modelos, 11 servicios, 10 vistas, 1 context processor
+- Agrego 7 tests para vistas de búsqueda (resultados_busqueda y buscar_productos_json)
+- Agrego 5 tests para vistas del footer en base (faqs, terminos_y_condiciones, politicas_de_privacidad, cambios_y_devoluciones, nuestra_historia)
 - Agrego conftest.py con fixtures reutilizables para categoria, subcategoria, color, medida, tag y producto
 - Registro modelos en admin.py
 - Agrego constante PRODUCTOS_POR_PAGINA para paginator
