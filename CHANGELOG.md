@@ -1,6 +1,6 @@
 # Changelog
 ---
-## [v0.9.0] - 2026-06-26
+## [v0.10.0] - 2026-06-29
 ### Rama: feature/views-productos
 #### Features
 - Agrego modelos ProductoModel y ProductoImagenModel con auto-asignación de tags (sin_stock, destacado, oferta, ultima_unidad, nuevo)
@@ -17,6 +17,13 @@
 - Agrego constante PRODUCTOS_POR_PAGINA para paginator
 - Actualizo enlaces de productos en header.html dinámicamente
 - Actualizo número de teléfono de botón flotante WhatsApp
+- Agrego funciones successToast y errorToast en alertas.js
+- Agrego estilos para form-check con color terciario en globalStyles.css
+- Agrego botón agregar al carrito con spinner en listado y detalle de productos
+- Agrego visualización de promociones (porcentaje OFF, precio tachado) en listado y detalle
+- Agrego script agregarCarritoForm.js para manejo del formulario del carrito
+- Agrego vistas de búsqueda: endpoint JSON con top 4 resultados y página de resultados paginada
+- Agrego barra de búsqueda con autocompletado: JS debounce 300ms, dropdown con imagen y precio, navegación por teclado
 #### Style
 - Oculto spiners numéricos en inputs
 #### Fixes
@@ -25,6 +32,8 @@
 - Corrijo FakeRequest en test_services.py: uso QueryDict en vez de dict (soporta .getlist())
 - Corrijo URLs con namespace 'productos:' inexistente en detalle.html
 - Corrijo test de orden inválido usando .update() para sortear auto_now_add
+- Corrijo visibilidad de la barra de búsqueda en páginas de productos: reemplazo namespace por nombres de vista
+- Corrijo ancho del dropdown de búsqueda en pantallas LG+: envuelvo input-group en contenedor position-relative
 - Limpio imports no usados en conftest.py (timedelta, timezone, ProductoImagenModel)
 #### Chore
 - Reemplazo productos/tests.py por paquete productos/tests/ con __init__.py
