@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 import pytest
 from django.db import IntegrityError
 
@@ -108,6 +110,44 @@ def test_crear_producto_completo(
     assert producto.precio == 15000.00
     assert list(producto.colores.all()) == [color]
     assert list(producto.medidas.all()) == [medida]
+    assert producto.precio_final == Decimal('13500.00')
+    assert producto.precio_transferencia_final == Decimal('12150.00')
+
+
+@pytest.mark.django_db
+def test_save_calcula_precios_finales_sin_promocion(producto_data, subcategoria_data):
+    subcategoria = subcategoria_data
+    data = {**producto_data, 'precio': Decimal('200'), 'precio_transferencia': Decimal('180')}
+    data.pop('promocion', None)
+    producto = ProductoModel.objects.create(subcategoria=subcategoria, **data)
+    assert producto.precio_final == Decimal('200.00')
+    assert producto.precio_transferencia_final == Decimal('180.00')
+
+
+@pytest.mark.django_db
+def test_save_calcula_precios_finales_con_promocion_porcentaje(producto_data, subcategoria_data):
+    subcategoria = subcategoria_data
+    data = {**producto_data,
+        'precio': Decimal('200'),
+        'precio_transferencia': Decimal('180'),
+        'promocion': ProductoModel.PromocionChoices.VEINTE,
+    }
+    producto = ProductoModel.objects.create(subcategoria=subcategoria, **data)
+    assert producto.precio_final == Decimal('160.00')
+    assert producto.precio_transferencia_final == Decimal('144.00')
+
+
+@pytest.mark.django_db
+def test_save_calcula_precios_finales_con_2x1(producto_data, subcategoria_data):
+    subcategoria = subcategoria_data
+    data = {**producto_data,
+        'precio': Decimal('200'),
+        'precio_transferencia': Decimal('180'),
+        'promocion': ProductoModel.PromocionChoices.DOS_POR_UNO,
+    }
+    producto = ProductoModel.objects.create(subcategoria=subcategoria, **data)
+    assert producto.precio_final == Decimal('200.00')
+    assert producto.precio_transferencia_final == Decimal('180.00')
 
 
 @pytest.mark.django_db

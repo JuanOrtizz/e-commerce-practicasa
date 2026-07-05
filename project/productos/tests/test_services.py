@@ -161,6 +161,33 @@ def test_aplicar_filtros_orden_valido(subcategoria_data):
 
 
 @pytest.mark.django_db
+def test_aplicar_filtros_orden_por_precio_transferencia_final(subcategoria_data):
+    subcategoria = subcategoria_data
+
+    ProductoModel.objects.create(
+        subcategoria=subcategoria, nombre='Caro', descripcion='Test',
+        slug='caro', sku='SKU-001', precio=300, precio_transferencia=250,
+        stock=5,
+    )
+    ProductoModel.objects.create(
+        subcategoria=subcategoria, nombre='Barato', descripcion='Test',
+        slug='barato', sku='SKU-002', precio=100, precio_transferencia=80,
+        stock=3,
+    )
+    ProductoModel.objects.create(
+        subcategoria=subcategoria, nombre='Medio', descripcion='Test',
+        slug='medio', sku='SKU-003', precio=200, precio_transferencia=180,
+        stock=1,
+    )
+
+    class FakeRequest:
+        GET = QueryDict('orden=precio_transferencia_final')
+
+    qs = aplicar_filtros(FakeRequest(), get_productos_activos())
+    assert [p.nombre for p in qs] == ['Barato', 'Medio', 'Caro']
+
+
+@pytest.mark.django_db
 def test_aplicar_filtros_orden_invalido_vuelve_default(subcategoria_data):
     subcategoria = subcategoria_data
 

@@ -135,6 +135,25 @@ def test_buscar_productos_json_con_search(client, producto):
     data = response.json()
     assert len(data) == 1
     assert data[0]['nombre'] == 'Camiseta básica'
+    assert data[0]['precio_transferencia'] == str(producto.precio_transferencia_final)
+
+
+@pytest.mark.django_db
+def test_buscar_productos_json_con_promocion_devuelve_precio_final(client, subcategoria_data):
+    subcategoria = subcategoria_data
+    producto = ProductoModel.objects.create(
+        subcategoria=subcategoria, nombre='Camiseta promo', descripcion='Test',
+        slug='camiseta-promo', sku='SKU-PROMO', precio=200,
+        precio_transferencia=180, stock=5,
+        promocion=ProductoModel.PromocionChoices.VEINTE,
+    )
+    producto.refresh_from_db()
+    response = client.get(reverse('buscar_productos_json'), {'search': 'Camiseta promo'})
+    assert response.status_code == 200
+    data = response.json()
+    assert len(data) == 1
+    assert data[0]['precio'] == str(producto.precio_final)
+    assert data[0]['precio_transferencia'] == str(producto.precio_transferencia_final)
 
 
 @pytest.mark.django_db
