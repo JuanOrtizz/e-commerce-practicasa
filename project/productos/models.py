@@ -116,6 +116,14 @@ class ProductoModel(models.Model):
         max_digits=10, decimal_places=2,
         help_text='Precio con descuento por transferencia bancaria'
     )
+    precio_final = models.DecimalField(
+        max_digits=10, decimal_places=2, default=0,
+        help_text='Precio final con promoción aplicada (para API y checkout)'
+    )
+    precio_transferencia_final = models.DecimalField(
+        max_digits=10, decimal_places=2, default=0,
+        help_text='Precio transferencia final con promoción aplicada (para filtros y display)'
+    )
     stock = models.IntegerField()
     peso = models.DecimalField(
         max_digits=6, decimal_places=2, null=True, blank=True,
@@ -145,8 +153,18 @@ class ProductoModel(models.Model):
     def save(self, *args, **kwargs):
         if not self.slug:
             self.slug = slugify(self.nombre)
+        self._calcular_precios_finales()
         super().save(*args, **kwargs)
         self._asignar_tags_automaticos()
+
+    def _calcular_precios_finales(self):
+        if self.tiene_promocion_porcentaje and self.precio:
+            desc = (Decimal('100') - self.porcentaje_descuento) / Decimal('100')
+            self.precio_final = (self.precio * desc).quantize(Decimal('0.01'))
+            self.precio_transferencia_final = (self.precio_transferencia * desc).quantize(Decimal('0.01'))
+        else:
+            self.precio_final = self.precio
+            self.precio_transferencia_final = self.precio_transferencia
 
     def _asignar_tags_automaticos(self):
         tags = set()
@@ -182,19 +200,6 @@ class ProductoModel(models.Model):
     @property
     def porcentaje_descuento(self):
         return Decimal(self.promocion.replace('%', '')) if self.tiene_promocion_porcentaje else Decimal('0')
-
-    @property
-    def precio_con_promocion(self):
-        if self.tiene_promocion_porcentaje and self.precio:
-            return (self.precio * (Decimal('100') - self.porcentaje_descuento) / Decimal('100')).quantize(Decimal('0.01'))
-        return self.precio
-
-    @property
-    def precio_transferencia_con_promocion(self):
-        if self.tiene_promocion_porcentaje and self.precio_transferencia:
-            return (self.precio_transferencia * (Decimal('100') - self.porcentaje_descuento) / Decimal('100')).quantize(Decimal('0.01'))
-        return self.precio_transferencia
-
 
 class ProductoImagenModel(models.Model):
     producto = models.ForeignKey(
