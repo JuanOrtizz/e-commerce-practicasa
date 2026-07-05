@@ -47,11 +47,11 @@
             {% if producto.tiene_promocion_porcentaje %}
                 <h3 class="card-text text-secondary fs-4">
                     <span style="text-decoration: line-through;">${{ producto.precio }}</span>
-                    <span>${{ producto.precio_con_promocion }}</span>
+                    <span>${{ producto.precio_final }}</span>
                 </h3>
                 <h3 class="card-text">
                     <span class="text-secondary fw-normal" style="text-decoration: line-through;">${{ producto.precio_transferencia }}</span>
-                    <span class="fw-bold fs-3" style="color:var(--tertiary-color)">${{ producto.precio_transferencia_con_promocion }} </span>
+                    <span class="fw-bold fs-3" style="color:var(--tertiary-color)">${{ producto.precio_transferencia_final }} </span>
                     <span class="fw-bold fs-4" style="color:var(--tertiary-color)"> Con transferencia.</span>
                 </h3>
             {% else %}

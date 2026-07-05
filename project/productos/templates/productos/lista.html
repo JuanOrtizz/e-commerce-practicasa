@@ -24,8 +24,8 @@
                     <h6 class="fw-bold">Ordenar por:</h6>
                     <select class="form-select form-select-sm" name="orden" form="form-filtros">
                         <option value="-created_at"{% if request.GET.orden == '-created_at' or not request.GET.orden %} selected{% endif %}>Más nuevos</option>
-                        <option value="precio"{% if request.GET.orden == 'precio' %} selected{% endif %}>Precio: menor a mayor</option>
-                        <option value="-precio"{% if request.GET.orden == '-precio' %} selected{% endif %}>Precio: mayor a menor</option>
+                        <option value="precio_transferencia_final"{% if request.GET.orden == 'precio_transferencia_final' %} selected{% endif %}>Precio: menor a mayor</option>
+                        <option value="-precio_transferencia_final"{% if request.GET.orden == '-precio_transferencia_final' %} selected{% endif %}>Precio: mayor a menor</option>
                         <option value="nombre"{% if request.GET.orden == 'nombre' %} selected{% endif %}>Nombre A-Z</option>
                         <option value="-nombre"{% if request.GET.orden == '-nombre' %} selected{% endif %}>Nombre Z-A</option>
                     </select>
@@ -175,11 +175,11 @@
                                         {% if producto.tiene_promocion_porcentaje %}
                                             <p class="card-text text-secondary mb-0">
                                                 <span style="text-decoration: line-through;">${{ producto.precio }}</span>
-                                                <span> ${{ producto.precio_con_promocion }}</span>
+                                                <span> ${{ producto.precio_final }}</span>
                                             </p>
                                             <p class="card-text fw-bold mb-0">
                                                 <span class="text-secondary" style="text-decoration: line-through;">${{ producto.precio_transferencia }}</span>
-                                                <span class="fw-bold" style="color:var(--tertiary-color)">${{ producto.precio_transferencia_con_promocion }} Con transferencia.</span>
+                                                <span class="fw-bold" style="color:var(--tertiary-color)">${{ producto.precio_transferencia_final }} Con transferencia.</span>
                                             </p>
                                         {% else %}
                                             <p class="card-text text-secondary mb-0">${{ producto.precio }}</p>
