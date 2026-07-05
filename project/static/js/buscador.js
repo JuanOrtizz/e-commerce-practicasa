@@ -18,7 +18,7 @@ function inicializar(form) {
     const input = form.querySelector('input[name="search"]')
     const dropdown = document.createElement('div')
     dropdown.className = 'dropdown-search position-absolute top-100 start-0 w-100 bg-white border rounded-3 shadow-lg overflow-hidden z-3 d-none'
-    const wrapper = form.querySelector('.position-relative')
+    const wrapper = form.querySelector('.position-relative');
     (wrapper || form).appendChild(dropdown)
 
     let timeoutId = null
@@ -73,7 +73,7 @@ function inicializar(form) {
         }
     }
 
-    function renderDropdown(items)
+    function renderDropdown(items){
         dropdown.innerHTML = ''
         selectedIndex = -1
 
