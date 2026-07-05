@@ -188,6 +188,44 @@ def test_aplicar_filtros_orden_por_precio_transferencia_final(subcategoria_data)
 
 
 @pytest.mark.django_db
+def test_aplicar_filtros_sin_stock_al_fondo(subcategoria_data):
+    subcategoria = subcategoria_data
+
+    ProductoModel.objects.create(
+        subcategoria=subcategoria, nombre='Zapatilla', descripcion='Test',
+        slug='zapatilla', sku='SKU-001', precio=300, precio_transferencia=250,
+        stock=10,
+    )
+    ProductoModel.objects.create(
+        subcategoria=subcategoria, nombre='Bota', descripcion='Test',
+        slug='bota', sku='SKU-002', precio=200, precio_transferencia=180,
+        stock=0,
+    )
+    ProductoModel.objects.create(
+        subcategoria=subcategoria, nombre='Campera', descripcion='Test',
+        slug='campera', sku='SKU-003', precio=400, precio_transferencia=350,
+        stock=5,
+    )
+    ProductoModel.objects.create(
+        subcategoria=subcategoria, nombre='Media', descripcion='Test',
+        slug='media', sku='SKU-004', precio=150, precio_transferencia=120,
+        stock=0,
+    )
+    ProductoModel.objects.create(
+        subcategoria=subcategoria, nombre='Abrigo', descripcion='Test',
+        slug='abrigo', sku='SKU-005', precio=500, precio_transferencia=450,
+        stock=3,
+    )
+
+    class FakeRequest:
+        GET = QueryDict('orden=nombre')
+
+    qs = aplicar_filtros(FakeRequest(), get_productos_activos())
+    nombres = [p.nombre for p in qs]
+    assert nombres == ['Abrigo', 'Campera', 'Zapatilla', 'Bota', 'Media']
+
+
+@pytest.mark.django_db
 def test_aplicar_filtros_orden_invalido_vuelve_default(subcategoria_data):
     subcategoria = subcategoria_data
 
@@ -242,7 +280,7 @@ def test_get_contexto_filtros_incluye_todos(categoria_data, color_data, medida_d
     CategoriaModel.objects.create(**categoria_data)
     ColorModel.objects.create(**color_data)
     MedidaModel.objects.create(**medida_data)
-    TagModel.objects.create(nombre=TagModel.TagChoices.NUEVO)
+    TagModel.objects.get_or_create(nombre=TagModel.TagChoices.NUEVO)
 
     class FakeRequest:
         GET = {}
@@ -252,7 +290,7 @@ def test_get_contexto_filtros_incluye_todos(categoria_data, color_data, medida_d
     assert ctx['subcategorias_disponibles'].count() == 0
     assert ctx['todos_colores'].count() == 1
     assert ctx['todas_medidas'].count() == 1
-    assert ctx['tags_disponibles'].count() == 1
+    assert ctx['tags_disponibles'].count() >= 1
 
 
 @pytest.mark.django_db

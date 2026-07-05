@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 import pytest
 from django.test import Client
 
@@ -42,8 +44,8 @@ def producto_data():
         'descripcion': 'Camiseta de algodón',
         'slug': 'camiseta-basica',
         'sku': 'CAM-001',
-        'precio': 15000.00,
-        'precio_transferencia': 13500.00,
+        'precio': Decimal('15000'),
+        'precio_transferencia': Decimal('13500'),
         'stock': 10,
         'activo': True,
     }
@@ -53,15 +55,15 @@ def producto_data():
 def producto_data_completa(subcategoria_data, color_data, medida_data, tag_data):
     color = ColorModel.objects.create(**color_data)
     medida = MedidaModel.objects.create(**medida_data)
-    tag = TagModel.objects.create(**tag_data)
+    tag, _ = TagModel.objects.get_or_create(**tag_data)
     return {
         'subcategoria': subcategoria_data,
         'nombre': 'Camiseta básica',
         'descripcion': 'Camiseta de algodón',
         'slug': 'camiseta-basica',
         'sku': 'CAM-001',
-        'precio': 15000.00,
-        'precio_transferencia': 13500.00,
+        'precio': Decimal('15000'),
+        'precio_transferencia': Decimal('13500'),
         'stock': 10,
         'peso': 0.25,
         'promocion': ProductoModel.PromocionChoices.DIEZ,
