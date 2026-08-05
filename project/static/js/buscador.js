@@ -100,10 +100,17 @@ function inicializar(form) {
 
             const info = document.createElement('div')
             info.className = 'd-flex flex-column'
-            info.innerHTML = `
-                <span class="fw-semibold small">${item.nombre}</span>
-                <span class="text-success fw-bold small">$${item.precio_transferencia}</span>
-            `
+
+            const nombre = document.createElement('span')
+            nombre.className = 'fw-semibold small'
+            nombre.textContent = item.nombre
+
+            const precio = document.createElement('span')
+            precio.className = 'text-success fw-bold small'
+            precio.textContent = `$${item.precio_transferencia}`
+
+            info.appendChild(nombre)
+            info.appendChild(precio)
 
             a.appendChild(img)
             a.appendChild(info)
