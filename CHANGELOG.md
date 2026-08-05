@@ -27,6 +27,7 @@
 #### Fixes
 - Arreglo errores de sintaxis en buscador.js (punto y coma y llave faltante)
 - Actualizo tests para usar Decimal y get_or_create en cálculos de precios finales
+- Arreglo warnings de GSAP por targets ausentes
 #### Chore
 - Limpio .gitattributes para solo manejar archivos .sh
 ---
