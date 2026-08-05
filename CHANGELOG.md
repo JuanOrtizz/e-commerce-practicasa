@@ -30,8 +30,12 @@
 - Arreglo warnings de GSAP por targets ausentes
 - Elimino ruta y vista duplicada cambios_y_devoluciones en app base
 - Agrego año dinámico en footer con {% now %} y abro links de redes sociales en nueva pestaña (target=_blank)
+- Valido stock global por producto sumando todas las variantes al agregar o actualizar items del carrito
+- Muestro stock restante (stock - carrito del usuario) en lista y detalle de productos, con botón deshabilitado cuando no queda
 #### Chore
 - Limpio .gitattributes para solo manejar archivos .sh
+#### Docs
+- Agrego docs/manejo-de-stock-futuro.md con diseño a futuro para app ventas (modelo tipo MercadoLibre)
 ---
 ## [v0.10.0] - 2026-06-29
 ### Rama: feature/views-productos
