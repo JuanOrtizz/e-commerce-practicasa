@@ -39,7 +39,7 @@ class RegistroForm(UserCreationForm):
         else:
             raise forms.ValidationError("Email: de 6 a 254 caracteres.")
         if UsuarioModel.objects.filter(email=email).exists():
-            raise forms.ValidationError("Este email ya está registrado.")
+            raise forms.ValidationError("No se pudo crear la cuenta. Verificá los datos e intentá nuevamente.")
         return email
 
 
