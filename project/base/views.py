@@ -22,9 +22,6 @@ def politicas_de_privacidad(request):
 
 def terminos_y_condiciones(request):
     return render(request, 'base/terminos_y_condiciones.html')
-
-def cambios_y_devoluciones(request):
-    return render(request, 'base/cambios_y_devoluciones.html')
   
 # View para FAQs
 def faqs(request):
