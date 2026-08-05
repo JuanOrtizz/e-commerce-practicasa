@@ -7,6 +7,21 @@ from productos.models import (
     CategoriaModel, SubcategoriaModel, ColorModel, MedidaModel,
     TagModel, ProductoModel
 )
+from usuarios.models import UsuarioModel
+
+
+@pytest.fixture
+def user_data():
+    return {
+        "email": "cliente@example.com",
+        "nombre_completo": "Cliente Test",
+        "password": "TestPass123",
+    }
+
+
+@pytest.fixture
+def usuario(db, user_data):
+    return UsuarioModel.objects.create_user(**user_data)
 
 
 @pytest.fixture

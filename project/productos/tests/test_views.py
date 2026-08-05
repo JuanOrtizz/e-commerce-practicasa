@@ -2,8 +2,9 @@ import pytest
 from django.conf import settings
 from django.urls import reverse
 
+from carrito.models import CarritoItemModel
 from productos.models import (
-    CategoriaModel, SubcategoriaModel, ProductoModel, TagModel
+    CategoriaModel, SubcategoriaModel, ProductoModel, TagModel, ColorModel
 )
 
 
@@ -180,3 +181,70 @@ def test_buscar_productos_json_sin_resultados(client, producto):
     response = client.get(reverse('buscar_productos_json'), {'search': 'zzzzz'})
     assert response.status_code == 200
     assert response.json() == []
+
+
+@pytest.mark.django_db
+def test_lista_stock_restante_anonimo_igual_stock(client, producto):
+    producto.stock = 4
+    producto.save()
+    response = client.get(reverse('productos'))
+    assert response.status_code == 200
+    assert response.context['productos'][0].stock_restante == 4
+
+
+@pytest.mark.django_db
+def test_lista_stock_restante_descuenta_carrito(client, usuario, producto):
+    producto.stock = 4
+    producto.save()
+    CarritoItemModel.objects.create(carrito=usuario.carrito, producto=producto, cantidad=3)
+    client.login(username=usuario.email, password='TestPass123')
+    response = client.get(reverse('productos'))
+    assert response.status_code == 200
+    assert response.context['productos'][0].stock_restante == 1
+
+
+@pytest.mark.django_db
+def test_lista_stock_restante_suma_variantes(client, usuario, producto, color_data):
+    producto.stock = 4
+    producto.save()
+    rojo = ColorModel.objects.create(**color_data)
+    azul = ColorModel.objects.create(nombre='Azul', codigo_hex='#0000FF')
+    CarritoItemModel.objects.create(
+        carrito=usuario.carrito, producto=producto, color_nombre=rojo.nombre, cantidad=2
+    )
+    CarritoItemModel.objects.create(
+        carrito=usuario.carrito, producto=producto, color_nombre=azul.nombre, cantidad=2
+    )
+    client.login(username=usuario.email, password='TestPass123')
+    response = client.get(reverse('productos'))
+    assert response.status_code == 200
+    assert response.context['productos'][0].stock_restante == 0
+
+
+@pytest.mark.django_db
+def test_lista_muestra_boton_sin_stock_cuando_carrito_agota(client, usuario, producto):
+    producto.stock = 4
+    producto.save()
+    CarritoItemModel.objects.create(carrito=usuario.carrito, producto=producto, cantidad=4)
+    client.login(username=usuario.email, password='TestPass123')
+    response = client.get(reverse('productos'))
+    assert response.status_code == 200
+    contenido = response.content.decode()
+    assert 'Sin stock' in contenido
+    assert 'Agregar al Carrito' not in contenido
+
+
+@pytest.mark.django_db
+def test_detalle_stock_restante_descuenta_carrito(client, usuario, producto):
+    producto.stock = 4
+    producto.save()
+    CarritoItemModel.objects.create(carrito=usuario.carrito, producto=producto, cantidad=4)
+    client.login(username=usuario.email, password='TestPass123')
+    response = client.get(
+        reverse('detalle_producto', args=['ropa', 'camisetas', 'camiseta-basica'])
+    )
+    assert response.status_code == 200
+    assert response.context['producto'].stock_restante == 0
+    contenido = response.content.decode()
+    assert 'Sin stock' in contenido
+    assert 'Agregar al Carrito' not in contenido

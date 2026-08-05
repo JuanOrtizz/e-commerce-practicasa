@@ -132,7 +132,7 @@
                 <div class="row px-5 p-md-0 justify-content-center justify-content-md-start g-3">
                     {% for producto in productos %}
                         <div class="col-12 col-md-6 col-lg-4">
-                            <div class="card h-100 shadow-sm border-2 d-flex flex-column{% if producto.stock == 0 %} card-disabled{% endif %}">
+                            <div class="card h-100 shadow-sm border-2 d-flex flex-column{% if producto.stock_restante <= 0 %} card-disabled{% endif %}">
                                 <a href="{% url 'detalle_producto' producto.subcategoria.categoria.slug producto.subcategoria.slug producto.slug %}" class="text-decoration-none text-black d-flex flex-column flex-grow-1">
                                     <div class="position-relative">
                                      {% with primera_imagen=producto.primera_imagen_valida %}
@@ -202,11 +202,13 @@
                                                 <input type="hidden" name="medida" value="{{ primera_medida.id }}">
                                             {% endif %}
                                         {% endwith %}
-                                        {% if producto.stock > 0 %}
+                                        {% if producto.stock_restante > 0 %}
                                             <button class="btn btn-enviar text-white fw-bold w-100" type="submit">
                                                 <span class="btn-text">Agregar al Carrito</span>
                                                 <span class="spinner-border spinner-border-sm d-none text-white btn-spinner"></span>
                                             </button>
+                                        {% else %}
+                                            <button class="btn btn-secondary w-100 py-2" disabled>Sin stock</button>
                                         {% endif %}
                                     </form>
                                 </div>
