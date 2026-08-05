@@ -29,6 +29,7 @@
 - Actualizo tests para usar Decimal y get_or_create en cálculos de precios finales
 - Arreglo warnings de GSAP por targets ausentes
 - Elimino ruta y vista duplicada cambios_y_devoluciones en app base
+- Agrego año dinámico en footer con {% now %} y abro links de redes sociales en nueva pestaña (target=_blank)
 #### Chore
 - Limpio .gitattributes para solo manejar archivos .sh
 ---
