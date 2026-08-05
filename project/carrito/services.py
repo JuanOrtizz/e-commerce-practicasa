@@ -1,5 +1,6 @@
 from decimal import Decimal
 from django.db import transaction
+from django.db.models import Sum
 from django.shortcuts import get_object_or_404
 
 from .models import CarritoModel, CarritoItemModel
@@ -9,6 +10,19 @@ from productos.models import ProductoModel, ColorModel, MedidaModel
 def get_o_crear_carrito_service(usuario):
     carrito, _ = CarritoModel.objects.get_or_create(usuario=usuario)
     return carrito
+
+
+def get_cantidades_en_carrito(usuario, producto_ids=None):
+    carrito = CarritoModel.objects.filter(usuario=usuario).first()
+    if not carrito:
+        return {}
+    qs = CarritoItemModel.objects.filter(carrito=carrito)
+    if producto_ids:
+        qs = qs.filter(producto_id__in=producto_ids)
+    return {
+        fila['producto_id']: fila['total']
+        for fila in qs.values('producto_id').annotate(total=Sum('cantidad'))
+    }
 
 
 @transaction.atomic
@@ -30,6 +44,13 @@ def agregar_item_service(carrito, producto_id, cantidad=1, color_id=None, medida
         medida = get_object_or_404(MedidaModel, id=medida_id)
         medida_nombre = medida.nombre
 
+    total_en_carrito = CarritoItemModel.objects.filter(
+        carrito=carrito, producto=producto
+    ).aggregate(total=Sum('cantidad'))['total'] or 0
+
+    if total_en_carrito + cantidad > producto.stock:
+        raise ValueError('Producto sin stock')
+
     item, created = CarritoItemModel.objects.get_or_create(
         carrito=carrito,
         producto=producto,
@@ -42,10 +63,7 @@ def agregar_item_service(carrito, producto_id, cantidad=1, color_id=None, medida
     )
 
     if not created:
-        nueva_cantidad = item.cantidad + cantidad
-        if nueva_cantidad > producto.stock:
-            raise ValueError('Producto sin stock')
-        item.cantidad = nueva_cantidad
+        item.cantidad += cantidad
         item.save()
 
     return item
@@ -63,7 +81,11 @@ def actualizar_cantidad_service(carrito, item_id, nueva_cantidad):
         item.delete()
         return None
 
-    if nueva_cantidad > item.producto.stock:
+    otras_variantes = CarritoItemModel.objects.filter(
+        carrito=carrito, producto=item.producto
+    ).exclude(id=item.id).aggregate(total=Sum('cantidad'))['total'] or 0
+
+    if otras_variantes + nueva_cantidad > item.producto.stock:
         raise ValueError('Producto sin stock')
 
     item.cantidad = nueva_cantidad

@@ -83,6 +83,30 @@ def test_agregar_item_combinacion_distinta_crea_separado(carrito, producto, colo
 
 
 @pytest.mark.django_db
+def test_agregar_variantes_respeta_stock_global(carrito, producto, color_data):
+    producto.stock = 4
+    producto.save()
+    rojo = ColorModel.objects.create(**color_data)
+    azul = ColorModel.objects.create(nombre='Azul', codigo_hex='#0000FF')
+    agregar_item_service(carrito, producto.id, cantidad=2, color_id=rojo.id)
+    agregar_item_service(carrito, producto.id, cantidad=2, color_id=azul.id)
+    assert CarritoItemModel.objects.count() == 2
+    assert sum(i.cantidad for i in CarritoItemModel.objects.all()) == 4
+    with pytest.raises(ValueError, match='Producto sin stock'):
+        agregar_item_service(carrito, producto.id, cantidad=1, color_id=rojo.id)
+
+
+@pytest.mark.django_db
+def test_agregar_misma_variante_supera_stock_global(carrito, producto, color_data):
+    producto.stock = 4
+    producto.save()
+    rojo = ColorModel.objects.create(**color_data)
+    agregar_item_service(carrito, producto.id, cantidad=3, color_id=rojo.id)
+    with pytest.raises(ValueError, match='Producto sin stock'):
+        agregar_item_service(carrito, producto.id, cantidad=2, color_id=rojo.id)
+
+
+@pytest.mark.django_db
 def test_agregar_producto_inactivo_http404(carrito, subcategoria_data):
     inactivo = ProductoModel.objects.create(
         subcategoria=subcategoria_data, nombre='Inactivo', descripcion='Test',
@@ -121,6 +145,22 @@ def test_actualizar_cantidad_supera_stock_raise(carrito, item):
     item.producto.save()
     with pytest.raises(ValueError, match='Producto sin stock'):
         actualizar_cantidad_service(carrito, item.id, 5)
+
+
+@pytest.mark.django_db
+def test_actualizar_cantidad_respeta_stock_otras_variantes(carrito, producto, color_data):
+    producto.stock = 4
+    producto.save()
+    rojo = ColorModel.objects.create(**color_data)
+    azul = ColorModel.objects.create(nombre='Azul', codigo_hex='#0000FF')
+    item_rojo = CarritoItemModel.objects.create(
+        carrito=carrito, producto=producto, color_nombre=rojo.nombre, cantidad=2
+    )
+    CarritoItemModel.objects.create(
+        carrito=carrito, producto=producto, color_nombre=azul.nombre, cantidad=2
+    )
+    with pytest.raises(ValueError, match='Producto sin stock'):
+        actualizar_cantidad_service(carrito, item_rojo.id, 3)
 
 
 @pytest.mark.django_db
