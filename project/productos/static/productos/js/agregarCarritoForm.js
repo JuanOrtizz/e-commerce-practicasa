@@ -1,4 +1,4 @@
-import {successToast, errorToast} from '/static/js/alertas.js'
+import {successToast, errorToast, infoLoginAlertRedirect} from '/static/js/alertas.js'
 
 document.addEventListener('DOMContentLoaded', ()=>{
     document.querySelectorAll('.agregar-carrito-form').forEach(form => {
@@ -29,7 +29,9 @@ async function postForm(formData, csrfToken, action, form){
             }
         })
         const data = await response.json()
-        if(data.success){
+        if (response.status === 401 || response.status === 403) {
+            infoLoginAlertRedirect("Debés iniciar sesión para agregar productos al carrito", `/usuarios/login/?next=${encodeURIComponent(window.location.pathname + window.location.search)}`)
+        } else if(data.success){
             successToast(data.success.message)
         }else{
             if (typeof data.errors === "string") {

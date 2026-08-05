@@ -90,7 +90,7 @@
 
             <hr>
 
-            <form id="form" method="post" class="agregar-carrito-form">
+            <form id="form" method="post" action="{% url 'agregar' %}" class="agregar-carrito-form">
                 {% csrf_token %}
                 <input type="hidden" name="producto_id" value="{{ producto.id }}">
 
