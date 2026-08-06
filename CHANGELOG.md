@@ -32,6 +32,8 @@
 - Agrego año dinámico en footer con {% now %} y abro links de redes sociales en nueva pestaña (target=_blank)
 - Valido stock global por producto sumando todas las variantes al agregar o actualizar items del carrito
 - Muestro stock restante (stock - carrito del usuario) en lista y detalle de productos, con botón deshabilitado cuando no queda
+- Bloqueo el botón de aumentar del carrito según el stock disponible por item (stock - otras variantes) y recalculo los botones de todas las variantes al actualizar o eliminar un item
+- Actualizo el botón a "Sin stock" en lista y detalle al agregar al carrito sin necesidad de recargar la página
 #### Chore
 - Limpio .gitattributes para solo manejar archivos .sh
 #### Docs
