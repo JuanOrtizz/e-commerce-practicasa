@@ -115,6 +115,22 @@ function actualizarItem(card, item) {
     }
 }
 
+function actualizarStocksDisponibles(stocks) {
+    if (!stocks) return
+    document.querySelectorAll('.carrito-item').forEach(card => {
+        const inputs = card.querySelectorAll('.carrito-qty-input')
+        if (!inputs.length) return
+        const stock = stocks[inputs[0].dataset.itemId]
+        if (stock === undefined) return
+        const qty = parseInt(inputs[0].value)
+        inputs.forEach(input => {
+            input.dataset.stock = stock
+            input.max = stock
+        })
+        card.querySelectorAll('.btn-aumentar').forEach(btn => btn.disabled = qty >= stock)
+    })
+}
+
 function actualizarResumen(carrito) {
     const set = (sel, val) => {
         const el = document.querySelector(sel)
@@ -168,6 +184,7 @@ async function actualizarCantidad(input, nuevaCantidad, csrfToken) {
                 actualizarItem(card, data.success.item)
                 actualizarResumen(data.success.carrito)
             }
+            actualizarStocksDisponibles(data.success.stocks_disponibles)
         } else {
             errorToast(data.errors || 'Error al actualizar')
         }
@@ -195,6 +212,7 @@ async function eliminarItem(itemId, csrfToken) {
         if (data.success) {
             quitarItem(card)
             actualizarResumen(data.success.carrito)
+            actualizarStocksDisponibles(data.success.stocks_disponibles)
         } else {
             errorToast(data.errors || 'Error al eliminar')
         }

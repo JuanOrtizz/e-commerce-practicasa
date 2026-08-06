@@ -1,12 +1,14 @@
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.http import Http404, JsonResponse
 from django.views.decorators.http import require_POST
 
+from .models import CarritoItemModel
 from .services import (
     get_o_crear_carrito_service, agregar_item_service, actualizar_cantidad_service,
     eliminar_item_service, vaciar_carrito_service, get_carrito_context_service,
-    calcular_precios_item_service
+    calcular_precios_item_service, get_stock_disponible_item_service,
+    get_stock_restante_producto_service, get_stocks_disponibles_producto_service,
 )
 
 
@@ -36,6 +38,8 @@ def agregar_al_carrito(request):
         return JsonResponse({
             'success': {
                 'message': f'{item.producto.nombre} agregado al carrito',
+                'producto_id': item.producto.id,
+                'stock_restante': get_stock_restante_producto_service(request.user, item.producto),
             }
         })
     except ValueError as e:
@@ -59,6 +63,7 @@ def actualizar_cantidad(request):
         except (TypeError, ValueError):
             return JsonResponse({'errors': 'Cantidad inválida'}, status=400)
 
+        producto_id = get_object_or_404(CarritoItemModel, id=item_id, carrito=carrito).producto_id
         item = actualizar_cantidad_service(carrito, item_id, nueva_cantidad)
 
         context = get_carrito_context_service(carrito)
@@ -66,6 +71,7 @@ def actualizar_cantidad(request):
             'success': {
                 'message': 'Carrito actualizado',
                 'item_eliminado': item is None,
+                'stocks_disponibles': get_stocks_disponibles_producto_service(carrito, producto_id),
                 'carrito': {
                     'total': str(context['total']),
                     'total_transferencia': str(context['total_transferencia']),
@@ -82,7 +88,7 @@ def actualizar_cantidad(request):
                 'subtotal_transferencia': str(item_data['subtotal_transferencia']),
                 'ahorro': str(item_data['ahorro']),
                 'cantidad_paga': item_data['cantidad_paga'],
-                'stock': item.producto.stock,
+                'stock': get_stock_disponible_item_service(carrito, item),
             }
         return JsonResponse(data)
     except ValueError as e:
@@ -101,12 +107,14 @@ def eliminar_item(request):
     try:
         carrito = get_o_crear_carrito_service(request.user)
         item_id = request.POST.get('item_id')
+        producto_id = get_object_or_404(CarritoItemModel, id=item_id, carrito=carrito).producto_id
         eliminar_item_service(carrito, item_id)
 
         context = get_carrito_context_service(carrito)
         return JsonResponse({
             'success': {
                 'message': 'Producto eliminado del carrito',
+                'stocks_disponibles': get_stocks_disponibles_producto_service(carrito, producto_id),
                 'carrito': {
                     'total': str(context['total']),
                     'total_transferencia': str(context['total_transferencia']),

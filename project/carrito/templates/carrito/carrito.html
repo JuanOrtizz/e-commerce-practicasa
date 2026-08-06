@@ -102,10 +102,10 @@
                                     <div class="d-flex align-items-center gap-1">
                                         <button class="carrito-qty-btn btn-disminuir" title="Disminuir" {% if data.cantidad <= 1 %}disabled{% endif %}>−</button>
                                         <div class="carrito-qty-field">
-                                            <input type="number" class="text-center carrito-qty-input" value="{{ data.cantidad }}" min="1" max="{{ data.producto.stock }}" readonly data-item-id="{{ data.item.id }}" data-stock="{{ data.producto.stock }}">
+                                            <input type="number" class="text-center carrito-qty-input" value="{{ data.cantidad }}" min="1" max="{{ data.stock_disponible }}" readonly data-item-id="{{ data.item.id }}" data-stock="{{ data.stock_disponible }}">
                                             <span class="spinner-border spinner-border-sm d-none carrito-qty-spinner"></span>
                                         </div>
-                                        <button class="carrito-qty-btn btn-aumentar" title="Aumentar" {% if data.cantidad >= data.producto.stock %}disabled{% endif %}>+</button>
+                                        <button class="carrito-qty-btn btn-aumentar" title="Aumentar" {% if data.cantidad >= data.stock_disponible %}disabled{% endif %}>+</button>
                                     </div>
                                     <div class="text-end">
                                         <div class="fw-bold fs-6 carrito-item-subtotal">${{ data.subtotal }}</div>
@@ -116,10 +116,10 @@
                             <div class="col-auto d-none d-lg-flex align-items-center gap-1">
                                 <button class="carrito-qty-btn btn-disminuir" title="Disminuir" {% if data.cantidad <= 1 %}disabled{% endif %}>−</button>
                                 <div class="carrito-qty-field">
-                                    <input type="number" class="text-center carrito-qty-input" value="{{ data.cantidad }}" min="1" max="{{ data.producto.stock }}" readonly data-item-id="{{ data.item.id }}" data-stock="{{ data.producto.stock }}">
+                                    <input type="number" class="text-center carrito-qty-input" value="{{ data.cantidad }}" min="1" max="{{ data.stock_disponible }}" readonly data-item-id="{{ data.item.id }}" data-stock="{{ data.stock_disponible }}">
                                     <span class="spinner-border spinner-border-sm d-none carrito-qty-spinner"></span>
                                 </div>
-                                <button class="carrito-qty-btn btn-aumentar" title="Aumentar" {% if data.cantidad >= data.producto.stock %}disabled{% endif %}>+</button>
+                                <button class="carrito-qty-btn btn-aumentar" title="Aumentar" {% if data.cantidad >= data.stock_disponible %}disabled{% endif %}>+</button>
                             </div>
                             <div class="col-auto d-none d-lg-flex align-items-center text-end" style="min-width:110px;">
                                 <div>

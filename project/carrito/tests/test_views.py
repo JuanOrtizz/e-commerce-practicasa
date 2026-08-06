@@ -50,6 +50,8 @@ def test_agregar_exitoso(client, usuario, producto):
     data = response.json()
     assert 'success' in data
     assert producto.nombre in data['success']['message']
+    assert data['success']['producto_id'] == producto.id
+    assert data['success']['stock_restante'] == producto.stock - 1
     assert usuario.carrito.items.count() == 1
 
 
@@ -126,6 +128,7 @@ def test_actualizar_exitoso(client, usuario, producto):
     assert data['item']['cantidad'] == 4
     assert data['item']['subtotal'] == str(Decimal('60000.00'))
     assert data['item']['stock'] == producto.stock
+    assert data['stocks_disponibles'] == {str(item.id): producto.stock}
     assert data['carrito']['total'] == str(Decimal('60000.00'))
 
 
@@ -156,6 +159,49 @@ def test_actualizar_supera_stock_400(client, usuario, producto):
     })
     assert response.status_code == 400
     assert response.json() == {'errors': 'Producto sin stock'}
+
+
+@pytest.mark.django_db
+def test_actualizar_devuelve_stock_disponible_con_variantes(client, usuario, producto, color_data):
+    producto.stock = 4
+    producto.save()
+    rojo = ColorModel.objects.create(**color_data)
+    azul = ColorModel.objects.create(nombre='Azul', codigo_hex='#0000FF')
+    item_rojo = CarritoItemModel.objects.create(
+        carrito=usuario.carrito, producto=producto, color_nombre=rojo.nombre, cantidad=2
+    )
+    item_azul = CarritoItemModel.objects.create(
+        carrito=usuario.carrito, producto=producto, color_nombre=azul.nombre, cantidad=2
+    )
+    client.login(username=usuario.email, password='TestPass123')
+    response = client.post(reverse('actualizar'), {
+        'item_id': item_rojo.id, 'cantidad': 2,
+    })
+    assert response.status_code == 200
+    data = response.json()['success']
+    assert data['item']['stock'] == 2
+    assert data['stocks_disponibles'] == {str(item_rojo.id): 2, str(item_azul.id): 2}
+
+
+@pytest.mark.django_db
+def test_actualizar_disminuye_habilita_otra_variante(client, usuario, producto, color_data):
+    producto.stock = 4
+    producto.save()
+    rojo = ColorModel.objects.create(**color_data)
+    azul = ColorModel.objects.create(nombre='Azul', codigo_hex='#0000FF')
+    item_rojo = CarritoItemModel.objects.create(
+        carrito=usuario.carrito, producto=producto, color_nombre=rojo.nombre, cantidad=3
+    )
+    item_azul = CarritoItemModel.objects.create(
+        carrito=usuario.carrito, producto=producto, color_nombre=azul.nombre, cantidad=1
+    )
+    client.login(username=usuario.email, password='TestPass123')
+    response = client.post(reverse('actualizar'), {
+        'item_id': item_rojo.id, 'cantidad': 2,
+    })
+    assert response.status_code == 200
+    data = response.json()['success']
+    assert data['stocks_disponibles'][str(item_azul.id)] == 2
 
 
 @pytest.mark.django_db
@@ -192,6 +238,25 @@ def test_eliminar_exitoso(client, usuario, producto):
     data = response.json()['success']
     assert 'carrito' in data
     assert CarritoItemModel.objects.count() == 0
+
+
+@pytest.mark.django_db
+def test_eliminar_devuelve_stocks_disponibles(client, usuario, producto, color_data):
+    producto.stock = 4
+    producto.save()
+    rojo = ColorModel.objects.create(**color_data)
+    azul = ColorModel.objects.create(nombre='Azul', codigo_hex='#0000FF')
+    item_rojo = CarritoItemModel.objects.create(
+        carrito=usuario.carrito, producto=producto, color_nombre=rojo.nombre, cantidad=2
+    )
+    item_azul = CarritoItemModel.objects.create(
+        carrito=usuario.carrito, producto=producto, color_nombre=azul.nombre, cantidad=2
+    )
+    client.login(username=usuario.email, password='TestPass123')
+    response = client.post(reverse('eliminar'), {'item_id': item_rojo.id})
+    assert response.status_code == 200
+    data = response.json()['success']
+    assert data['stocks_disponibles'] == {str(item_azul.id): 4}
 
 
 @pytest.mark.django_db

@@ -25,6 +25,23 @@ def get_cantidades_en_carrito(usuario, producto_ids=None):
     }
 
 
+def get_stock_disponible_item_service(carrito, item):
+    otras_variantes = CarritoItemModel.objects.filter(
+        carrito=carrito, producto=item.producto
+    ).exclude(id=item.id).aggregate(total=Sum('cantidad'))['total'] or 0
+    return item.producto.stock - otras_variantes
+
+
+def get_stock_restante_producto_service(usuario, producto):
+    en_carrito = get_cantidades_en_carrito(usuario, [producto.id]).get(producto.id, 0)
+    return producto.stock - en_carrito
+
+
+def get_stocks_disponibles_producto_service(carrito, producto_id):
+    items = CarritoItemModel.objects.filter(carrito=carrito, producto_id=producto_id)
+    return {item.id: get_stock_disponible_item_service(carrito, item) for item in items}
+
+
 @transaction.atomic
 def agregar_item_service(carrito, producto_id, cantidad=1, color_id=None, medida_id=None):
     producto = get_object_or_404(ProductoModel, id=producto_id, activo=True)
@@ -159,6 +176,7 @@ def get_carrito_context_service(carrito):
             item.delete()
             continue
         data = calcular_precios_item_service(item)
+        data['stock_disponible'] = get_stock_disponible_item_service(carrito, item)
         items_data.append(data)
         total += data['subtotal']
         total_transferencia += data['subtotal_transferencia']

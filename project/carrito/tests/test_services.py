@@ -7,7 +7,8 @@ from carrito.models import CarritoModel, CarritoItemModel
 from carrito.services import (
     get_o_crear_carrito_service, agregar_item_service, actualizar_cantidad_service,
     eliminar_item_service, vaciar_carrito_service, calcular_precios_item_service,
-    get_carrito_context_service,
+    get_carrito_context_service, get_stock_disponible_item_service,
+    get_stock_restante_producto_service, get_stocks_disponibles_producto_service,
 )
 from productos.models import ColorModel, MedidaModel, ProductoModel
 from usuarios.models import UsuarioModel
@@ -322,3 +323,69 @@ def test_contexto_cantidad_items(carrito, producto):
     )
     ctx = get_carrito_context_service(carrito)
     assert ctx['cantidad_items'] == 2
+
+
+@pytest.mark.django_db
+def test_get_stock_disponible_item_sin_otras_variantes(carrito, producto):
+    producto.stock = 4
+    producto.save()
+    item = CarritoItemModel.objects.create(
+        carrito=carrito, producto=producto, cantidad=2
+    )
+    assert get_stock_disponible_item_service(carrito, item) == 4
+
+
+@pytest.mark.django_db
+def test_get_stock_disponible_item_con_otras_variantes(carrito, producto, color_data):
+    producto.stock = 4
+    producto.save()
+    rojo = ColorModel.objects.create(**color_data)
+    azul = ColorModel.objects.create(nombre='Azul', codigo_hex='#0000FF')
+    item_rojo = CarritoItemModel.objects.create(
+        carrito=carrito, producto=producto, color_nombre=rojo.nombre, cantidad=2
+    )
+    CarritoItemModel.objects.create(
+        carrito=carrito, producto=producto, color_nombre=azul.nombre, cantidad=2
+    )
+    assert get_stock_disponible_item_service(carrito, item_rojo) == 2
+
+
+@pytest.mark.django_db
+def test_contexto_expone_stock_disponible(carrito, producto, color_data):
+    producto.stock = 4
+    producto.save()
+    rojo = ColorModel.objects.create(**color_data)
+    azul = ColorModel.objects.create(nombre='Azul', codigo_hex='#0000FF')
+    CarritoItemModel.objects.create(
+        carrito=carrito, producto=producto, color_nombre=rojo.nombre, cantidad=2
+    )
+    CarritoItemModel.objects.create(
+        carrito=carrito, producto=producto, color_nombre=azul.nombre, cantidad=2
+    )
+    ctx = get_carrito_context_service(carrito)
+    assert sorted(d['stock_disponible'] for d in ctx['items']) == [2, 2]
+
+
+@pytest.mark.django_db
+def test_get_stock_restante_producto_service(carrito, producto):
+    producto.stock = 4
+    producto.save()
+    CarritoItemModel.objects.create(carrito=carrito, producto=producto, cantidad=2)
+    assert get_stock_restante_producto_service(carrito.usuario, producto) == 2
+
+
+@pytest.mark.django_db
+def test_get_stocks_disponibles_producto_service(carrito, producto, color_data):
+    producto.stock = 4
+    producto.save()
+    rojo = ColorModel.objects.create(**color_data)
+    azul = ColorModel.objects.create(nombre='Azul', codigo_hex='#0000FF')
+    item_rojo = CarritoItemModel.objects.create(
+        carrito=carrito, producto=producto, color_nombre=rojo.nombre, cantidad=3
+    )
+    item_azul = CarritoItemModel.objects.create(
+        carrito=carrito, producto=producto, color_nombre=azul.nombre, cantidad=1
+    )
+    stocks = get_stocks_disponibles_producto_service(carrito, producto.id)
+    assert stocks[item_rojo.id] == 3
+    assert stocks[item_azul.id] == 1
