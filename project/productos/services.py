@@ -1,3 +1,4 @@
+from django.db.models import Case, IntegerField, Value, When
 from django.shortcuts import get_object_or_404
 from .models import ProductoModel, CategoriaModel, SubcategoriaModel, ColorModel, MedidaModel, TagModel
 
@@ -30,18 +31,26 @@ def aplicar_filtros(request, productos):
     if tags:
         productos = productos.filter(tags__nombre__in=tags)
     if precio_min:
-        productos = productos.filter(precio_transferencia__gte=precio_min)
+        productos = productos.filter(precio_transferencia_final__gte=precio_min)
     if precio_max:
-        productos = productos.filter(precio_transferencia__lte=precio_max)
+        productos = productos.filter(precio_transferencia_final__lte=precio_max)
+
+    productos = productos.annotate(
+        sin_stock=Case(
+            When(stock=0, then=Value(1)),
+            default=Value(0),
+            output_field=IntegerField(),
+        )
+    )
 
     ordenes_validos = [
-        'precio', '-precio', 'precio_transferencia', '-precio_transferencia',
+        'precio_transferencia_final', '-precio_transferencia_final',
         'nombre', '-nombre', 'created_at', '-created_at'
     ]
     if orden in ordenes_validos:
-        productos = productos.order_by(orden)
+        productos = productos.order_by('sin_stock', orden)
     else:
-        productos = productos.order_by('-created_at')
+        productos = productos.order_by('sin_stock', '-created_at')
 
     return productos.distinct()
 

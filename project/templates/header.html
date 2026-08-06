@@ -8,9 +8,15 @@
                 <h1>practicasa</h1>
             </a>
 
-            <button class="navbar-toggler ms-auto border-0 shadow-none order-lg-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar">
-                <span class="navbar-toggler-icon"></span>
-            </button>
+            <div class="d-flex align-items-center order-2 order-lg-3 gap-1 gap-lg-3">
+                    <a class="d-flex justify-content-center btn position-relative order-lg-2 p-0 border-0" href="{% url 'ver_carrito' %}" aria-label="Carrito">
+                        <span class="material-symbols-outlined fs-2">shopping_cart</span>
+                    </a>
+
+                <button class="navbar-toggler ms-auto border-0 shadow-none order-lg-3" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+            </div>
 
             {% with request.resolver_match.view_name as view_actual %}
             {% if view_actual == 'index' or view_actual == 'productos' or view_actual == 'productos_por_categoria' or view_actual == 'productos_por_subcategoria' or view_actual == 'resultados_busqueda' or view_actual == 'detalle_producto'  %}

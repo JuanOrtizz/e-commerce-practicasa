@@ -1,5 +1,44 @@
 # Changelog
 ---
+## [v0.11.0] - 2026-08-05
+### Rama: feature/carrito-model
+#### Features
+- Agrego campos precio_final y precio_transferencia_final a ProductoModel
+- Actualizo servicios y filtros para usar precio_transferencia_final
+- Actualizo vistas y templates para usar precios finales y ordenar productos sin stock al fondo
+- Agrego modelos CarritoModel y CarritoItemModel (OneToOne a usuario, snapshot de color/medida, unique_together, cantidad positiva) y migración inicial
+- Agrego señal post_save que crea el carrito automáticamente al registrar un usuario
+- Agrego services.py del carrito: get_o_crear_carrito_service, agregar_item_service, actualizar_cantidad_service, eliminar_item_service, vaciar_carrito_service, calcular_precios_item_service (2x1, 3x2, % OFF) y get_carrito_context_service
+- Agrego views del carrito con respuestas JSON: ver_carrito, agregar_al_carrito, actualizar_cantidad, eliminar_item y vaciar_carrito
+- Agrego urls.py de carrito y enrutado en urls del proyecto
+- Agrego template carrito.html responsive con resumen, promociones y controles de cantidad
+- Agrego estáticos del carrito: carrito.js (fetch con CSRF, spinners, actualización en el lugar) y carrito.css
+- Agrego tests con pytest para carrito (57 tests): modelos, señal, servicios y vistas
+- Integro carrito en frontend: forms de lista/detalle apuntan a /carrito/agregar/ con color y medida, icono de carrito siempre visible en header, alerta infoLoginAlertRedirect para no autenticados
+- Agrego login case-insensitive: get_by_natural_key normaliza email a minúsculas
+- Agrego redirect con ?next en login para volver a la página de origen
+- Agrego mensaje genérico de email duplicado en registro (evita enumeración de cuentas)
+- Agrego superuser solo local con variable CREATE_SUPERUSER en entrypoint.sh
+- Agrego validación de cantidad inválida en el carrito (400 sin filtrar errores de Python)
+- Agrego SRI (integrity + crossorigin) a los scripts CDN en base.html
+- Corrijo XSS en buscador reemplazando innerHTML por textContent
+#### Style
+- Aumento padding de secciones de páginas legales (p-2 a p-3)
+#### Fixes
+- Arreglo errores de sintaxis en buscador.js (punto y coma y llave faltante)
+- Actualizo tests para usar Decimal y get_or_create en cálculos de precios finales
+- Arreglo warnings de GSAP por targets ausentes
+- Elimino ruta y vista duplicada cambios_y_devoluciones en app base
+- Agrego año dinámico en footer con {% now %} y abro links de redes sociales en nueva pestaña (target=_blank)
+- Valido stock global por producto sumando todas las variantes al agregar o actualizar items del carrito
+- Muestro stock restante (stock - carrito del usuario) en lista y detalle de productos, con botón deshabilitado cuando no queda
+- Bloqueo el botón de aumentar del carrito según el stock disponible por item (stock - otras variantes) y recalculo los botones de todas las variantes al actualizar o eliminar un item
+- Actualizo el botón a "Sin stock" en lista y detalle al agregar al carrito sin necesidad de recargar la página
+#### Chore
+- Limpio .gitattributes para solo manejar archivos .sh
+#### Docs
+- Agrego docs/manejo-de-stock-futuro.md con diseño a futuro para app ventas (modelo tipo MercadoLibre)
+---
 ## [v0.10.0] - 2026-06-29
 ### Rama: feature/views-productos
 #### Features

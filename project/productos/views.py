@@ -4,6 +4,16 @@ from django.shortcuts import render, get_object_or_404
 from django.conf import settings
 from .models import ProductoModel, CategoriaModel, SubcategoriaModel
 from .services import (get_productos_activos, aplicar_filtros,get_contexto_filtros, get_producto_por_slug)
+from carrito.services import get_cantidades_en_carrito
+
+
+def _set_stock_restante(request, productos):
+    cantidades = {}
+    if request.user.is_authenticated:
+        ids = [p.id for p in productos]
+        cantidades = get_cantidades_en_carrito(request.user, ids)
+    for p in productos:
+        p.stock_restante = p.stock - cantidades.get(p.id, 0)
 
 
 def _build_contexto(request, productos, titulo):
@@ -42,6 +52,7 @@ def _render_lista(request, qs, titulo):
     qs = aplicar_filtros(request, qs)
     paginator = Paginator(qs, settings.PRODUCTOS_POR_PAGINA)
     pagina = paginator.get_page(request.GET.get('page'))
+    _set_stock_restante(request, pagina.object_list)
     contexto = _build_contexto(request, pagina, titulo)
     return render(request, 'productos/lista.html', contexto)
 
@@ -70,6 +81,7 @@ def productos_por_subcategoria(request, categoria_slug, subcategoria_slug):
 
 def detalle_producto(request, categoria_slug, subcategoria_slug, slug):
     producto = get_producto_por_slug(categoria_slug, subcategoria_slug, slug)
+    _set_stock_restante(request, [producto])
     return render(request, 'productos/detalle.html', {'producto': producto})
 
 
@@ -89,8 +101,8 @@ def buscar_productos_json(request):
             'id': p.id,
             'nombre': p.nombre,
             'slug': p.slug,
-            'precio': str(p.precio),
-            'precio_transferencia': str(p.precio_transferencia),
+            'precio': str(p.precio_final),
+            'precio_transferencia': str(p.precio_transferencia_final),
             'imagen_url': imagen_url,
             'url': p.subcategoria.categoria.slug,
             'url_subcategoria': p.subcategoria.slug,

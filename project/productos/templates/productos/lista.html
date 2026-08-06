@@ -24,8 +24,8 @@
                     <h6 class="fw-bold">Ordenar por:</h6>
                     <select class="form-select form-select-sm" name="orden" form="form-filtros">
                         <option value="-created_at"{% if request.GET.orden == '-created_at' or not request.GET.orden %} selected{% endif %}>Más nuevos</option>
-                        <option value="precio"{% if request.GET.orden == 'precio' %} selected{% endif %}>Precio: menor a mayor</option>
-                        <option value="-precio"{% if request.GET.orden == '-precio' %} selected{% endif %}>Precio: mayor a menor</option>
+                        <option value="precio_transferencia_final"{% if request.GET.orden == 'precio_transferencia_final' %} selected{% endif %}>Precio: menor a mayor</option>
+                        <option value="-precio_transferencia_final"{% if request.GET.orden == '-precio_transferencia_final' %} selected{% endif %}>Precio: mayor a menor</option>
                         <option value="nombre"{% if request.GET.orden == 'nombre' %} selected{% endif %}>Nombre A-Z</option>
                         <option value="-nombre"{% if request.GET.orden == '-nombre' %} selected{% endif %}>Nombre Z-A</option>
                     </select>
@@ -132,7 +132,7 @@
                 <div class="row px-5 p-md-0 justify-content-center justify-content-md-start g-3">
                     {% for producto in productos %}
                         <div class="col-12 col-md-6 col-lg-4">
-                            <div class="card h-100 shadow-sm border-2 d-flex flex-column{% if producto.stock == 0 %} card-disabled{% endif %}">
+                            <div class="card h-100 shadow-sm border-2 d-flex flex-column{% if producto.stock_restante <= 0 %} card-disabled{% endif %}">
                                 <a href="{% url 'detalle_producto' producto.subcategoria.categoria.slug producto.subcategoria.slug producto.slug %}" class="text-decoration-none text-black d-flex flex-column flex-grow-1">
                                     <div class="position-relative">
                                      {% with primera_imagen=producto.primera_imagen_valida %}
@@ -175,11 +175,11 @@
                                         {% if producto.tiene_promocion_porcentaje %}
                                             <p class="card-text text-secondary mb-0">
                                                 <span style="text-decoration: line-through;">${{ producto.precio }}</span>
-                                                <span> ${{ producto.precio_con_promocion }}</span>
+                                                <span> ${{ producto.precio_final }}</span>
                                             </p>
                                             <p class="card-text fw-bold mb-0">
                                                 <span class="text-secondary" style="text-decoration: line-through;">${{ producto.precio_transferencia }}</span>
-                                                <span class="fw-bold" style="color:var(--tertiary-color)">${{ producto.precio_transferencia_con_promocion }} Con transferencia.</span>
+                                                <span class="fw-bold" style="color:var(--tertiary-color)">${{ producto.precio_transferencia_final }} Con transferencia.</span>
                                             </p>
                                         {% else %}
                                             <p class="card-text text-secondary mb-0">${{ producto.precio }}</p>
@@ -189,14 +189,26 @@
                                     </div>
                                 </a>
                                 <div class="px-3 pb-3">
-                                    <form method="post" action="{% url 'detalle_producto' producto.subcategoria.categoria.slug producto.subcategoria.slug producto.slug %}" class="agregar-carrito-form">
+                                    <form method="post" action="{% url 'agregar' %}" class="agregar-carrito-form">
                                         {% csrf_token %}
                                         <input type="hidden" name="producto_id" value="{{ producto.id }}">
-                                        {% if producto.stock > 0 %}
+                                        {% with producto.colores.first as primer_color %}
+                                            {% if primer_color %}
+                                                <input type="hidden" name="color" value="{{ primer_color.id }}">
+                                            {% endif %}
+                                        {% endwith %}
+                                        {% with producto.medidas.first as primera_medida %}
+                                            {% if primera_medida %}
+                                                <input type="hidden" name="medida" value="{{ primera_medida.id }}">
+                                            {% endif %}
+                                        {% endwith %}
+                                        {% if producto.stock_restante > 0 %}
                                             <button class="btn btn-enviar text-white fw-bold w-100" type="submit">
                                                 <span class="btn-text">Agregar al Carrito</span>
                                                 <span class="spinner-border spinner-border-sm d-none text-white btn-spinner"></span>
                                             </button>
+                                        {% else %}
+                                            <button class="btn btn-secondary w-100 py-2" disabled>Sin stock</button>
                                         {% endif %}
                                     </form>
                                 </div>

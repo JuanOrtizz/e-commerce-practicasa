@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 import pytest
 from django.db import IntegrityError
 
@@ -70,7 +72,7 @@ def test_crear_medida_y_str(medida_data):
 
 @pytest.mark.django_db
 def test_crear_tag_y_str(tag_data):
-    tag = TagModel.objects.create(**tag_data)
+    tag, _ = TagModel.objects.get_or_create(**tag_data)
     assert tag.pk is not None
     assert str(tag) == 'Nuevo'
 
@@ -82,7 +84,7 @@ def test_crear_producto_completo(
     subcategoria = subcategoria_data
     color = ColorModel.objects.create(**color_data)
     medida = MedidaModel.objects.create(**medida_data)
-    tag = TagModel.objects.create(**tag_data)
+    tag, _ = TagModel.objects.get_or_create(**tag_data)
 
     producto = ProductoModel.objects.create(
         subcategoria=subcategoria,
@@ -90,8 +92,8 @@ def test_crear_producto_completo(
         descripcion='Camiseta de algodón',
         slug='camiseta-basica',
         sku='CAM-001',
-        precio=15000.00,
-        precio_transferencia=13500.00,
+        precio=Decimal('15000'),
+        precio_transferencia=Decimal('13500'),
         stock=10,
         peso=0.25,
         promocion=ProductoModel.PromocionChoices.DIEZ,
@@ -105,9 +107,47 @@ def test_crear_producto_completo(
     assert producto.subcategoria == subcategoria
     assert producto.nombre == 'Camiseta básica'
     assert producto.sku == 'CAM-001'
-    assert producto.precio == 15000.00
+    assert producto.precio == Decimal('15000')
     assert list(producto.colores.all()) == [color]
     assert list(producto.medidas.all()) == [medida]
+    assert producto.precio_final == Decimal('13500.00')
+    assert producto.precio_transferencia_final == Decimal('12150.00')
+
+
+@pytest.mark.django_db
+def test_save_calcula_precios_finales_sin_promocion(producto_data, subcategoria_data):
+    subcategoria = subcategoria_data
+    data = {**producto_data, 'precio': Decimal('200'), 'precio_transferencia': Decimal('180')}
+    data.pop('promocion', None)
+    producto = ProductoModel.objects.create(subcategoria=subcategoria, **data)
+    assert producto.precio_final == Decimal('200.00')
+    assert producto.precio_transferencia_final == Decimal('180.00')
+
+
+@pytest.mark.django_db
+def test_save_calcula_precios_finales_con_promocion_porcentaje(producto_data, subcategoria_data):
+    subcategoria = subcategoria_data
+    data = {**producto_data,
+        'precio': Decimal('200'),
+        'precio_transferencia': Decimal('180'),
+        'promocion': ProductoModel.PromocionChoices.VEINTE,
+    }
+    producto = ProductoModel.objects.create(subcategoria=subcategoria, **data)
+    assert producto.precio_final == Decimal('160.00')
+    assert producto.precio_transferencia_final == Decimal('144.00')
+
+
+@pytest.mark.django_db
+def test_save_calcula_precios_finales_con_2x1(producto_data, subcategoria_data):
+    subcategoria = subcategoria_data
+    data = {**producto_data,
+        'precio': Decimal('200'),
+        'precio_transferencia': Decimal('180'),
+        'promocion': ProductoModel.PromocionChoices.DOS_POR_UNO,
+    }
+    producto = ProductoModel.objects.create(subcategoria=subcategoria, **data)
+    assert producto.precio_final == Decimal('200.00')
+    assert producto.precio_transferencia_final == Decimal('180.00')
 
 
 @pytest.mark.django_db
@@ -162,11 +202,11 @@ def test_sku_unico(subcategoria_data):
 
 @pytest.mark.django_db
 def test_tags_sin_stock_quita_otros(subcategoria_data, tag_data):
-    TagModel.objects.create(nombre=TagModel.TagChoices.OFERTA)
-    TagModel.objects.create(nombre=TagModel.TagChoices.DESTACADO)
-    TagModel.objects.create(nombre=TagModel.TagChoices.NUEVO)
-    TagModel.objects.create(nombre=TagModel.TagChoices.ULTIMA_UNIDAD)
-    TagModel.objects.create(nombre=TagModel.TagChoices.SIN_STOCK)
+    TagModel.objects.get_or_create(nombre=TagModel.TagChoices.OFERTA)
+    TagModel.objects.get_or_create(nombre=TagModel.TagChoices.DESTACADO)
+    TagModel.objects.get_or_create(nombre=TagModel.TagChoices.NUEVO)
+    TagModel.objects.get_or_create(nombre=TagModel.TagChoices.ULTIMA_UNIDAD)
+    TagModel.objects.get_or_create(nombre=TagModel.TagChoices.SIN_STOCK)
 
     subcategoria = subcategoria_data
     producto = ProductoModel.objects.create(
@@ -175,8 +215,8 @@ def test_tags_sin_stock_quita_otros(subcategoria_data, tag_data):
         descripcion='Test',
         slug='test',
         sku='TEST-001',
-        precio=100.00,
-        precio_transferencia=90.00,
+        precio=Decimal('100'),
+        precio_transferencia=Decimal('90'),
         stock=0,
         destacado=True,
         promocion=ProductoModel.PromocionChoices.DIEZ,
@@ -189,7 +229,7 @@ def test_tags_sin_stock_quita_otros(subcategoria_data, tag_data):
 
 @pytest.mark.django_db
 def test_tags_destacado(subcategoria_data):
-    TagModel.objects.create(nombre=TagModel.TagChoices.DESTACADO)
+    TagModel.objects.get_or_create(nombre=TagModel.TagChoices.DESTACADO)
 
     subcategoria = subcategoria_data
     producto = ProductoModel.objects.create(
@@ -209,8 +249,8 @@ def test_tags_destacado(subcategoria_data):
 
 @pytest.mark.django_db
 def test_tags_oferta_ultima_unidad(subcategoria_data):
-    TagModel.objects.create(nombre=TagModel.TagChoices.OFERTA)
-    TagModel.objects.create(nombre=TagModel.TagChoices.ULTIMA_UNIDAD)
+    TagModel.objects.get_or_create(nombre=TagModel.TagChoices.OFERTA)
+    TagModel.objects.get_or_create(nombre=TagModel.TagChoices.ULTIMA_UNIDAD)
 
     subcategoria = subcategoria_data
     producto = ProductoModel.objects.create(
@@ -219,8 +259,8 @@ def test_tags_oferta_ultima_unidad(subcategoria_data):
         descripcion='Test',
         slug='test',
         sku='TEST-001',
-        precio=100.00,
-        precio_transferencia=90.00,
+        precio=Decimal('100'),
+        precio_transferencia=Decimal('90'),
         stock=1,
         promocion=ProductoModel.PromocionChoices.DIEZ,
     )
@@ -232,7 +272,7 @@ def test_tags_oferta_ultima_unidad(subcategoria_data):
 
 @pytest.mark.django_db
 def test_tags_nuevo(subcategoria_data):
-    TagModel.objects.create(nombre=TagModel.TagChoices.NUEVO)
+    TagModel.objects.get_or_create(nombre=TagModel.TagChoices.NUEVO)
 
     subcategoria = subcategoria_data
     producto = ProductoModel.objects.create(
@@ -251,7 +291,7 @@ def test_tags_nuevo(subcategoria_data):
 
 @pytest.mark.django_db
 def test_tags_quita_sin_stock_al_recuperar_stock(subcategoria_data):
-    TagModel.objects.create(nombre=TagModel.TagChoices.SIN_STOCK)
+    TagModel.objects.get_or_create(nombre=TagModel.TagChoices.SIN_STOCK)
 
     subcategoria = subcategoria_data
     producto = ProductoModel.objects.create(

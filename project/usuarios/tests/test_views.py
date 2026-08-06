@@ -49,6 +49,18 @@ def test_login_post_valido(client, user_data):
 
 
 @pytest.mark.django_db
+def test_login_post_email_mayuscula(client, user_data):
+    UsuarioModel.objects.create_user(**user_data)
+    response = client.post(reverse("login"), {
+        "username": user_data["email"].upper(),
+        "password": user_data["password"],
+    }, HTTP_X_REQUESTED_WITH="XMLHttpRequest")
+    data = response.json()
+    assert data["success"] is True
+    assert data["redirect"] == "/"
+
+
+@pytest.mark.django_db
 def test_login_post_invalido(client):
     response = client.post(reverse("login"), {
         "username": "no@existe.com",

@@ -1,4 +1,4 @@
-import {successToast, errorToast} from '/static/js/alertas.js'
+import {successToast, errorToast, infoLoginAlertRedirect} from '/static/js/alertas.js'
 
 document.addEventListener('DOMContentLoaded', ()=>{
     document.querySelectorAll('.agregar-carrito-form').forEach(form => {
@@ -29,8 +29,11 @@ async function postForm(formData, csrfToken, action, form){
             }
         })
         const data = await response.json()
-        if(data.success){
+        if (response.status === 401 || response.status === 403) {
+            infoLoginAlertRedirect("Debés iniciar sesión para agregar productos al carrito", `/usuarios/login/?next=${encodeURIComponent(window.location.pathname + window.location.search)}`)
+        } else if(data.success){
             successToast(data.success.message)
+            actualizarStockRestante(data.success)
         }else{
             if (typeof data.errors === "string") {
                 errorToast(data.errors)
@@ -44,4 +47,27 @@ async function postForm(formData, csrfToken, action, form){
         text.textContent = "Agregar al Carrito"
         spinner.classList.add("d-none")
     }
+}
+
+function actualizarStockRestante(success) {
+    if (!success.producto_id || success.stock_restante === undefined) return
+    document.querySelectorAll('.agregar-carrito-form').forEach(form => {
+        const input = form.querySelector(`input[name="producto_id"][value="${success.producto_id}"]`)
+        if (!input) return
+        const card = form.closest('.card')
+        const btn = form.querySelector('button[type="submit"]')
+        if (success.stock_restante <= 0) {
+            if (card) card.classList.add('card-disabled')
+            if (btn && btn.textContent.trim() !== 'Sin stock') {
+                const nuevoBtn = document.createElement('button')
+                nuevoBtn.type = 'button'
+                nuevoBtn.className = 'btn btn-secondary w-100 py-2'
+                nuevoBtn.disabled = true
+                nuevoBtn.textContent = 'Sin stock'
+                form.replaceChild(nuevoBtn, btn)
+            }
+        } else {
+            if (card) card.classList.remove('card-disabled')
+        }
+    })
 }

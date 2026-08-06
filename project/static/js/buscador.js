@@ -18,7 +18,7 @@ function inicializar(form) {
     const input = form.querySelector('input[name="search"]')
     const dropdown = document.createElement('div')
     dropdown.className = 'dropdown-search position-absolute top-100 start-0 w-100 bg-white border rounded-3 shadow-lg overflow-hidden z-3 d-none'
-    const wrapper = form.querySelector('.position-relative')
+    const wrapper = form.querySelector('.position-relative');
     (wrapper || form).appendChild(dropdown)
 
     let timeoutId = null
@@ -73,7 +73,7 @@ function inicializar(form) {
         }
     }
 
-    function renderDropdown(items)
+    function renderDropdown(items){
         dropdown.innerHTML = ''
         selectedIndex = -1
 
@@ -100,10 +100,17 @@ function inicializar(form) {
 
             const info = document.createElement('div')
             info.className = 'd-flex flex-column'
-            info.innerHTML = `
-                <span class="fw-semibold small">${item.nombre}</span>
-                <span class="text-success fw-bold small">$${item.precio_transferencia}</span>
-            `
+
+            const nombre = document.createElement('span')
+            nombre.className = 'fw-semibold small'
+            nombre.textContent = item.nombre
+
+            const precio = document.createElement('span')
+            precio.className = 'text-success fw-bold small'
+            precio.textContent = `$${item.precio_transferencia}`
+
+            info.appendChild(nombre)
+            info.appendChild(precio)
 
             a.appendChild(img)
             a.appendChild(info)

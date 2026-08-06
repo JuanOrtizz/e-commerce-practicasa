@@ -2,6 +2,9 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, Permis
 from django.db import models
 
 class UsuarioManager(BaseUserManager):
+    def get_by_natural_key(self, email):
+        return self.get(**{self.model.USERNAME_FIELD: email.strip().lower()})
+
     def create_user(self, email, nombre_completo, password=None, **extra_fields):
         if not email:
             raise ValueError("El email es obligatorio")

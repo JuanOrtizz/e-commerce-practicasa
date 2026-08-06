@@ -32,9 +32,10 @@ class CustomLoginView(LoginView):
 
     def form_valid(self, form):
         login(self.request, form.get_user())
+        redirect_to = self.get_redirect_url()
         if self.request.headers.get("X-Requested-With") == "XMLHttpRequest":
-            return JsonResponse({"success": True, "redirect": "/"})
-        return redirect("/")
+            return JsonResponse({"success": True, "redirect": redirect_to or "/"})
+        return redirect(redirect_to or "/")
 
     def form_invalid(self, form):
         if self.request.headers.get("X-Requested-With") == "XMLHttpRequest":
