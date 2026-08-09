@@ -1,5 +1,12 @@
 # Changelog
 ---
+## [v0.12.0] - 2026-08-09
+### Rama: feature/home
+#### Features
+- Agrego base/services.py con obtener_productos_destacados, obtener_productos_en_oferta y obtener_productos_ultima_unidad para la home, cada sección limitada por la constante CANTIDAD_MOSTRAR (15)
+#### Refactor
+- La auto-asignación del tag "Última unidad" ahora aplica a productos con stock <= 2 (antes solo stock == 1)
+---
 ## [v0.11.0] - 2026-08-05
 ### Rama: feature/carrito-model
 #### Features
