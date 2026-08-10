@@ -3,7 +3,7 @@ from django.contrib.auth.views import LoginView, PasswordResetView, PasswordRese
     PasswordResetCompleteView
 from django.http import JsonResponse
 from django.shortcuts import redirect
-from django.urls import reverse_lazy
+from django.urls import reverse, reverse_lazy
 from django.views.generic.edit import CreateView
 from .forms import RegistroForm, LoginForm, LoginAdminTiendaForm, CustomSetPasswordForm, CustomPasswordResetForm
 
@@ -49,9 +49,10 @@ class CustomLoginAdminTiendaView(LoginView):
 
     def form_valid(self, form):
         login(self.request, form.get_user())
+        redirect_to = reverse('panel_inicio')
         if self.request.headers.get("X-Requested-With") == "XMLHttpRequest":
-            return JsonResponse({"success": True, "redirect": "index"}) #Actualizar con vista panel
-        return redirect("index") #Actualizar a dashboard
+            return JsonResponse({"success": True, "redirect": redirect_to})
+        return redirect(redirect_to)
 
     def form_invalid(self, form):
         if self.request.headers.get("X-Requested-With") == "XMLHttpRequest":

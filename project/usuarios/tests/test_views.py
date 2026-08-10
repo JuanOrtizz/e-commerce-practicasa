@@ -78,6 +78,20 @@ def test_login_admin_tienda_get_200(client):
 
 
 @pytest.mark.django_db
+def test_login_admin_tienda_post_exitoso_redirige_panel(client, user_data):
+    UsuarioModel.objects.create_user(
+        **user_data, tipo=UsuarioModel.Tipos.ADMINISTRADOR_TIENDA
+    )
+    response = client.post(reverse("login_admin_tienda"), {
+        "username": user_data["email"],
+        "password": user_data["password"],
+    }, HTTP_X_REQUESTED_WITH="XMLHttpRequest")
+    data = response.json()
+    assert data["success"] is True
+    assert data["redirect"] == reverse("panel_inicio")
+
+
+@pytest.mark.django_db
 def test_login_admin_tienda_post_rechaza_cliente(client, user_data):
     UsuarioModel.objects.create_user(**user_data)
     response = client.post(reverse("login_admin_tienda"), {
