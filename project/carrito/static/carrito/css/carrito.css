@@ -129,6 +129,8 @@
 .carrito-producto-link {
     color: var(--black);
     transition: color 0.2s;
+    overflow-wrap: break-word;
+    word-break: break-word;
 }
 
 .carrito-producto-link:hover {
@@ -184,5 +186,9 @@
 
 .carrito-resumen-overlay .spinner-border {
     color: var(--tertiary-color);
+}
+
+.carrito-item .col {
+    min-width: 0;
 }
 
