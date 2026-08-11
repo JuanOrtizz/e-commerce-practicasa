@@ -1,0 +1,44 @@
+{% extends 'panel_admin/base.html' %}
+
+{% block title %}{{ titulo }} | Practicasa{% endblock %}
+
+{% block titulo_pagina %}{{ titulo }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+    <a class="btn btn-panel-secundario" href="{% url 'panel_consultas' %}">
+        <span class="material-symbols-outlined">arrow_back</span> Volver
+    </a>
+</div>
+
+<form method="post">
+    {% csrf_token %}
+
+    {% if form.non_field_errors %}
+        <div class="alert alert-danger py-2">{{ form.non_field_errors }}</div>
+    {% endif %}
+
+    <div class="panel-card p-3">
+        <div class="row g-0">
+            {% for field in form %}
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.errors %}
+                            <div class="text-danger small mt-1">{{ field.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-end gap-2 mt-3">
+        <a class="btn btn-panel-secundario" href="{% url 'panel_consultas' %}">Cancelar</a>
+        <button class="btn btn-panel-primario" type="submit">
+            <span class="material-symbols-outlined">save</span> Guardar
+        </button>
+    </div>
+</form>
+{% endblock %}

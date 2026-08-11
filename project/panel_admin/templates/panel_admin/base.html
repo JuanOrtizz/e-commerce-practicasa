@@ -1,0 +1,70 @@
+{% load static %}
+
+<!doctype html>
+<html lang="es-ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" href="{% static 'img/favicon.webp' %}" type="image/x-icon">
+    <link rel="shortcut icon" href="{% static 'img/favicon.png' %}" type="image/x-icon">
+    <title>{% block title %} {% endblock %}</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/globalStyles.css' %}">
+    <link rel="stylesheet" href="{% static 'panel_admin/css/panelAdmin.css' %}">
+    {% block extra_css %} {% endblock %}
+</head>
+<body>
+
+<div class="panel-layout d-flex">
+    <aside class="offcanvas-lg offcanvas-start panel-sidebar flex-shrink-0" tabindex="-1" id="panelSidebar" aria-labelledby="panelSidebarLabel">
+        <div class="panel-brand p-4 text-center">
+            <a class="d-flex flex-column align-items-center text-decoration-none text-dark" href="{% url 'panel_inicio' %}">
+                <img src="{% static 'img/logo_practicasa.png' %}" alt="Logo Practicasa" width="55" />
+                <h1 class="fs-6 fst-italic fw-semibold mt-1 mb-0">practicasa</h1>
+            </a>
+        </div>
+        {% with request.resolver_match.view_name as view_actual %}
+            <nav class="d-flex flex-column gap-2">
+                <a class="panel-nav-link d-flex align-items-center gap-3 px-3 py-3 fw-semibold {% if view_actual == 'panel_inicio' %}active{% endif %}" href="{% url 'panel_inicio' %}">
+                    <span class="material-symbols-outlined">dashboard</span> Inicio
+                </a>
+                <a class="panel-nav-link d-flex align-items-center gap-3 px-3 py-3 fw-semibold {% if view_actual == 'panel_consultas' or view_actual == 'panel_consulta_detalle' or view_actual == 'panel_consulta_modificar' %}active{% endif %}" href="{% url 'panel_consultas' %}">
+                    <span class="material-symbols-outlined">forum</span> Consultas
+                </a>
+                <a class="panel-nav-link d-flex align-items-center gap-3 px-3 py-3 fw-semibold {% if view_actual == 'panel_productos' or view_actual == 'panel_producto_nuevo' or view_actual == 'panel_producto_modificar' or view_actual == 'panel_producto_detalle' %}active{% endif %}" href="{% url 'panel_productos' %}">
+                    <span class="material-symbols-outlined">inventory_2</span> Productos
+                </a>
+                <a class="panel-nav-link d-flex align-items-center gap-3 px-3 py-3 fw-semibold {% if view_actual == 'panel_pagos' %}active{% endif %}" href="{% url 'panel_pagos' %}">
+                    <span class="material-symbols-outlined">payments</span> Pagos
+                </a>
+            </nav>
+        {% endwith %}
+    </aside>
+
+    <div class="d-flex flex-column flex-grow-1">
+        <header class="d-flex align-items-center gap-2 px-4 py-3 bg-white border-bottom">
+            <button class="btn d-lg-none border-0 p-1" type="button" data-bs-toggle="offcanvas" data-bs-target="#panelSidebar" aria-label="Abrir menú">
+                <span class="material-symbols-outlined">menu</span>
+            </button>
+            <h2 class="fs-5 fw-semibold mb-0">{% block titulo_pagina %} {% endblock %}</h2>
+            <div class="ms-auto d-flex align-items-center gap-2 gap-md-3">
+                <form method="post" action="{% url 'logout' %}">
+                    {% csrf_token %}
+                    <button class="btn btn-danger gap-2 d-flex justify-content-center align-item-center" type="submit">
+                        <span class="material-symbols-outlined">logout</span> Logout
+                    </button>
+                </form>
+            </div>
+        </header>
+        <main class="p-4">
+            {% block content %} {% endblock %}
+        </main>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11" integrity="sha384-nLoOnA/BDh8A/jxqtckg4DumuCGOBYUnNJLZdQz/zfYNp3wcjGSoWTAzgko06G/2" crossorigin="anonymous"></script>
+{% block extra_js %} {% endblock %}
+</body>
+</html>
