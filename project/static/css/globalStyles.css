@@ -81,7 +81,7 @@ input[type=number] {
 }
 
 .form-floating > .form-control:focus ~ label,
-.form-floating > .form-control:not(:placeholder-shown) ~ label, {
+.form-floating > .form-control:not(:placeholder-shown) ~ label,
 .form-floating > .form-select:focus ~ label,
 .form-floating > .form-select:not(:placeholder-shown) ~ label
     color: var(--tertiary-color) !important;
