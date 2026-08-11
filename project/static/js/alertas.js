@@ -26,6 +26,29 @@ export function successAlertRedirect(text, href){
     })
 }
 
+// funcion para generar alerta de exito que recarga la pagina al cerrar
+export function successAlertRedirectOnClose(text, href){
+    Swal.fire({
+        title: `${text}`,
+        icon: "success",
+        iconColor: '#12A116',
+        confirmButtonText: "Cerrar",
+        confirmButtonColor: '#000000',
+        willOpen: () => {
+            const title = document.querySelector('.swal2-title')
+            title.style.fontSize = '1rem'
+            title.style.fontFamily = '"Nunito Sans", sans-serif'
+        },
+        didOpen: () =>{ // agrego esto ya que sino recalcula con esta clase y sube el footer para evitar scroll
+            document.body.classList.remove('swal2-height-auto')
+            document.body.style.overflow = 'auto'
+            document.body.style.paddingRight = '0'
+        }
+    }).then(() =>
+        window.location.href = href
+    )
+}
+
 export function infoLoginAlertRedirect(text, href){
     Swal.fire({
         title: `${text}`,
