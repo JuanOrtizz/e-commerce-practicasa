@@ -113,7 +113,7 @@ class ProductoImagenForm(forms.ModelForm):
         model = ProductoImagenModel
         fields = ['imagen']
         widgets = {
-            'imagen': forms.ClearableFileInput(attrs={'class': 'form-control'}),
+            'imagen': forms.FileInput(attrs={'class': 'form-control'}),
         }
 
     def __init__(self, *args, **kwargs):
