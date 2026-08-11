@@ -175,7 +175,7 @@ class ProductoModel(models.Model):
             if self.destacado:
                 tags.add(TagModel.TagChoices.DESTACADO)
 
-            if self.stock == 1:
+            if self.stock <= 2:
                 tags.add(TagModel.TagChoices.ULTIMA_UNIDAD)
 
             if self.promocion:
