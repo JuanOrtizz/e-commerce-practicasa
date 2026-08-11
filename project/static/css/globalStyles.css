@@ -61,7 +61,8 @@ input[type=number] {
 }
 
 .input-group:focus-within,
-.form-control:focus-within{
+.form-control:focus-within,
+.form-select:focus-within{
     border-color: var(--tertiary-color) !important;
     box-shadow: none !important;
 }
@@ -80,14 +81,19 @@ input[type=number] {
 }
 
 .form-floating > .form-control:focus ~ label,
-.form-floating > .form-control:not(:placeholder-shown) ~ label {
+.form-floating > .form-control:not(:placeholder-shown) ~ label, {
+.form-floating > .form-select:focus ~ label,
+.form-floating > .form-select:not(:placeholder-shown) ~ label
     color: var(--tertiary-color) !important;
     opacity: 1;
 }
 
 .form-floating:has(.is-invalid) > .form-control,
 .form-floating:has(.is-invalid) > .form-control:hover,
-.form-floating:has(.is-invalid) > .form-control:focus {
+.form-floating:has(.is-invalid) > .form-control:focus,
+.form-floating:has(.is-invalid) > .form-select,
+.form-floating:has(.is-invalid) > .form-select:hover,
+.form-floating:has(.is-invalid) > .form-select:focus  {
     border: none !important;
     box-shadow: none !important;
 }
