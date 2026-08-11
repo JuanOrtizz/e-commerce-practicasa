@@ -195,7 +195,6 @@ def test_producto_eliminar_post_elimina(admin_client, producto):
     response = admin_client.post(reverse('panel_producto_eliminar', args=[producto.id]))
     data_json = response.json()
     assert data_json['success'] is True
-    assert data_json['redirect'] == reverse('panel_productos')
     assert not ProductoModel.objects.filter(id=producto.id).exists()
 
 

@@ -128,8 +128,7 @@ def producto_eliminar(request, id):
     producto.delete()
     return JsonResponse({
         "success": True,
-        "message": f"Producto {producto.nombre} eliminado.",
-        "redirect": reverse('panel_productos'),
+        "message": f"Producto {producto.nombre} eliminado."
     })
 
 

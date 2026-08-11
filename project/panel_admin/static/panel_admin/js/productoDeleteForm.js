@@ -44,8 +44,6 @@ async function deleteForm(productoId, csrfToken, form) {
                     }
                 }
                 successAlert(data.message, "El producto fue eliminado correctamente.")
-            } else {
-                window.location.href = data.redirect
             }
         } else {
             const errors = data.errors
