@@ -5,10 +5,369 @@
 {% block title %}Home | Practicasa{% endblock %}
 
 {% block extra_css %}
+<link rel="stylesheet" href="{% static 'base/css/index.css' %}">
 {% endblock %}
 
 {% block content %}
+<div class="container-lg my-4">
+    <div id="carouselHero" class="carousel slide shadow-sm rounded overflow-hidden" data-bs-ride="carousel">
+        <div class="carousel-inner">
+            <div class="carousel-item active">
+                <img src="{% static 'base/img/hero_1.webp' %}" class="d-block w-100 hero-slide" alt="Banner principal 1">
+                <div class="slogan-ofertas">
+                    <h2 class="fw-bold">Tu hogar, nuestra misión</h2>
+                    <p>Encontralo en Practicasa</p>
+                </div>
+            </div>
+            <div class="carousel-item">
+                <img src="{% static 'base/img/hero_2.webp' %}" class="d-block w-100 hero-slide" alt="Banner principal 2">
+                <div class="slogan-ofertas">
+                    <h2 class="fw-bold">Tu hogar, nuestra misión</h2>
+                    <p>Encontralo en Practicasa</p>
+                </div>
+            </div>
+            <div class="carousel-item">
+                <img src="{% static 'base/img/hero_3.webp' %}" class="d-block w-100 hero-slide" alt="Banner principal 3">
+                <div class="slogan-ofertas">
+                    <h2 class="fw-bold">Tu hogar, nuestra misión</h2>
+                    <p>Encontralo en Practicasa</p>
+                </div>
+            </div>
+        </div>
+        <button class="carousel-control-prev" type="button" data-bs-target="#carouselHero" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Anterior</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#carouselHero" data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Siguiente</span>
+        </button>
+    </div>
+
+    <section class="my-5">
+        <h3 class="fw-bold mb-3 titulo-apartado">Destacados</h3>
+        {% if destacados %}
+            <div class="d-flex align-items-center gap-2">
+                <button class="btn-flecha-fila" type="button" data-fila="fila-destacados" data-direccion="-1" aria-label="Destacados anteriores">
+                    <span class="material-symbols-outlined">chevron_left</span>
+                </button>
+                <div class="d-flex flex-nowrap overflow-auto fila-categorias gap-3 pb-2 flex-grow-1" id="fila-destacados">
+                {% for producto in destacados %}
+                    <div>
+                        <div class="card h-100 shadow-sm border-2 d-flex flex-column{% if producto.stock <= 0 %} card-disabled{% endif %}">
+                            <a href="{% url 'detalle_producto' producto.subcategoria.categoria.slug producto.subcategoria.slug producto.slug %}" class="text-decoration-none text-black d-flex flex-column flex-grow-1">
+                                <div class="position-relative">
+                                    {% with primera_imagen=producto.primera_imagen_valida %}
+                                        {% if primera_imagen %}
+                                            <img src="{{ primera_imagen.imagen.url }}" class="card-img-top" alt="{{ producto.nombre }}" style="height:200px;object-fit:cover;width:100%;">
+                                        {% else %}
+                                            <img src="{% static 'productos/img/logo_default_practicasa.webp' %}" class="card-img-top" alt="{{ producto.nombre }}" style="height:200px;object-fit:cover;width:100%;">
+                                        {% endif %}
+                                    {% endwith %}
+                                    <div class="position-absolute top-0 start-0 p-1 d-flex flex-wrap gap-1">
+                                        {% for tag in producto.tags.all %}
+                                            {% if tag.nombre == 'oferta' %}
+                                                <span class="badge bg-danger">{{ tag.get_nombre_display }}</span>
+                                            {% elif tag.nombre == 'nuevo' %}
+                                                <span class="badge bg-success">{{ tag.get_nombre_display }}</span>
+                                            {% elif tag.nombre == 'sin_stock' %}
+                                                <span class="badge bg-secondary">{{ tag.get_nombre_display }}</span>
+                                            {% elif tag.nombre == 'ultima_unidad' %}
+                                                <span class="badge bg-warning text-dark">{{ tag.get_nombre_display }}</span>
+                                            {% elif tag.nombre == 'destacado' %}
+                                                <span class="badge bg-info text-dark">{{ tag.get_nombre_display }}</span>
+                                            {% else %}
+                                                <span class="badge bg-secondary">{{ tag.get_nombre_display }}</span>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                <div class="card-body d-flex flex-column">
+                                    <h6 class="card-title" style="min-height: 1rem;">{{ producto.nombre|truncatechars:50 }}</h6>
+                                    {% if producto.promocion %}
+                                        <span class="badge bg-danger mb-1 align-self-start">
+                                            {% if producto.tiene_promocion_porcentaje %}
+                                                {{ producto.get_promocion_display }} OFF
+                                            {% else %}
+                                                {{ producto.get_promocion_display }}
+                                            {% endif %}
+                                        </span>
+                                    {% endif %}
+                                    <div class="mt-auto">
+                                    {% if producto.tiene_promocion_porcentaje %}
+                                        <p class="card-text text-secondary mb-0">
+                                            <span style="text-decoration: line-through;">${{ producto.precio }}</span>
+                                            <span> ${{ producto.precio_final }}</span>
+                                        </p>
+                                        <p class="card-text fw-bold mb-0">
+                                            <span class="text-secondary" style="text-decoration: line-through;">${{ producto.precio_transferencia }}</span>
+                                            <span class="fw-bold" style="color:var(--tertiary-color)">${{ producto.precio_transferencia_final }} Con transferencia.</span>
+                                        </p>
+                                    {% else %}
+                                        <p class="card-text text-secondary mb-0">${{ producto.precio }}</p>
+                                        <p class="card-text fw-bold mb-0" style="color:var(--tertiary-color)">${{ producto.precio_transferencia }} Con transferencia.</p>
+                                    {% endif %}
+                                    </div>
+                                </div>
+                            </a>
+                            <div class="px-3 pb-3">
+                                <form method="post" action="{% url 'agregar' %}" class="agregar-carrito-form">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="producto_id" value="{{ producto.id }}">
+                                    {% with producto.colores.first as primer_color %}
+                                        {% if primer_color %}
+                                            <input type="hidden" name="color" value="{{ primer_color.id }}">
+                                        {% endif %}
+                                    {% endwith %}
+                                    {% with producto.medidas.first as primera_medida %}
+                                        {% if primera_medida %}
+                                            <input type="hidden" name="medida" value="{{ primera_medida.id }}">
+                                        {% endif %}
+                                    {% endwith %}
+                                    {% if producto.stock > 0 %}
+                                        <button class="btn btn-enviar text-white fw-bold w-100" type="submit">
+                                            <span class="btn-text">Agregar al Carrito</span>
+                                            <span class="spinner-border spinner-border-sm d-none text-white btn-spinner"></span>
+                                        </button>
+                                    {% else %}
+                                        <button class="btn btn-secondary w-100 py-2" disabled>Sin stock</button>
+                                    {% endif %}
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+                    <a href="{% url 'productos' %}?tag=destacado" class="ver-mas text-decoration-none d-flex flex-column justify-content-center align-items-center gap-1" aria-label="Ver más destacados">
+                        <span class="fw-bold">Ver más</span>
+                        <span class="material-symbols-outlined">arrow_forward</span>
+                    </a>
+                </div>
+                <button class="btn-flecha-fila" type="button" data-fila="fila-destacados" data-direccion="1" aria-label="Destacados siguientes">
+                    <span class="material-symbols-outlined">chevron_right</span>
+                </button>
+            </div>
+        {% else %}
+            <p class="text-muted">No hay productos destacados por el momento.</p>
+        {% endif %}
+    </section>
+
+    <section class="my-5">
+        <h3 class="fw-bold mb-3 titulo-apartado">Última unidad</h3>
+        {% if ultima_unidad %}
+            <div class="d-flex align-items-center gap-2">
+                <button class="btn-flecha-fila" type="button" data-fila="fila-ultima-unidad" data-direccion="-1" aria-label="Última unidad anteriores">
+                    <span class="material-symbols-outlined">chevron_left</span>
+                </button>
+                <div class="d-flex flex-nowrap overflow-auto fila-categorias gap-3 pb-2 flex-grow-1" id="fila-ultima-unidad">
+                {% for producto in ultima_unidad %}
+                    <div>
+                        <div class="card h-100 shadow-sm border-2 d-flex flex-column{% if producto.stock <= 0 %} card-disabled{% endif %}">
+                            <a href="{% url 'detalle_producto' producto.subcategoria.categoria.slug producto.subcategoria.slug producto.slug %}" class="text-decoration-none text-black d-flex flex-column flex-grow-1">
+                                <div class="position-relative">
+                                    {% with primera_imagen=producto.primera_imagen_valida %}
+                                        {% if primera_imagen %}
+                                            <img src="{{ primera_imagen.imagen.url }}" class="card-img-top" alt="{{ producto.nombre }}" style="height:200px;object-fit:cover;width:100%;">
+                                        {% else %}
+                                            <img src="{% static 'productos/img/logo_default_practicasa.webp' %}" class="card-img-top" alt="{{ producto.nombre }}" style="height:200px;object-fit:cover;width:100%;">
+                                        {% endif %}
+                                    {% endwith %}
+                                    <div class="position-absolute top-0 start-0 p-1 d-flex flex-wrap gap-1">
+                                        {% for tag in producto.tags.all %}
+                                            {% if tag.nombre == 'oferta' %}
+                                                <span class="badge bg-danger">{{ tag.get_nombre_display }}</span>
+                                            {% elif tag.nombre == 'nuevo' %}
+                                                <span class="badge bg-success">{{ tag.get_nombre_display }}</span>
+                                            {% elif tag.nombre == 'sin_stock' %}
+                                                <span class="badge bg-secondary">{{ tag.get_nombre_display }}</span>
+                                            {% elif tag.nombre == 'ultima_unidad' %}
+                                                <span class="badge bg-warning text-dark">{{ tag.get_nombre_display }}</span>
+                                            {% elif tag.nombre == 'destacado' %}
+                                                <span class="badge bg-info text-dark">{{ tag.get_nombre_display }}</span>
+                                            {% else %}
+                                                <span class="badge bg-secondary">{{ tag.get_nombre_display }}</span>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                <div class="card-body d-flex flex-column">
+                                    <h6 class="card-title" style="min-height: 1rem;">{{ producto.nombre|truncatechars:50 }}</h6>
+                                    {% if producto.promocion %}
+                                        <span class="badge bg-danger mb-1 align-self-start">
+                                            {% if producto.tiene_promocion_porcentaje %}
+                                                {{ producto.get_promocion_display }} OFF
+                                            {% else %}
+                                                {{ producto.get_promocion_display }}
+                                            {% endif %}
+                                        </span>
+                                    {% endif %}
+                                    <div class="mt-auto">
+                                    {% if producto.tiene_promocion_porcentaje %}
+                                        <p class="card-text text-secondary mb-0">
+                                            <span style="text-decoration: line-through;">${{ producto.precio }}</span>
+                                            <span> ${{ producto.precio_final }}</span>
+                                        </p>
+                                        <p class="card-text fw-bold mb-0">
+                                            <span class="text-secondary" style="text-decoration: line-through;">${{ producto.precio_transferencia }}</span>
+                                            <span class="fw-bold" style="color:var(--tertiary-color)">${{ producto.precio_transferencia_final }} Con transferencia.</span>
+                                        </p>
+                                    {% else %}
+                                        <p class="card-text text-secondary mb-0">${{ producto.precio }}</p>
+                                        <p class="card-text fw-bold mb-0" style="color:var(--tertiary-color)">${{ producto.precio_transferencia }} Con transferencia.</p>
+                                    {% endif %}
+                                    </div>
+                                </div>
+                            </a>
+                            <div class="px-3 pb-3">
+                                <form method="post" action="{% url 'agregar' %}" class="agregar-carrito-form">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="producto_id" value="{{ producto.id }}">
+                                    {% with producto.colores.first as primer_color %}
+                                        {% if primer_color %}
+                                            <input type="hidden" name="color" value="{{ primer_color.id }}">
+                                        {% endif %}
+                                    {% endwith %}
+                                    {% with producto.medidas.first as primera_medida %}
+                                        {% if primera_medida %}
+                                            <input type="hidden" name="medida" value="{{ primera_medida.id }}">
+                                        {% endif %}
+                                    {% endwith %}
+                                    {% if producto.stock > 0 %}
+                                        <button class="btn btn-enviar text-white fw-bold w-100" type="submit">
+                                            <span class="btn-text">Agregar al Carrito</span>
+                                            <span class="spinner-border spinner-border-sm d-none text-white btn-spinner"></span>
+                                        </button>
+                                    {% else %}
+                                        <button class="btn btn-secondary w-100 py-2" disabled>Sin stock</button>
+                                    {% endif %}
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+                    <a href="{% url 'productos' %}?tag=ultima_unidad" class="ver-mas text-decoration-none d-flex flex-column justify-content-center align-items-center gap-1" aria-label="Ver más última unidad">
+                        <span class="fw-bold">Ver más</span>
+                        <span class="material-symbols-outlined">arrow_forward</span>
+                    </a>
+                </div>
+                <button class="btn-flecha-fila" type="button" data-fila="fila-ultima-unidad" data-direccion="1" aria-label="Última unidad siguientes">
+                    <span class="material-symbols-outlined">chevron_right</span>
+                </button>
+            </div>
+        {% else %}
+            <p class="text-muted">No hay productos con última unidad por el momento.</p>
+        {% endif %}
+    </section>
+
+    <section class="my-5">
+        <h3 class="fw-bold mb-3 titulo-apartado">Ofertas</h3>
+        {% if oferta %}
+            <div class="d-flex align-items-center gap-2">
+                <button class="btn-flecha-fila" type="button" data-fila="fila-ofertas" data-direccion="-1" aria-label="Ofertas anteriores">
+                    <span class="material-symbols-outlined">chevron_left</span>
+                </button>
+                <div class="d-flex flex-nowrap overflow-auto fila-categorias gap-3 pb-2 flex-grow-1" id="fila-ofertas">
+                {% for producto in oferta %}
+                    <div>
+                        <div class="card h-100 shadow-sm border-2 d-flex flex-column{% if producto.stock <= 0 %} card-disabled{% endif %}">
+                            <a href="{% url 'detalle_producto' producto.subcategoria.categoria.slug producto.subcategoria.slug producto.slug %}" class="text-decoration-none text-black d-flex flex-column flex-grow-1">
+                                <div class="position-relative">
+                                    {% with primera_imagen=producto.primera_imagen_valida %}
+                                        {% if primera_imagen %}
+                                            <img src="{{ primera_imagen.imagen.url }}" class="card-img-top" alt="{{ producto.nombre }}" style="height:200px;object-fit:cover;width:100%;">
+                                        {% else %}
+                                            <img src="{% static 'productos/img/logo_default_practicasa.webp' %}" class="card-img-top" alt="{{ producto.nombre }}" style="height:200px;object-fit:cover;width:100%;">
+                                        {% endif %}
+                                    {% endwith %}
+                                    <div class="position-absolute top-0 start-0 p-1 d-flex flex-wrap gap-1">
+                                        {% for tag in producto.tags.all %}
+                                            {% if tag.nombre == 'oferta' %}
+                                                <span class="badge bg-danger">{{ tag.get_nombre_display }}</span>
+                                            {% elif tag.nombre == 'nuevo' %}
+                                                <span class="badge bg-success">{{ tag.get_nombre_display }}</span>
+                                            {% elif tag.nombre == 'sin_stock' %}
+                                                <span class="badge bg-secondary">{{ tag.get_nombre_display }}</span>
+                                            {% elif tag.nombre == 'ultima_unidad' %}
+                                                <span class="badge bg-warning text-dark">{{ tag.get_nombre_display }}</span>
+                                            {% elif tag.nombre == 'destacado' %}
+                                                <span class="badge bg-info text-dark">{{ tag.get_nombre_display }}</span>
+                                            {% else %}
+                                                <span class="badge bg-secondary">{{ tag.get_nombre_display }}</span>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                <div class="card-body d-flex flex-column">
+                                    <h6 class="card-title" style="min-height: 1rem;">{{ producto.nombre|truncatechars:50 }}</h6>
+                                    {% if producto.promocion %}
+                                        <span class="badge bg-danger mb-1 align-self-start">
+                                            {% if producto.tiene_promocion_porcentaje %}
+                                                {{ producto.get_promocion_display }} OFF
+                                            {% else %}
+                                                {{ producto.get_promocion_display }}
+                                            {% endif %}
+                                        </span>
+                                    {% endif %}
+                                    <div class="mt-auto">
+                                    {% if producto.tiene_promocion_porcentaje %}
+                                        <p class="card-text text-secondary mb-0">
+                                            <span style="text-decoration: line-through;">${{ producto.precio }}</span>
+                                            <span> ${{ producto.precio_final }}</span>
+                                        </p>
+                                        <p class="card-text fw-bold mb-0">
+                                            <span class="text-secondary" style="text-decoration: line-through;">${{ producto.precio_transferencia }}</span>
+                                            <span class="fw-bold" style="color:var(--tertiary-color)">${{ producto.precio_transferencia_final }} Con transferencia.</span>
+                                        </p>
+                                    {% else %}
+                                        <p class="card-text text-secondary mb-0">${{ producto.precio }}</p>
+                                        <p class="card-text fw-bold mb-0" style="color:var(--tertiary-color)">${{ producto.precio_transferencia }} Con transferencia.</p>
+                                    {% endif %}
+                                    </div>
+                                </div>
+                            </a>
+                            <div class="px-3 pb-3">
+                                <form method="post" action="{% url 'agregar' %}" class="agregar-carrito-form">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="producto_id" value="{{ producto.id }}">
+                                    {% with producto.colores.first as primer_color %}
+                                        {% if primer_color %}
+                                            <input type="hidden" name="color" value="{{ primer_color.id }}">
+                                        {% endif %}
+                                    {% endwith %}
+                                    {% with producto.medidas.first as primera_medida %}
+                                        {% if primera_medida %}
+                                            <input type="hidden" name="medida" value="{{ primera_medida.id }}">
+                                        {% endif %}
+                                    {% endwith %}
+                                    {% if producto.stock > 0 %}
+                                        <button class="btn btn-enviar text-white fw-bold w-100" type="submit">
+                                            <span class="btn-text">Agregar al Carrito</span>
+                                            <span class="spinner-border spinner-border-sm d-none text-white btn-spinner"></span>
+                                        </button>
+                                    {% else %}
+                                        <button class="btn btn-secondary w-100 py-2" disabled>Sin stock</button>
+                                    {% endif %}
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+                    <a href="{% url 'productos' %}?tag=oferta" class="ver-mas text-decoration-none d-flex flex-column justify-content-center align-items-center gap-1" aria-label="Ver más ofertas">
+                        <span class="fw-bold">Ver más</span>
+                        <span class="material-symbols-outlined">arrow_forward</span>
+                    </a>
+                </div>
+                <button class="btn-flecha-fila" type="button" data-fila="fila-ofertas" data-direccion="1" aria-label="Ofertas siguientes">
+                    <span class="material-symbols-outlined">chevron_right</span>
+                </button>
+            </div>
+        {% else %}
+            <p class="text-muted">No hay ofertas por el momento.</p>
+        {% endif %}
+    </section>
+</div>
 {% endblock %}
 
 {% block extra_js %}
+<script type="module" src="{% static 'productos/js/agregarCarritoForm.js' %}"></script>
+<script type="module" src="{% static 'base/js/filaProductos.js' %}"></script>
 {% endblock %}

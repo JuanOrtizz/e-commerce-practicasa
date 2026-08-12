@@ -1,0 +1,73 @@
+.carousel-item {
+    position: relative;
+}
+
+.hero-slide {
+    height: 600px;
+    width: 100%;
+    object-fit: cover;
+}
+
+.slogan-ofertas {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 1rem;
+    background-color: rgba(0, 0, 0, 0.35);
+}
+
+.slogan-ofertas h2 {
+    color: #fff;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
+}
+
+.slogan-ofertas p {
+    color: #fff;
+}
+
+.titulo-apartado {
+    color: var(--tertiary-color);
+}
+
+.fila-categorias > * {
+    flex: 0 0 280px;
+}
+
+.btn-flecha-fila {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 1px solid var(--tertiary-color);
+    background-color: #fff;
+    color: var(--tertiary-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.btn-flecha-fila:hover {
+    background-color: var(--tertiary-color);
+    color: #fff;
+}
+
+.ver-mas {
+    border: 2px dashed var(--tertiary-color);
+    border-radius: 0.5rem;
+    color: var(--tertiary-color);
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.ver-mas:hover {
+    background-color: var(--tertiary-color);
+    color: #fff;
+}
+
+.ver-mas .material-symbols-outlined {
+    font-size: 2rem;
+}
