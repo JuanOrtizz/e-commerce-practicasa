@@ -23,6 +23,7 @@
                     <th class="text-nowrap">Producto</th>
                     <th class="text-nowrap">Categoría</th>
                     <th class="text-nowrap">Precio</th>
+                    <th class="text-nowrap">Precio Transferencia</th>
                     <th class="text-nowrap">Stock</th>
                     <th class="text-nowrap">Estado</th>
                     <th class="text-center text-nowrap">Acciones</th>
@@ -43,6 +44,7 @@
                     <td class="fw-bold">{{ producto.nombre }}</td>
                     <td>{{ producto.subcategoria.categoria.nombre }} / {{ producto.subcategoria.nombre }}</td>
                     <td>${{ producto.precio }}</td>
+                    <td>${{ producto.precio_transferencia }}</td>
                     <td>
                         {% if producto.stock == 0 %}
                             <span class="badge rounded-pill badge-stock-sin">Sin stock</span>
