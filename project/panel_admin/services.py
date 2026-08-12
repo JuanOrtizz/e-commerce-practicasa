@@ -4,6 +4,18 @@ from base.models import ConsultaModel
 from productos.models import ProductoModel
 
 
+def formset_tiene_cambios(formset):
+    for form in formset.forms:
+        if form in formset.deleted_forms:
+            return True
+        if not form.initial:
+            if 'imagen' in form.changed_data:
+                return True
+        elif form.changed_data:
+            return True
+    return False
+
+
 def get_metricas_dashboard():
     desde_mes = timezone.now() - timedelta(days=30)
     return {

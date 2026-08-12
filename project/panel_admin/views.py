@@ -1,5 +1,3 @@
-from functools import wraps
-
 from django.contrib import messages
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -10,31 +8,9 @@ from base.forms import ConsultaForm
 from base.models import ConsultaModel
 from productos.forms import MAX_IMAGENES_PRODUCTO, ProductoForm, ProductoImagenFormset
 from productos.models import ProductoModel
-from usuarios.services import es_administrador
 
-from .services import get_metricas_dashboard
-
-
-def requiere_admin(view_func):
-    @wraps(view_func)
-    def _wrapped(request, *args, **kwargs):
-        if not es_administrador(request.user):
-            return redirect('login_admin_tienda')
-        return view_func(request, *args, **kwargs)
-
-    return _wrapped
-
-
-def _formset_tiene_cambios(formset):
-    for form in formset.forms:
-        if form in formset.deleted_forms:
-            return True
-        if not form.initial:
-            if 'imagen' in form.changed_data:
-                return True
-        elif form.changed_data:
-            return True
-    return False
+from .decorators import requiere_admin
+from .services import formset_tiene_cambios, get_metricas_dashboard
 
 
 @requiere_admin
@@ -94,7 +70,7 @@ def producto_modificar(request, id):
         form = ProductoForm(request.POST, instance=producto)
         formset = ProductoImagenFormset(request.POST, request.FILES, instance=producto, extra=extra_imagenes)
         if form.is_valid() and formset.is_valid():
-            if not form.changed_data and not _formset_tiene_cambios(formset):
+            if not form.changed_data and not formset_tiene_cambios(formset):
                 return JsonResponse({"success": False, "message": "No realizaste modificaciones."})
             form.save()
             formset.save()
