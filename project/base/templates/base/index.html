@@ -12,56 +12,53 @@
 <div class="container-lg my-4">
     <div id="carouselHero" class="carousel slide shadow-sm rounded overflow-hidden" data-bs-ride="carousel">
         <div class="carousel-inner">
-            <div class="carousel-item active">
-                <img src="{% static 'base/img/hero_1.webp' %}" class="d-block w-100 hero-slide" alt="Banner principal 1">
-                <div class="slogan-ofertas">
-                    <h2 class="fw-bold">Tu hogar, nuestra misión</h2>
-                    <p>Encontralo en Practicasa</p>
+            <div class="carousel-item active position-relative">
+                <img src="{% static 'base/img/hero_1.webp' %}" class="d-block w-100 object-fit-cover hero-slide" alt="Banner principal 1">
+                <div class="slogan-ofertas position-absolute top-0 start-0 bottom-0 end-0 d-flex flex-column justify-content-center align-items-center text-center p-3">
+                    <h2 class="fw-bold text-white">Tu hogar, nuestra misión</h2>
+                    <p class="text-white">Encontralo en Practicasa</p>
                 </div>
             </div>
-            <div class="carousel-item">
-                <img src="{% static 'base/img/hero_2.webp' %}" class="d-block w-100 hero-slide" alt="Banner principal 2">
-                <div class="slogan-ofertas">
-                    <h2 class="fw-bold">Tu hogar, nuestra misión</h2>
-                    <p>Encontralo en Practicasa</p>
+            <div class="carousel-item position-relative">
+                <img src="{% static 'base/img/hero_2.webp' %}" class="d-block w-100 object-fit-cover hero-slide" alt="Banner principal 2">
+                <div class="slogan-ofertas position-absolute top-0 start-0 bottom-0 end-0 d-flex flex-column justify-content-center align-items-center text-center p-3">
+                    <h2 class="fw-bold text-white">Tu hogar, nuestra misión</h2>
+                    <p class="text-white">Encontralo en Practicasa</p>
                 </div>
             </div>
-            <div class="carousel-item">
-                <img src="{% static 'base/img/hero_3.webp' %}" class="d-block w-100 hero-slide" alt="Banner principal 3">
-                <div class="slogan-ofertas">
-                    <h2 class="fw-bold">Tu hogar, nuestra misión</h2>
-                    <p>Encontralo en Practicasa</p>
+            <div class="carousel-item position-relative">
+                <img src="{% static 'base/img/hero_3.webp' %}" class="d-block w-100 object-fit-cover hero-slide" alt="Banner principal 3">
+                <div class="slogan-ofertas position-absolute top-0 start-0 bottom-0 end-0 d-flex flex-column justify-content-center align-items-center text-center p-3">
+                    <h2 class="fw-bold text-white">Tu hogar, nuestra misión</h2>
+                    <p class="text-white">Encontralo en Practicasa</p>
                 </div>
             </div>
         </div>
-        <button class="carousel-control-prev" type="button" data-bs-target="#carouselHero" data-bs-slide="prev">
-            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-            <span class="visually-hidden">Anterior</span>
-        </button>
-        <button class="carousel-control-next" type="button" data-bs-target="#carouselHero" data-bs-slide="next">
-            <span class="carousel-control-next-icon" aria-hidden="true"></span>
-            <span class="visually-hidden">Siguiente</span>
-        </button>
+        <div class="carousel-indicators">
+            <button type="button" data-bs-target="#carouselHero" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
+            <button type="button" data-bs-target="#carouselHero" data-bs-slide-to="1" aria-label="Slide 2"></button>
+            <button type="button" data-bs-target="#carouselHero" data-bs-slide-to="2" aria-label="Slide 3"></button>
+        </div>
     </div>
 
     <section class="my-5">
-        <h3 class="fw-bold mb-3 titulo-apartado">Destacados</h3>
+        <h3 class="fw-bold mb-3 titulo-apartado text-center">Destacados</h3>
         {% if destacados %}
             <div class="d-flex align-items-center gap-2">
-                <button class="btn-flecha-fila" type="button" data-fila="fila-destacados" data-direccion="-1" aria-label="Destacados anteriores">
+                <button class="btn-flecha-fila d-flex align-items-center justify-content-center flex-shrink-0 rounded-circle bg-white" type="button" data-fila="fila-destacados" data-direccion="-1" aria-label="Destacados anteriores">
                     <span class="material-symbols-outlined">chevron_left</span>
                 </button>
-                <div class="d-flex flex-nowrap overflow-auto fila-categorias gap-3 pb-2 flex-grow-1" id="fila-destacados">
+                <div class="d-flex flex-nowrap overflow-auto fila-categorias gap-3 py-2 flex-grow-1" id="fila-destacados">
                 {% for producto in destacados %}
                     <div>
-                        <div class="card h-100 shadow-sm border-2 d-flex flex-column{% if producto.stock <= 0 %} card-disabled{% endif %}">
+                        <div class="card h-100 shadow-sm border-2 d-flex flex-column{% if producto.stock_restante <= 0 %} card-disabled{% endif %}">
                             <a href="{% url 'detalle_producto' producto.subcategoria.categoria.slug producto.subcategoria.slug producto.slug %}" class="text-decoration-none text-black d-flex flex-column flex-grow-1">
                                 <div class="position-relative">
                                     {% with primera_imagen=producto.primera_imagen_valida %}
                                         {% if primera_imagen %}
-                                            <img src="{{ primera_imagen.imagen.url }}" class="card-img-top" alt="{{ producto.nombre }}" style="height:200px;object-fit:cover;width:100%;">
+                                            <img src="{{ primera_imagen.imagen.url }}" class="card-img-top" alt="{{ producto.nombre }}" style="height:225px;object-fit:cover;width:100%;">
                                         {% else %}
-                                            <img src="{% static 'productos/img/logo_default_practicasa.webp' %}" class="card-img-top" alt="{{ producto.nombre }}" style="height:200px;object-fit:cover;width:100%;">
+                                            <img src="{% static 'productos/img/logo_default_practicasa.webp' %}" class="card-img-top" alt="{{ producto.nombre }}" style="height:225px;object-fit:cover;width:100%;">
                                         {% endif %}
                                     {% endwith %}
                                     <div class="position-absolute top-0 start-0 p-1 d-flex flex-wrap gap-1">
@@ -124,7 +121,7 @@
                                             <input type="hidden" name="medida" value="{{ primera_medida.id }}">
                                         {% endif %}
                                     {% endwith %}
-                                    {% if producto.stock > 0 %}
+                                    {% if producto.stock_restante > 0 %}
                                         <button class="btn btn-enviar text-white fw-bold w-100" type="submit">
                                             <span class="btn-text">Agregar al Carrito</span>
                                             <span class="spinner-border spinner-border-sm d-none text-white btn-spinner"></span>
@@ -137,12 +134,12 @@
                         </div>
                     </div>
                 {% endfor %}
-                    <a href="{% url 'productos' %}?tag=destacado" class="ver-mas text-decoration-none d-flex flex-column justify-content-center align-items-center gap-1" aria-label="Ver más destacados">
+                    <a href="{% url 'productos' %}?tag=destacado" class="ver-mas rounded-3 text-decoration-none d-flex flex-column justify-content-center align-items-center gap-1" aria-label="Ver más destacados">
                         <span class="fw-bold">Ver más</span>
-                        <span class="material-symbols-outlined">arrow_forward</span>
+                        <span class="material-symbols-outlined fs-2">arrow_forward</span>
                     </a>
                 </div>
-                <button class="btn-flecha-fila" type="button" data-fila="fila-destacados" data-direccion="1" aria-label="Destacados siguientes">
+                <button class="btn-flecha-fila d-flex align-items-center justify-content-center flex-shrink-0 rounded-circle bg-white" type="button" data-fila="fila-destacados" data-direccion="1" aria-label="Destacados siguientes">
                     <span class="material-symbols-outlined">chevron_right</span>
                 </button>
             </div>
@@ -152,23 +149,23 @@
     </section>
 
     <section class="my-5">
-        <h3 class="fw-bold mb-3 titulo-apartado">Última unidad</h3>
+        <h3 class="fw-bold mb-3 titulo-apartado text-center">Última unidad</h3>
         {% if ultima_unidad %}
             <div class="d-flex align-items-center gap-2">
-                <button class="btn-flecha-fila" type="button" data-fila="fila-ultima-unidad" data-direccion="-1" aria-label="Última unidad anteriores">
+                <button class="btn-flecha-fila d-flex align-items-center justify-content-center flex-shrink-0 rounded-circle bg-white" type="button" data-fila="fila-ultima-unidad" data-direccion="-1" aria-label="Última unidad anteriores">
                     <span class="material-symbols-outlined">chevron_left</span>
                 </button>
-                <div class="d-flex flex-nowrap overflow-auto fila-categorias gap-3 pb-2 flex-grow-1" id="fila-ultima-unidad">
+                <div class="d-flex flex-nowrap overflow-auto fila-categorias gap-3 py-2 flex-grow-1" id="fila-ultima-unidad">
                 {% for producto in ultima_unidad %}
                     <div>
-                        <div class="card h-100 shadow-sm border-2 d-flex flex-column{% if producto.stock <= 0 %} card-disabled{% endif %}">
+                        <div class="card h-100 shadow-sm border-2 d-flex flex-column{% if producto.stock_restante <= 0 %} card-disabled{% endif %}">
                             <a href="{% url 'detalle_producto' producto.subcategoria.categoria.slug producto.subcategoria.slug producto.slug %}" class="text-decoration-none text-black d-flex flex-column flex-grow-1">
                                 <div class="position-relative">
                                     {% with primera_imagen=producto.primera_imagen_valida %}
                                         {% if primera_imagen %}
-                                            <img src="{{ primera_imagen.imagen.url }}" class="card-img-top" alt="{{ producto.nombre }}" style="height:200px;object-fit:cover;width:100%;">
+                                            <img src="{{ primera_imagen.imagen.url }}" class="card-img-top" alt="{{ producto.nombre }}" style="height:250px;object-fit:cover;width:100%;">
                                         {% else %}
-                                            <img src="{% static 'productos/img/logo_default_practicasa.webp' %}" class="card-img-top" alt="{{ producto.nombre }}" style="height:200px;object-fit:cover;width:100%;">
+                                            <img src="{% static 'productos/img/logo_default_practicasa.webp' %}" class="card-img-top" alt="{{ producto.nombre }}" style="height:250px;object-fit:cover;width:100%;">
                                         {% endif %}
                                     {% endwith %}
                                     <div class="position-absolute top-0 start-0 p-1 d-flex flex-wrap gap-1">
@@ -231,7 +228,7 @@
                                             <input type="hidden" name="medida" value="{{ primera_medida.id }}">
                                         {% endif %}
                                     {% endwith %}
-                                    {% if producto.stock > 0 %}
+                                    {% if producto.stock_restante > 0 %}
                                         <button class="btn btn-enviar text-white fw-bold w-100" type="submit">
                                             <span class="btn-text">Agregar al Carrito</span>
                                             <span class="spinner-border spinner-border-sm d-none text-white btn-spinner"></span>
@@ -244,12 +241,12 @@
                         </div>
                     </div>
                 {% endfor %}
-                    <a href="{% url 'productos' %}?tag=ultima_unidad" class="ver-mas text-decoration-none d-flex flex-column justify-content-center align-items-center gap-1" aria-label="Ver más última unidad">
+                    <a href="{% url 'productos' %}?tag=ultima_unidad" class="ver-mas rounded-3 text-decoration-none d-flex flex-column justify-content-center align-items-center gap-1" aria-label="Ver más última unidad">
                         <span class="fw-bold">Ver más</span>
-                        <span class="material-symbols-outlined">arrow_forward</span>
+                        <span class="material-symbols-outlined fs-2">arrow_forward</span>
                     </a>
                 </div>
-                <button class="btn-flecha-fila" type="button" data-fila="fila-ultima-unidad" data-direccion="1" aria-label="Última unidad siguientes">
+                <button class="btn-flecha-fila d-flex align-items-center justify-content-center flex-shrink-0 rounded-circle bg-white" type="button" data-fila="fila-ultima-unidad" data-direccion="1" aria-label="Última unidad siguientes">
                     <span class="material-symbols-outlined">chevron_right</span>
                 </button>
             </div>
@@ -259,23 +256,23 @@
     </section>
 
     <section class="my-5">
-        <h3 class="fw-bold mb-3 titulo-apartado">Ofertas</h3>
+        <h3 class="fw-bold mb-3 titulo-apartado text-center">Ofertas</h3>
         {% if oferta %}
             <div class="d-flex align-items-center gap-2">
-                <button class="btn-flecha-fila" type="button" data-fila="fila-ofertas" data-direccion="-1" aria-label="Ofertas anteriores">
+                <button class="btn-flecha-fila d-flex align-items-center justify-content-center flex-shrink-0 rounded-circle bg-white" type="button" data-fila="fila-ofertas" data-direccion="-1" aria-label="Ofertas anteriores">
                     <span class="material-symbols-outlined">chevron_left</span>
                 </button>
-                <div class="d-flex flex-nowrap overflow-auto fila-categorias gap-3 pb-2 flex-grow-1" id="fila-ofertas">
+                <div class="d-flex flex-nowrap overflow-auto fila-categorias gap-3 py-2 flex-grow-1" id="fila-ofertas">
                 {% for producto in oferta %}
                     <div>
-                        <div class="card h-100 shadow-sm border-2 d-flex flex-column{% if producto.stock <= 0 %} card-disabled{% endif %}">
+                        <div class="card h-100 shadow-sm border-2 d-flex flex-column{% if producto.stock_restante <= 0 %} card-disabled{% endif %}">
                             <a href="{% url 'detalle_producto' producto.subcategoria.categoria.slug producto.subcategoria.slug producto.slug %}" class="text-decoration-none text-black d-flex flex-column flex-grow-1">
                                 <div class="position-relative">
                                     {% with primera_imagen=producto.primera_imagen_valida %}
                                         {% if primera_imagen %}
-                                            <img src="{{ primera_imagen.imagen.url }}" class="card-img-top" alt="{{ producto.nombre }}" style="height:200px;object-fit:cover;width:100%;">
+                                            <img src="{{ primera_imagen.imagen.url }}" class="card-img-top" alt="{{ producto.nombre }}" style="height:250px;object-fit:cover;width:100%;">
                                         {% else %}
-                                            <img src="{% static 'productos/img/logo_default_practicasa.webp' %}" class="card-img-top" alt="{{ producto.nombre }}" style="height:200px;object-fit:cover;width:100%;">
+                                            <img src="{% static 'productos/img/logo_default_practicasa.webp' %}" class="card-img-top" alt="{{ producto.nombre }}" style="height:250px;object-fit:cover;width:100%;">
                                         {% endif %}
                                     {% endwith %}
                                     <div class="position-absolute top-0 start-0 p-1 d-flex flex-wrap gap-1">
@@ -338,7 +335,7 @@
                                             <input type="hidden" name="medida" value="{{ primera_medida.id }}">
                                         {% endif %}
                                     {% endwith %}
-                                    {% if producto.stock > 0 %}
+                                    {% if producto.stock_restante > 0 %}
                                         <button class="btn btn-enviar text-white fw-bold w-100" type="submit">
                                             <span class="btn-text">Agregar al Carrito</span>
                                             <span class="spinner-border spinner-border-sm d-none text-white btn-spinner"></span>
@@ -351,18 +348,44 @@
                         </div>
                     </div>
                 {% endfor %}
-                    <a href="{% url 'productos' %}?tag=oferta" class="ver-mas text-decoration-none d-flex flex-column justify-content-center align-items-center gap-1" aria-label="Ver más ofertas">
+                    <a href="{% url 'productos' %}?tag=oferta" class="ver-mas rounded-3 text-decoration-none d-flex flex-column justify-content-center align-items-center gap-1" aria-label="Ver más ofertas">
                         <span class="fw-bold">Ver más</span>
-                        <span class="material-symbols-outlined">arrow_forward</span>
+                        <span class="material-symbols-outlined fs-2">arrow_forward</span>
                     </a>
                 </div>
-                <button class="btn-flecha-fila" type="button" data-fila="fila-ofertas" data-direccion="1" aria-label="Ofertas siguientes">
+                <button class="btn-flecha-fila d-flex align-items-center justify-content-center flex-shrink-0 rounded-circle bg-white" type="button" data-fila="fila-ofertas" data-direccion="1" aria-label="Ofertas siguientes">
                     <span class="material-symbols-outlined">chevron_right</span>
                 </button>
             </div>
         {% else %}
             <p class="text-muted">No hay ofertas por el momento.</p>
         {% endif %}
+    </section>
+
+    <section class="my-5 py-2">
+        <div class="d-flex flex-column flex-md-row align-items-stretch text-center">
+            <div class="trust-bar-item d-flex flex-column flex-md-row align-items-center justify-content-center gap-2 gap-md-3 px-3 py-3 flex-fill">
+                <span class="material-symbols-outlined trust-bar-icon">local_shipping</span>
+                <div>
+                    <h6 class="fw-bold mb-0">Envíos a todo el país</h6>
+                    <p class="text-secondary small mb-0">Comprá y recibí donde estés</p>
+                </div>
+            </div>
+            <div class="trust-bar-item d-flex flex-column flex-md-row align-items-center justify-content-center gap-2 gap-md-3 px-3 py-3 flex-fill">
+                <span class="material-symbols-outlined trust-bar-icon">verified_user</span>
+                <div>
+                    <h6 class="fw-bold mb-0">Pagos seguros</h6>
+                    <p class="text-secondary small mb-0">Efectivo o transferencia</p>
+                </div>
+            </div>
+            <div class="trust-bar-item d-flex flex-column flex-md-row align-items-center justify-content-center gap-2 gap-md-3 px-3 py-3 flex-fill">
+                <span class="material-symbols-outlined trust-bar-icon">support_agent</span>
+                <div>
+                    <h6 class="fw-bold mb-0">Atención al cliente</h6>
+                    <p class="text-secondary small mb-0">Estamos para ayudarte</p>
+                </div>
+            </div>
+        </div>
     </section>
 </div>
 {% endblock %}
