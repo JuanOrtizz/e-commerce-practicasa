@@ -290,6 +290,29 @@ def test_tags_nuevo(subcategoria_data):
 
 
 @pytest.mark.django_db
+def test_tags_nuevo_persiste_al_editar(subcategoria_data):
+    TagModel.objects.get_or_create(nombre=TagModel.TagChoices.NUEVO)
+
+    subcategoria = subcategoria_data
+    producto = ProductoModel.objects.create(
+        subcategoria=subcategoria,
+        nombre='Test',
+        descripcion='Test',
+        slug='test',
+        sku='TEST-001',
+        precio=100.00,
+        precio_transferencia=90.00,
+        stock=5,
+    )
+
+    producto.precio = Decimal('120')
+    producto.destacado = True
+    producto.save()
+
+    assert producto.tags.filter(nombre=TagModel.TagChoices.NUEVO).exists()
+
+
+@pytest.mark.django_db
 def test_tags_quita_sin_stock_al_recuperar_stock(subcategoria_data):
     TagModel.objects.get_or_create(nombre=TagModel.TagChoices.SIN_STOCK)
 
