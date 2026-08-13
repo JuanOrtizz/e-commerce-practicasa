@@ -45,7 +45,7 @@
         {% endwith %}
     </aside>
 
-    <div class="d-flex flex-column flex-grow-1">
+    <div class="d-flex flex-column flex-grow-1 min-w-0">
         <header class="d-flex align-items-center gap-2 px-4 py-3 bg-white border-bottom">
             <button class="btn d-lg-none border-0 p-1" type="button" data-bs-toggle="offcanvas" data-bs-target="#panelSidebar" aria-label="Abrir menú">
                 <span class="material-symbols-outlined">menu</span>
@@ -55,7 +55,7 @@
                 <form method="post" action="{% url 'logout_admin_tienda' %}">
                     {% csrf_token %}
                     <button class="btn btn-danger gap-2 d-flex justify-content-center align-item-center" type="submit">
-                        <span class="material-symbols-outlined">logout</span> Logout
+                        <span class="material-symbols-outlined">logout</span>
                     </button>
                 </form>
             </div>
