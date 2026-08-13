@@ -1,11 +1,13 @@
 {% extends 'panel_admin/base.html' %}
 
+{% load static %}
+
 {% block title %}Consultas | Practicasa{% endblock %}
 
 {% block titulo_pagina %}Consultas{% endblock %}
 
 {% block content %}
-<p class="text-muted mb-3">{{ consultas|length }} consultas recibidas.</p>
+<p class="text-muted mb-2"><span id="consultas-count">{{ consultas|length }}</span> consultas.</p>
 
 <div class="panel-card p-3">
     <div class="table-responsive">
@@ -17,28 +19,32 @@
                     <th class="text-nowrap">Teléfono</th>
                     <th class="text-nowrap">Fecha</th>
                     <th class="text-nowrap">Mensaje</th>
+                    <th class="text-nowrap">Estado</th>
                     <th class="text-end text-nowrap">Acciones</th>
                 </tr>
             </thead>
             <tbody>
                 {% for consulta in consultas %}
-                <tr>
+                <tr id="consulta-{{ consulta.id }}" class="consulta-item">
                     <td class="fw-bold">{{ consulta.nombre }}</td>
                     <td>{{ consulta.email }}</td>
                     <td>{{ consulta.telefono }}</td>
                     <td>{{ consulta.fecha_y_hora|date:'d/m/Y H:i' }}</td>
                     <td>{{ consulta.mensaje|truncatechars:60 }}</td>
                     <td>
+                        <span class="badge {% if consulta.estado == 'pendiente' %}text-bg-warning{% else %}text-bg-success{% endif %}">{{ consulta.get_estado_display }}</span>
+                    </td>
+                    <td>
                         <div class="d-flex justify-content-end gap-2">
-                            <a class="btn btn-sm btn-panel-secundario" href="{% url 'panel_consulta_detalle' consulta.id %}" aria-label="Ver consulta de {{ consulta.nombre }}">
+                            <a class="btn btn-sm btn-info d-flex justify-content-center align-items-center" href="{% url 'panel_consulta_detalle' consulta.id %}" aria-label="Ver consulta de {{ consulta.nombre }}">
                                 <span class="material-symbols-outlined">visibility</span>
                             </a>
-                            <a class="btn btn-sm btn-panel-primario" href="{% url 'panel_consulta_modificar' consulta.id %}" aria-label="Modificar consulta de {{ consulta.nombre }}">
+                            <a class="btn btn-sm btn-warning d-flex justify-content-center align-items-center" href="{% url 'panel_consulta_modificar' consulta.id %}" aria-label="Modificar consulta de {{ consulta.nombre }}">
                                 <span class="material-symbols-outlined">edit</span>
                             </a>
-                            <form method="post" action="{% url 'panel_consulta_eliminar' consulta.id %}" data-confirm="¿Eliminar la consulta de {{ consulta.nombre }}?">
+                            <form method="post"  action="{% url 'panel_consulta_eliminar' consulta.id %}">
                                 {% csrf_token %}
-                                <button class="btn btn-sm btn-panel-peligro" type="submit" aria-label="Eliminar consulta de {{ consulta.nombre }}">
+                                <button class="btn-delete btn btn-sm btn-danger d-flex justify-content-center align-items-center" data-id="{{ consulta.id }}" type="submit" aria-label="Eliminar consulta de {{ consulta.nombre }}">
                                     <span class="material-symbols-outlined">delete</span>
                                 </button>
                             </form>
@@ -47,11 +53,20 @@
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="6" class="text-center text-muted py-4">No hay consultas recibidas.</td>
+                    <td colspan="7" class="text-center text-muted py-4">No hay consultas recibidas.</td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
+        {% if consultas %}
+            <div id="no-consultas-message" class="d-none">
+                <p class="text-center text-muted py-4 mb-0">No hay consultas cargadas.</p>
+            </div>
+        {% endif %}
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+    <script type="module" src="{% static 'panel_admin/js/consultaDeleteForm.js' %}"></script>
 {% endblock %}
