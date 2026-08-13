@@ -1,11 +1,99 @@
+import os
+import re
 from django import forms
 from django.core.validators import MaxLengthValidator
 from django.forms import BaseInlineFormSet, inlineformset_factory
-import os
-from .models import ProductoModel, ProductoImagenModel
+from .models import (
+    CategoriaModel,
+    ColorModel,
+    MedidaModel,
+    ProductoModel,
+    ProductoImagenModel,
+    SubcategoriaModel,
+)
 
 #Maximo de imágenes permitidas por producto
 MAX_IMAGENES_PRODUCTO = 3
+
+class CategoriaForm(forms.ModelForm):
+    class Meta:
+        model = CategoriaModel
+        fields = ['nombre']
+        widgets = {
+            'nombre': forms.TextInput(attrs={'class': 'form-control', 'placeholder': ''}),
+        }
+
+    def clean_nombre(self):
+        nombre = self.cleaned_data.get('nombre', '').strip()
+        if len(nombre) < 2 or len(nombre) > 100:
+            raise forms.ValidationError('Nombre: de 2 a 100 caracteres.')
+        if CategoriaModel.objects.filter(nombre__iexact=nombre).exists():
+            raise forms.ValidationError('Ya existe una categoría con ese nombre.')
+        return nombre
+
+
+class SubcategoriaForm(forms.ModelForm):
+    class Meta:
+        model = SubcategoriaModel
+        fields = ['categoria', 'nombre']
+        widgets = {
+            'categoria': forms.Select(attrs={'class': 'form-select', 'placeholder': ''}),
+            'nombre': forms.TextInput(attrs={'class': 'form-control', 'placeholder': ''}),
+        }
+
+    def clean_nombre(self):
+        categoria = self.cleaned_data.get('categoria')
+        nombre = self.cleaned_data.get('nombre', '').strip()
+        if len(nombre) < 2 or len(nombre) > 100:
+            raise forms.ValidationError('Nombre: de 2 a 100 caracteres.')
+        qs = SubcategoriaModel.objects.filter(nombre__iexact=nombre)
+        if categoria:
+            qs = qs.filter(categoria=categoria)
+        if qs.exists():
+            raise forms.ValidationError('Ya existe una subcategoría con ese nombre en esta categoría.')
+        return nombre
+
+
+class ColorForm(forms.ModelForm):
+    class Meta:
+        model = ColorModel
+        fields = ['nombre', 'codigo_hex']
+        widgets = {
+            'nombre': forms.TextInput(attrs={'class': 'form-control', 'placeholder': ''}),
+            'codigo_hex': forms.TextInput(attrs={'class': 'form-control', 'placeholder': '#FF0000'}),
+        }
+
+    def clean_nombre(self):
+        nombre = self.cleaned_data.get('nombre', '').strip()
+        if len(nombre) < 2 or len(nombre) > 50:
+            raise forms.ValidationError('Nombre: de 2 a 50 caracteres.')
+        if ColorModel.objects.filter(nombre__iexact=nombre).exists():
+            raise forms.ValidationError('Ya existe un color con ese nombre.')
+        return nombre
+
+    def clean_codigo_hex(self):
+        codigo_hex = self.cleaned_data.get('codigo_hex', '').strip().upper()
+        if not re.fullmatch(r'#[0-9A-F]{6}', codigo_hex):
+            raise forms.ValidationError('Código inválido. Usá el formato #RRGGBB.')
+        return codigo_hex
+
+
+class MedidaForm(forms.ModelForm):
+    class Meta:
+        model = MedidaModel
+        fields = ['nombre']
+        widgets = {
+            'nombre': forms.TextInput(attrs={'class': 'form-control', 'placeholder': ''}),
+        }
+
+    def clean_nombre(self):
+        nombre = self.cleaned_data.get('nombre', '').strip()
+        if len(nombre) < 2 or len(nombre) > 50:
+            raise forms.ValidationError('Nombre: de 2 a 50 caracteres.')
+        if MedidaModel.objects.filter(nombre__iexact=nombre).exists():
+            raise forms.ValidationError('Ya existe una medida con ese nombre.')
+        return nombre
+
 
 class ProductoForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):

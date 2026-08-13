@@ -38,6 +38,9 @@
                 <a class="panel-nav-link d-flex align-items-center gap-3 px-3 py-3 fw-semibold {% if view_actual == 'panel_pagos' %}active{% endif %}" href="{% url 'panel_pagos' %}">
                     <span class="material-symbols-outlined">payments</span> Pagos
                 </a>
+                <a class="panel-nav-link d-flex align-items-center gap-3 px-3 py-3 fw-semibold {% if view_actual == 'panel_referencias' or view_actual == 'panel_color_nuevo' or view_actual == 'panel_medida_nuevo' or view_actual == 'panel_categoria_nuevo' or view_actual == 'panel_subcategoria_nuevo' %}active{% endif %}" href="{% url 'panel_referencias' %}">
+                    <span class="material-symbols-outlined">category</span> Referencias
+                </a>
             </nav>
         {% endwith %}
     </aside>

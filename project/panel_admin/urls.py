@@ -14,4 +14,13 @@ urlpatterns = [
     path('consultas/eliminar/<int:id>/', views.consulta_eliminar, name='panel_consulta_eliminar'),
     path('consultas/<int:id>/', views.consulta_detalle, name='panel_consulta_detalle'),
     path('pagos/', views.pagos, name='panel_pagos'),
+    path('referencias/', views.referencias, name='panel_referencias'),
+    path('colores/nuevo/', views.color_nuevo, name='panel_color_nuevo'),
+    path('colores/eliminar/<int:id>/', views.color_eliminar, name='panel_color_eliminar'),
+    path('medidas/nuevo/', views.medida_nuevo, name='panel_medida_nuevo'),
+    path('medidas/eliminar/<int:id>/', views.medida_eliminar, name='panel_medida_eliminar'),
+    path('categorias/nuevo/', views.categoria_nuevo, name='panel_categoria_nuevo'),
+    path('categorias/eliminar/<int:id>/', views.categoria_eliminar, name='panel_categoria_eliminar'),
+    path('subcategorias/nuevo/', views.subcategoria_nuevo, name='panel_subcategoria_nuevo'),
+    path('subcategorias/eliminar/<int:id>/', views.subcategoria_eliminar, name='panel_subcategoria_eliminar'),
 ]

@@ -1,0 +1,217 @@
+{% extends 'panel_admin/base.html' %}
+
+{% load static %}
+
+{% block title %}Referencias | Practicasa{% endblock %}
+
+{% block titulo_pagina %}Referencias{% endblock %}
+
+{% block content %}
+<div class="row g-3">
+    <div class="col-xl-6">
+        <div class="panel-card p-3 h-100">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold mb-0">Colores</h5>
+                <div class="d-flex align-items-center gap-2">
+                    <span class="badge text-bg-secondary" id="count-colores">{{ colores|length }}</span>
+                    <a class="btn btn-success text-white" href="{% url 'panel_color_nuevo' %}">Agregar</a>
+                </div>
+            </div>
+            <div class="table-responsive" style="height:320px;overflow-y:auto;">
+                <table class="table panel-table align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th class="text-nowrap">Color</th>
+                            <th class="text-nowrap">Código</th>
+                            <th class="text-end text-nowrap">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for color in colores %}
+                        <tr id="item-color-{{ color.id }}" class="color-item">
+                            <td>
+                                <span class="d-inline-block rounded me-2" style="width:18px;height:18px;background:{{ color.codigo_hex }};vertical-align:middle;"></span>
+                                <span class="fw-bold">{{ color.nombre }}</span>
+                            </td>
+                            <td>{{ color.codigo_hex }}</td>
+                            <td>
+                                <div class="d-flex justify-content-end">
+                                    <form method="post" action="{% url 'panel_color_eliminar' color.id %}">
+                                        {% csrf_token %}
+                                        <button class="btn-delete color-delete-btn btn btn-sm btn-danger d-flex justify-content-center align-items-center" type="submit" data-id="{{ color.id }}" aria-label="Eliminar color {{ color.nombre }}">
+                                            <span class="material-symbols-outlined">delete</span>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="3" class="text-center text-muted py-4">No hay colores cargados.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% if colores %}
+                <div id="no-colores-message" class="d-none">
+                    <p class="text-center text-muted py-4 mb-0">No hay colores cargados.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-6">
+        <div class="panel-card p-3 h-100">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold mb-0">Medidas</h5>
+                <div class="d-flex align-items-center gap-2">
+                    <span class="badge text-bg-secondary" id="count-medidas">{{ medidas|length }}</span>
+                    <a class="btn btn-success text-white" href="{% url 'panel_medida_nuevo' %}">Agregar</a>
+                </div>
+            </div>
+            <div class="table-responsive" style="height:320px;overflow-y:auto;">
+                <table class="table panel-table align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th class="text-nowrap">Medida</th>
+                            <th class="text-end text-nowrap">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for medida in medidas %}
+                        <tr id="item-medida-{{ medida.id }}" class="medida-item">
+                            <td class="fw-bold">{{ medida.nombre }}</td>
+                            <td>
+                                <div class="d-flex justify-content-end">
+                                    <form method="post" action="{% url 'panel_medida_eliminar' medida.id %}">
+                                        {% csrf_token %}
+                                        <button class="btn-delete medida-delete-btn btn btn-sm btn-danger d-flex justify-content-center align-items-center" type="submit" data-id="{{ medida.id }}" aria-label="Eliminar medida {{ medida.nombre }}">
+                                            <span class="material-symbols-outlined">delete</span>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="2" class="text-center text-muted py-4">No hay medidas cargadas.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% if medidas %}
+                <div id="no-medidas-message" class="d-none">
+                    <p class="text-center text-muted py-4 mb-0">No hay medidas cargadas.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-6">
+        <div class="panel-card p-3 h-100">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold mb-0">Categorías</h5>
+                <div class="d-flex align-items-center gap-2">
+                    <span class="badge text-bg-secondary" id="count-categorias">{{ categorias|length }}</span>
+                    <a class="btn btn-success text-white" href="{% url 'panel_categoria_nuevo' %}">Agregar</a>
+                </div>
+            </div>
+            <div class="table-responsive" style="height:320px;overflow-y:auto;">
+                <table class="table panel-table align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th class="text-nowrap">Categoría</th>
+                            <th class="text-end text-nowrap">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for categoria in categorias %}
+                        <tr id="item-categoria-{{ categoria.id }}" class="categoria-item">
+                            <td class="fw-bold">{{ categoria.nombre }}</td>
+                            <td>
+                                <div class="d-flex justify-content-end">
+                                    <form method="post" action="{% url 'panel_categoria_eliminar' categoria.id %}">
+                                        {% csrf_token %}
+                                        <button class="btn-delete categoria-delete-btn btn btn-sm btn-danger d-flex justify-content-center align-items-center" type="submit" data-id="{{ categoria.id }}" aria-label="Eliminar categoría {{ categoria.nombre }}">
+                                            <span class="material-symbols-outlined">delete</span>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="2" class="text-center text-muted py-4">No hay categorías cargadas.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% if categorias %}
+                <div id="no-categorias-message" class="d-none">
+                    <p class="text-center text-muted py-4 mb-0">No hay categorías cargadas.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-6">
+        <div class="panel-card p-3 h-100">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold mb-0">Subcategorías</h5>
+                <div class="d-flex align-items-center gap-2">
+                    <span class="badge text-bg-secondary" id="count-subcategorias">{{ subcategorias|length }}</span>
+                    <a class="btn btn-success text-white" href="{% url 'panel_subcategoria_nuevo' %}">Agregar</a>
+                </div>
+            </div>
+            <div class="table-responsive" style="height:320px;overflow-y:auto;">
+                <table class="table panel-table align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th class="text-nowrap">Subcategoría</th>
+                            <th class="text-nowrap">Categoría</th>
+                            <th class="text-end text-nowrap">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for subcategoria in subcategorias %}
+                        <tr id="item-subcategoria-{{ subcategoria.id }}" class="subcategoria-item">
+                            <td class="fw-bold">{{ subcategoria.nombre }}</td>
+                            <td>{{ subcategoria.categoria.nombre }}</td>
+                            <td>
+                                <div class="d-flex justify-content-end">
+                                    <form method="post" action="{% url 'panel_subcategoria_eliminar' subcategoria.id %}">
+                                        {% csrf_token %}
+                                        <button class="btn-delete subcategoria-delete-btn btn btn-sm btn-danger d-flex justify-content-center align-items-center" type="submit" data-id="{{ subcategoria.id }}" aria-label="Eliminar subcategoría {{ subcategoria.nombre }}">
+                                            <span class="material-symbols-outlined">delete</span>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="3" class="text-center text-muted py-4">No hay subcategorías cargadas.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% if subcategorias %}
+                <div id="no-subcategorias-message" class="d-none">
+                    <p class="text-center text-muted py-4 mb-0">No hay subcategorías cargadas.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+    <script type="module" src="{% static 'panel_admin/js/colorDeleteForm.js' %}"></script>
+    <script type="module" src="{% static 'panel_admin/js/medidaDeleteForm.js' %}"></script>
+    <script type="module" src="{% static 'panel_admin/js/categoriaDeleteForm.js' %}"></script>
+    <script type="module" src="{% static 'panel_admin/js/subcategoriaDeleteForm.js' %}"></script>
+{% endblock %}

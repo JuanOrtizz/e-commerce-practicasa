@@ -4,7 +4,7 @@ import pytest
 from django.test import Client
 
 from base.models import ConsultaModel
-from productos.models import CategoriaModel, SubcategoriaModel, ProductoModel
+from productos.models import CategoriaModel, ColorModel, MedidaModel, SubcategoriaModel, ProductoModel
 from usuarios.models import UsuarioModel
 
 
@@ -75,6 +75,16 @@ def producto(db, subcategoria):
         stock=10,
         activo=True,
     )
+
+
+@pytest.fixture
+def color(db):
+    return ColorModel.objects.create(nombre='Negro', codigo_hex='#000000')
+
+
+@pytest.fixture
+def medida(db):
+    return MedidaModel.objects.create(nombre='Extra Grande')
 
 
 @pytest.fixture

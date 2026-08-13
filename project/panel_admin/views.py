@@ -5,8 +5,22 @@ from django.views.decorators.http import require_POST
 
 from base.forms import ConsultaAdminForm
 from base.models import ConsultaModel
-from productos.forms import MAX_IMAGENES_PRODUCTO, ProductoForm, ProductoImagenFormset
-from productos.models import ProductoModel
+from productos.forms import (
+    MAX_IMAGENES_PRODUCTO,
+    CategoriaForm,
+    ColorForm,
+    MedidaForm,
+    ProductoForm,
+    ProductoImagenFormset,
+    SubcategoriaForm,
+)
+from productos.models import (
+    CategoriaModel,
+    ColorModel,
+    MedidaModel,
+    ProductoModel,
+    SubcategoriaModel,
+)
 
 from .decorators import requiere_admin
 from .services import formset_tiene_cambios, get_metricas_dashboard
@@ -151,6 +165,154 @@ def consulta_eliminar(request, id):
     return JsonResponse({
         "success": True,
         "message": f"Consulta de {consulta.nombre} eliminada."
+    })
+
+
+@requiere_admin
+def referencias(request):
+    return render(request, 'panel_admin/referencias.html', {
+        'colores': ColorModel.objects.all(),
+        'medidas': MedidaModel.objects.all(),
+        'categorias': CategoriaModel.objects.all(),
+        'subcategorias': SubcategoriaModel.objects.select_related('categoria'),
+        'form_color': ColorForm(),
+        'form_medida': MedidaForm(),
+        'form_categoria': CategoriaForm(),
+        'form_subcategoria': SubcategoriaForm(),
+    })
+
+
+@requiere_admin
+def color_nuevo(request):
+    if request.method == 'POST':
+        form = ColorForm(request.POST)
+        if form.is_valid():
+            color = form.save()
+            return JsonResponse({
+                "success": True,
+                "message": f"Color {color.nombre} creado.",
+                "redirect": reverse('panel_referencias'),
+            })
+        return JsonResponse({"success": False, "errors": form.errors})
+    return render(request, 'panel_admin/referencia_form.html', {
+        'form': ColorForm(),
+        'titulo': 'Nuevo color',
+        'entidad': 'color',
+        'btn_text': 'Crear color',
+    })
+
+
+@requiere_admin
+def medida_nuevo(request):
+    if request.method == 'POST':
+        form = MedidaForm(request.POST)
+        if form.is_valid():
+            medida = form.save()
+            return JsonResponse({
+                "success": True,
+                "message": f"Medida {medida.nombre} creada.",
+                "redirect": reverse('panel_referencias'),
+            })
+        return JsonResponse({"success": False, "errors": form.errors})
+    return render(request, 'panel_admin/referencia_form.html', {
+        'form': MedidaForm(),
+        'titulo': 'Nueva medida',
+        'entidad': 'medida',
+        'btn_text': 'Crear medida',
+    })
+
+
+@requiere_admin
+def categoria_nuevo(request):
+    if request.method == 'POST':
+        form = CategoriaForm(request.POST)
+        if form.is_valid():
+            categoria = form.save()
+            return JsonResponse({
+                "success": True,
+                "message": f"Categoría {categoria.nombre} creada.",
+                "redirect": reverse('panel_referencias'),
+            })
+        return JsonResponse({"success": False, "errors": form.errors})
+    return render(request, 'panel_admin/referencia_form.html', {
+        'form': CategoriaForm(),
+        'titulo': 'Nueva categoría',
+        'entidad': 'categoria',
+        'btn_text': 'Crear categoría',
+    })
+
+
+@requiere_admin
+def subcategoria_nuevo(request):
+    if request.method == 'POST':
+        form = SubcategoriaForm(request.POST)
+        if form.is_valid():
+            subcategoria = form.save()
+            return JsonResponse({
+                "success": True,
+                "message": f"Subcategoría {subcategoria.nombre} creada.",
+                "redirect": reverse('panel_referencias'),
+            })
+        return JsonResponse({"success": False, "errors": form.errors})
+    return render(request, 'panel_admin/referencia_form.html', {
+        'form': SubcategoriaForm(),
+        'titulo': 'Nueva subcategoría',
+        'entidad': 'subcategoria',
+        'btn_text': 'Crear subcategoría',
+    })
+
+
+@require_POST
+@requiere_admin
+def color_eliminar(request, id):
+    color = get_object_or_404(ColorModel, id=id)
+    color.delete()
+    return JsonResponse({
+        "success": True,
+        "message": f"Color {color.nombre} eliminado."
+    })
+
+
+@require_POST
+@requiere_admin
+def medida_eliminar(request, id):
+    medida = get_object_or_404(MedidaModel, id=id)
+    medida.delete()
+    return JsonResponse({
+        "success": True,
+        "message": f"Medida {medida.nombre} eliminada."
+    })
+
+
+@require_POST
+@requiere_admin
+def categoria_eliminar(request, id):
+    categoria = get_object_or_404(CategoriaModel, id=id)
+    if categoria.subcategorias.exists():
+        return JsonResponse({
+            "success": False,
+            "message": f"No se puede eliminar la categoría '{categoria.nombre}'. Tiene subcategorías asociadas.",
+        })
+    categoria.delete()
+    return JsonResponse({
+        "success": True,
+        "message": f"Categoría {categoria.nombre} eliminada."
+    })
+
+
+@require_POST
+@requiere_admin
+def subcategoria_eliminar(request, id):
+    subcategoria = get_object_or_404(SubcategoriaModel, id=id)
+    if subcategoria.productos.exists():
+        return JsonResponse({
+            "success": False,
+            "message": f"No se puede eliminar la subcategoría '{subcategoria.nombre}'. Tiene productos asociados.",
+        })
+    subcategoria.delete()
+    return JsonResponse({
+        "success": True,
+        "message": f"Subcategoría {subcategoria.nombre} eliminada."
     })
 
 
