@@ -9,6 +9,18 @@
 {% block content %}
 <p class="text-muted mb-2"><span id="consultas-count">{{ consultas|length }}</span> consultas.</p>
 
+<div class="d-flex flex-wrap gap-2 align-items-center mb-3">
+    <select id="filtro-consultas" class="form-select form-select-sm w-auto" aria-label="Filtrar consultas">
+        <option value="todas">Todas</option>
+        <option value="pendiente">Pendientes</option>
+        <option value="resuelta">Resueltas</option>
+    </select>
+    <select id="orden-consultas" class="form-select form-select-sm w-auto" aria-label="Ordenar consultas">
+        <option value="recientes">Más recientes</option>
+        <option value="antiguas">Más antiguas</option>
+    </select>
+</div>
+
 <div class="panel-card p-3">
     <div class="table-responsive">
         <table class="table panel-table align-middle mb-0">
@@ -25,7 +37,7 @@
             </thead>
             <tbody>
                 {% for consulta in consultas %}
-                <tr id="consulta-{{ consulta.id }}" class="consulta-item">
+                <tr id="consulta-{{ consulta.id }}" class="consulta-item" data-fecha="{{ consulta.fecha_y_hora|date:'c' }}" data-estado="{{ consulta.estado }}">
                     <td class="fw-bold">{{ consulta.nombre }}</td>
                     <td>{{ consulta.email }}</td>
                     <td>{{ consulta.telefono }}</td>
@@ -68,5 +80,6 @@
 {% endblock %}
 
 {% block extra_js %}
+    <script type="module" src="{% static 'panel_admin/js/consultasLista.js' %}"></script>
     <script type="module" src="{% static 'panel_admin/js/consultaDeleteForm.js' %}"></script>
 {% endblock %}
