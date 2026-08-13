@@ -76,6 +76,8 @@
 
 .badge-estado-inactivo { background-color: var(--secondary-color); color: var(--black); }
 
+.badge-promocion { background-color: #ff0000; color: var(--white); }
+
 .checklist { border: 2px solid var(--primary-color); border-radius: 8px; }
 
 .checklist .form-check-input:checked {

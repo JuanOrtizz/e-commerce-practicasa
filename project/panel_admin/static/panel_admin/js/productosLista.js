@@ -31,6 +31,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 return esActivo(fila)
             case 'inactivos':
                 return !esActivo(fila)
+            case 'promociones':
+                return fila.querySelector('.badge-promocion') !== null
             default:
                 return true
         }

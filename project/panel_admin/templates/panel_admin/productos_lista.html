@@ -25,6 +25,7 @@
         <option value="bajo-stock">Bajo stock</option>
         <option value="activos">Activos</option>
         <option value="inactivos">Inactivos</option>
+        <option value="promociones">Con promoción</option>
     </select>
     <select id="orden-productos" class="form-select form-select-sm w-auto" aria-label="Ordenar productos">
         <option value="">Ordenar...</option>
@@ -78,6 +79,11 @@
                             <span class="badge rounded-pill badge-estado-activo">Activo</span>
                         {% else %}
                             <span class="badge rounded-pill badge-estado-inactivo">Inactivo</span>
+                        {% endif %}
+                        {% if producto.promocion %}
+                            <span class="badge rounded-pill badge-promocion d-block mt-1">
+                                {% if producto.tiene_promocion_porcentaje %}-{{ producto.porcentaje_descuento }}%{% else %}{{ producto.promocion }}{% endif %}
+                            </span>
                         {% endif %}
                     </td>
                     <td>
