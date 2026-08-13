@@ -172,7 +172,7 @@ def get_carrito_context_service(carrito):
     total_ahorro = Decimal('0')
 
     for item in carrito.items.select_related('producto').all():
-        if item.producto.stock == 0:
+        if item.producto.stock == 0 or not item.producto.activo:
             item.delete()
             continue
         data = calcular_precios_item_service(item)

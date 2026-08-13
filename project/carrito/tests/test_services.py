@@ -316,6 +316,17 @@ def test_contexto_elimina_items_sin_stock(carrito, producto):
 
 
 @pytest.mark.django_db
+def test_contexto_elimina_items_producto_inactivo(carrito, producto):
+    CarritoItemModel.objects.create(carrito=carrito, producto=producto, cantidad=2)
+    producto.activo = False
+    producto.save()
+    ctx = get_carrito_context_service(carrito)
+    assert ctx['items'] == []
+    assert ctx['cantidad_items'] == 0
+    assert CarritoItemModel.objects.count() == 0
+
+
+@pytest.mark.django_db
 def test_contexto_cantidad_items(carrito, producto):
     CarritoItemModel.objects.create(carrito=carrito, producto=producto, cantidad=2)
     CarritoItemModel.objects.create(
