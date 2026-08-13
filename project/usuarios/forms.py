@@ -2,6 +2,7 @@ import re
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, SetPasswordForm, PasswordResetForm
 from .models import UsuarioModel
+from .services import es_administrador
 
 
 class RegistroForm(UserCreationForm):
@@ -65,11 +66,8 @@ class LoginAdminTiendaForm(AuthenticationForm):
     )
 
     def confirm_login_allowed(self, user):
-        if user.tipo != UsuarioModel.Tipos.ADMINISTRADOR_TIENDA:
-            raise forms.ValidationError(
-                "No tenés permisos de administrador de tienda.",
-                code="invalid_tipo",
-            )
+        if not es_administrador(user):
+            raise self.get_invalid_login_error()
 
 class CustomPasswordResetForm(PasswordResetForm):
     email = forms.EmailField(

@@ -6,6 +6,7 @@ from django.shortcuts import redirect
 from django.urls import reverse, reverse_lazy
 from django.views.generic.edit import CreateView
 from .forms import RegistroForm, LoginForm, LoginAdminTiendaForm, CustomSetPasswordForm, CustomPasswordResetForm
+from .services import es_administrador
 
 
 class CustomRegisterView(CreateView):
@@ -48,6 +49,8 @@ class CustomLoginAdminTiendaView(LoginView):
     redirect_authenticated_user = True
 
     def form_valid(self, form):
+        if not es_administrador(form.get_user()):
+            return self.form_invalid(form)
         login(self.request, form.get_user())
         redirect_to = reverse('panel_inicio')
         if self.request.headers.get("X-Requested-With") == "XMLHttpRequest":
