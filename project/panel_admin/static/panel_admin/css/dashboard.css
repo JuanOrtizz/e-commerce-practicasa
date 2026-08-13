@@ -73,8 +73,6 @@ html, body {
     margin-right: 2px;
 }
 
-.min-w-0 { min-width: 0; }
-
 @media (max-width: 1199.98px) {
     .chart-area { height: 220px; }
 }
