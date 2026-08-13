@@ -38,22 +38,6 @@
     display: none;
 }
 
-@media (min-width: 992px) {
-    .fila-categorias > * {
-        flex: 0 0 calc((100% - 3rem) / 4);
-    }
-
-    .fila-categorias {
-        overflow: hidden;
-    }
-}
-
-@media (max-width: 991.98px) {
-    .btn-flecha-fila {
-        display: none !important;
-    }
-}
-
 .btn-flecha-fila {
     width: 40px;
     height: 40px;
@@ -68,6 +52,14 @@
 }
 
 @media (min-width: 992px) {
+    .fila-categorias > * {
+        flex: 0 0 calc((100% - 3rem) / 4);
+    }
+
+    .fila-categorias {
+        overflow: hidden;
+    }
+
     .btn-flecha-fila[hidden] {
         display: flex !important;
         visibility: hidden;
