@@ -5,7 +5,12 @@ from django.utils import timezone
 from django_ratelimit.decorators import ratelimit
 from .forms import ConsultaForm
 from project.services import enviar_email
-from .services import obtener_productos_destacados, obtener_productos_en_oferta, obtener_productos_ultima_unidad
+from .services import (
+    obtener_productos_destacados,
+    obtener_productos_en_oferta,
+    obtener_productos_ultima_unidad,
+    set_stock_restante_productos,
+)
 
 
 # Create your views here.
@@ -13,6 +18,9 @@ def index(request):
     destacados = obtener_productos_destacados()
     oferta = obtener_productos_en_oferta()
     ultima_unidad = obtener_productos_ultima_unidad()
+    set_stock_restante_productos(request.user, destacados)
+    set_stock_restante_productos(request.user, oferta)
+    set_stock_restante_productos(request.user, ultima_unidad)
     return render(request, 'base/index.html', {
         'destacados': destacados,
         'oferta': oferta,
