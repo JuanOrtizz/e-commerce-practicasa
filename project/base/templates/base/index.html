@@ -45,7 +45,7 @@
         <h3 class="fw-bold mb-3 titulo-apartado text-center">Destacados</h3>
         {% if destacados %}
             <div class="d-flex align-items-center gap-2">
-                <button class="btn-flecha-fila d-flex align-items-center justify-content-center flex-shrink-0 rounded-circle bg-white" type="button" data-fila="fila-destacados" data-direccion="-1" aria-label="Destacados anteriores">
+                <button class="btn-flecha-fila d-none d-lg-flex align-items-center justify-content-center flex-shrink-0 rounded-circle bg-white" type="button" data-fila="fila-destacados" data-direccion="-1" aria-label="Destacados anteriores">
                     <span class="material-symbols-outlined">chevron_left</span>
                 </button>
                 <div class="d-flex flex-nowrap overflow-auto fila-categorias gap-3 py-2 flex-grow-1" id="fila-destacados">
@@ -56,9 +56,9 @@
                                 <div class="position-relative">
                                     {% with primera_imagen=producto.primera_imagen_valida %}
                                         {% if primera_imagen %}
-                                            <img src="{{ primera_imagen.imagen.url }}" class="card-img-top" alt="{{ producto.nombre }}" style="height:225px;object-fit:cover;width:100%;">
+                                            <img src="{{ primera_imagen.imagen.url }}" class="card-img-top" alt="{{ producto.nombre }}" style="height:250px;object-fit:cover;width:100%;">
                                         {% else %}
-                                            <img src="{% static 'productos/img/logo_default_practicasa.webp' %}" class="card-img-top" alt="{{ producto.nombre }}" style="height:225px;object-fit:cover;width:100%;">
+                                            <img src="{% static 'productos/img/logo_default_practicasa.webp' %}" class="card-img-top" alt="{{ producto.nombre }}" style="height:250px;object-fit:cover;width:100%;">
                                         {% endif %}
                                     {% endwith %}
                                     <div class="position-absolute top-0 start-0 p-1 d-flex flex-wrap gap-1">
@@ -139,7 +139,7 @@
                         <span class="material-symbols-outlined fs-2">arrow_forward</span>
                     </a>
                 </div>
-                <button class="btn-flecha-fila d-flex align-items-center justify-content-center flex-shrink-0 rounded-circle bg-white" type="button" data-fila="fila-destacados" data-direccion="1" aria-label="Destacados siguientes">
+                <button class="btn-flecha-fila d-none d-lg-flex align-items-center justify-content-center flex-shrink-0 rounded-circle bg-white" type="button" data-fila="fila-destacados" data-direccion="1" aria-label="Destacados siguientes">
                     <span class="material-symbols-outlined">chevron_right</span>
                 </button>
             </div>
@@ -152,7 +152,7 @@
         <h3 class="fw-bold mb-3 titulo-apartado text-center">Última unidad</h3>
         {% if ultima_unidad %}
             <div class="d-flex align-items-center gap-2">
-                <button class="btn-flecha-fila d-flex align-items-center justify-content-center flex-shrink-0 rounded-circle bg-white" type="button" data-fila="fila-ultima-unidad" data-direccion="-1" aria-label="Última unidad anteriores">
+                <button class="btn-flecha-fila d-none d-lg-flex align-items-center justify-content-center flex-shrink-0 rounded-circle bg-white" type="button" data-fila="fila-ultima-unidad" data-direccion="-1" aria-label="Última unidad anteriores">
                     <span class="material-symbols-outlined">chevron_left</span>
                 </button>
                 <div class="d-flex flex-nowrap overflow-auto fila-categorias gap-3 py-2 flex-grow-1" id="fila-ultima-unidad">
@@ -246,7 +246,7 @@
                         <span class="material-symbols-outlined fs-2">arrow_forward</span>
                     </a>
                 </div>
-                <button class="btn-flecha-fila d-flex align-items-center justify-content-center flex-shrink-0 rounded-circle bg-white" type="button" data-fila="fila-ultima-unidad" data-direccion="1" aria-label="Última unidad siguientes">
+                <button class="btn-flecha-fila d-none d-lg-flex align-items-center justify-content-center flex-shrink-0 rounded-circle bg-white" type="button" data-fila="fila-ultima-unidad" data-direccion="1" aria-label="Última unidad siguientes">
                     <span class="material-symbols-outlined">chevron_right</span>
                 </button>
             </div>
@@ -259,7 +259,7 @@
         <h3 class="fw-bold mb-3 titulo-apartado text-center">Ofertas</h3>
         {% if oferta %}
             <div class="d-flex align-items-center gap-2">
-                <button class="btn-flecha-fila d-flex align-items-center justify-content-center flex-shrink-0 rounded-circle bg-white" type="button" data-fila="fila-ofertas" data-direccion="-1" aria-label="Ofertas anteriores">
+                <button class="btn-flecha-fila d-none d-lg-flex align-items-center justify-content-center flex-shrink-0 rounded-circle bg-white" type="button" data-fila="fila-ofertas" data-direccion="-1" aria-label="Ofertas anteriores">
                     <span class="material-symbols-outlined">chevron_left</span>
                 </button>
                 <div class="d-flex flex-nowrap overflow-auto fila-categorias gap-3 py-2 flex-grow-1" id="fila-ofertas">
@@ -353,7 +353,7 @@
                         <span class="material-symbols-outlined fs-2">arrow_forward</span>
                     </a>
                 </div>
-                <button class="btn-flecha-fila d-flex align-items-center justify-content-center flex-shrink-0 rounded-circle bg-white" type="button" data-fila="fila-ofertas" data-direccion="1" aria-label="Ofertas siguientes">
+                <button class="btn-flecha-fila d-none d-lg-flex align-items-center justify-content-center flex-shrink-0 rounded-circle bg-white" type="button" data-fila="fila-ofertas" data-direccion="1" aria-label="Ofertas siguientes">
                     <span class="material-symbols-outlined">chevron_right</span>
                 </button>
             </div>
