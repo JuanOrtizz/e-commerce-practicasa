@@ -49,7 +49,7 @@
             </button>
             <h2 class="fs-5 fw-semibold mb-0">{% block titulo_pagina %} {% endblock %}</h2>
             <div class="ms-auto d-flex align-items-center gap-2 gap-md-3">
-                <form method="post" action="{% url 'logout' %}">
+                <form method="post" action="{% url 'logout_admin_tienda' %}">
                     {% csrf_token %}
                     <button class="btn btn-danger gap-2 d-flex justify-content-center align-item-center" type="submit">
                         <span class="material-symbols-outlined">logout</span> Logout

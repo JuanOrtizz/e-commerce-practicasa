@@ -121,3 +121,12 @@ def test_logout_post_redirect(client, user_data):
     client.login(username=user_data["email"], password=user_data["password"])
     response = client.post(reverse("logout"))
     assert response.status_code == 302
+
+
+@pytest.mark.django_db
+def test_logout_admin_tienda_redirige_login_admin(client, user_data):
+    UsuarioModel.objects.create_user(**user_data)
+    client.login(username=user_data["email"], password=user_data["password"])
+    response = client.post(reverse("logout_admin_tienda"))
+    assert response.status_code == 302
+    assert response.url == reverse("login_admin_tienda")
