@@ -20,6 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // funcion async para utilizar await y manejar asincronia
 async function deleteForm(consultaId, csrfToken, form) {
+    const btn = form.querySelector('.btn-delete')
     try {
         const response = await fetch(form.action, {
             method: "POST",
@@ -53,5 +54,7 @@ async function deleteForm(consultaId, csrfToken, form) {
         }
     } catch(error) {
         errorAlert("Ocurrió un error inesperado. Intentá más tarde.")
+    } finally {
+        btn.disabled = false
     }
 }
