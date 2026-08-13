@@ -175,8 +175,15 @@ def get_carrito_context_service(carrito):
         if item.producto.stock == 0 or not item.producto.activo:
             item.delete()
             continue
+        stock_disponible = get_stock_disponible_item_service(carrito, item)
+        if stock_disponible <= 0:
+            item.delete()
+            continue
+        if item.cantidad > stock_disponible:
+            item.cantidad = stock_disponible
+            item.save()
         data = calcular_precios_item_service(item)
-        data['stock_disponible'] = get_stock_disponible_item_service(carrito, item)
+        data['stock_disponible'] = stock_disponible
         items_data.append(data)
         total += data['subtotal']
         total_transferencia += data['subtotal_transferencia']

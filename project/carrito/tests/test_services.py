@@ -327,6 +327,49 @@ def test_contexto_elimina_items_producto_inactivo(carrito, producto):
 
 
 @pytest.mark.django_db
+def test_contexto_limita_cantidad_al_stock_actual(carrito, producto):
+    CarritoItemModel.objects.create(carrito=carrito, producto=producto, cantidad=5)
+    producto.stock = 2
+    producto.save()
+    ctx = get_carrito_context_service(carrito)
+    assert len(ctx['items']) == 1
+    assert ctx['items'][0]['cantidad'] == 2
+    assert ctx['items'][0]['subtotal'] == Decimal('30000.00')
+    assert ctx['total'] == Decimal('30000.00')
+    item = CarritoItemModel.objects.get()
+    assert item.cantidad == 2
+
+
+@pytest.mark.django_db
+def test_contexto_limita_a_1_cuando_stock_baja_de_2(carrito, producto):
+    CarritoItemModel.objects.create(carrito=carrito, producto=producto, cantidad=2)
+    producto.stock = 1
+    producto.save()
+    ctx = get_carrito_context_service(carrito)
+    assert len(ctx['items']) == 1
+    assert ctx['items'][0]['cantidad'] == 1
+    assert ctx['total'] == Decimal('15000.00')
+    assert CarritoItemModel.objects.get().cantidad == 1
+
+
+@pytest.mark.django_db
+def test_contexto_reparte_stock_entre_variantes(carrito, producto, color_data):
+    producto.stock = 3
+    producto.save()
+    rojo = ColorModel.objects.create(**color_data)
+    azul = ColorModel.objects.create(nombre='Azul', codigo_hex='#0000FF')
+    CarritoItemModel.objects.create(
+        carrito=carrito, producto=producto, color_nombre=rojo.nombre, cantidad=4
+    )
+    CarritoItemModel.objects.create(
+        carrito=carrito, producto=producto, color_nombre=azul.nombre, cantidad=4
+    )
+    ctx = get_carrito_context_service(carrito)
+    assert sum(i['cantidad'] for i in ctx['items']) == 3
+    assert ctx['cantidad_items'] == 1
+
+
+@pytest.mark.django_db
 def test_contexto_cantidad_items(carrito, producto):
     CarritoItemModel.objects.create(carrito=carrito, producto=producto, cantidad=2)
     CarritoItemModel.objects.create(
