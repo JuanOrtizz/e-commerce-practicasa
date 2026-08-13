@@ -1,6 +1,6 @@
 {% extends 'panel_admin/base.html' %}
 
-{% load static %}
+{% load static precio_tags %}
 
 {% block title %}Productos | Practicasa{% endblock %}
 
@@ -63,8 +63,8 @@
                     </td>
                     <td class="fw-bold">{{ producto.nombre }}</td>
                     <td>{{ producto.subcategoria.categoria.nombre }} / {{ producto.subcategoria.nombre }}</td>
-                    <td>${{ producto.precio }}</td>
-                    <td>${{ producto.precio_transferencia }}</td>
+                    <td>${{ producto.precio|format_price }}</td>
+                    <td>${{ producto.precio_transferencia|format_price }}</td>
                     <td>
                         {% if producto.stock == 0 %}
                             <span class="badge rounded-pill badge-stock-sin">Sin stock</span>

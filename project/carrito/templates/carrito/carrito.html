@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load static %}
+{% load static precio_tags %}
 
 {% block title %}Carrito | Practicasa{% endblock %}
 
@@ -71,17 +71,17 @@
                                 {% endif %}
                                 <div class="mt-2">
                                     {% if data.tiene_promocion_porcentaje %}
-                                        <span class="carrito-precio-original">${{ data.precio_original }}</span>
-                                        <span class="carrito-precio-final ms-1">${{ data.precio_unitario }}</span>
+                                        <span class="carrito-precio-original">${{ data.precio_original|format_price }}</span>
+                                        <span class="carrito-precio-final ms-1">${{ data.precio_unitario|format_price }}</span>
                                     {% else %}
-                                        <span class="carrito-precio-final">${{ data.precio_unitario }}</span>
+                                        <span class="carrito-precio-final">${{ data.precio_unitario|format_price }}</span>
                                     {% endif %}
                                     <br>
                                     {% if data.tiene_promocion_porcentaje %}
-                                        <span class="carrito-precio-original">${{ data.precio_transferencia_original }} con transferencia</span>
-                                        <span class="carrito-precio-transferencia ms-1">${{ data.precio_transferencia_unitario }} con transferencia</span>
+                                        <span class="carrito-precio-original">${{ data.precio_transferencia_original|format_price }} con transferencia</span>
+                                        <span class="carrito-precio-transferencia ms-1">${{ data.precio_transferencia_unitario|format_price }} con transferencia</span>
                                     {% else %}
-                                        <span class="carrito-precio-transferencia">${{ data.precio_transferencia_unitario }} con transferencia</span>
+                                        <span class="carrito-precio-transferencia">${{ data.precio_transferencia_unitario|format_price }} con transferencia</span>
                                     {% endif %}
                                 </div>
                                 {% if data.promocion == '2x1' or data.promocion == '3x2' %}
@@ -94,7 +94,7 @@
                                             3x2 — Pagás {{ data.cantidad_paga }} unidad{% if data.cantidad_paga != 1 %}es{% endif %}
                                         {% endif %}
                                         </span>
-                                        <span class="carrito-item-ahorro-item{% if not data.ahorro %} d-none{% endif %}"> | Ahorrás ${{ data.ahorro }}</span>
+                                        <span class="carrito-item-ahorro-item{% if not data.ahorro %} d-none{% endif %}"> | Ahorrás ${{ data.ahorro|format_price }}</span>
                                     </p>
                                 </div>
                                 {% endif %}
@@ -108,8 +108,8 @@
                                         <button class="carrito-qty-btn btn-aumentar" title="Aumentar" {% if data.cantidad >= data.stock_disponible %}disabled{% endif %}>+</button>
                                     </div>
                                     <div class="text-end">
-                                        <div class="fw-bold fs-6 carrito-item-subtotal">${{ data.subtotal }}</div>
-                                        <div class="carrito-precio-transferencia carrito-item-subtotal-transferencia">${{ data.subtotal_transferencia }}</div>
+                                        <div class="fw-bold fs-6 carrito-item-subtotal">${{ data.subtotal|format_price }}</div>
+                                        <div class="carrito-precio-transferencia carrito-item-subtotal-transferencia">${{ data.subtotal_transferencia|format_price }}</div>
                                     </div>
                                 </div>
                             </div>
@@ -123,8 +123,8 @@
                             </div>
                             <div class="col-auto d-none d-lg-flex align-items-center text-end" style="min-width:110px;">
                                 <div>
-                                    <div class="fw-bold fs-6 carrito-item-subtotal">${{ data.subtotal }}</div>
-                                    <div class="carrito-precio-transferencia carrito-item-subtotal-transferencia">${{ data.subtotal_transferencia }}</div>
+                                    <div class="fw-bold fs-6 carrito-item-subtotal">${{ data.subtotal|format_price }}</div>
+                                    <div class="carrito-precio-transferencia carrito-item-subtotal-transferencia">${{ data.subtotal_transferencia|format_price }}</div>
                                 </div>
                             </div>
                             <div class="col-auto d-none d-lg-flex align-items-center">
@@ -142,24 +142,24 @@
                     <h5 class="fw-bold mb-4">Resumen</h5>
                     <div class="d-flex justify-content-between mb-3 pb-1">
                         <span class="carrito-subtotal-label">Subtotal</span>
-                        <span class="fw-semibold carrito-resumen-subtotal">${{ total }}</span>
+                        <span class="fw-semibold carrito-resumen-subtotal">${{ total|format_price }}</span>
                     </div>
                     <div class="d-flex justify-content-between mb-3 pb-1">
                         <span class="carrito-subtotal-label">Subtotal transferencia</span>
-                        <span class="fw-semibold carrito-resumen-subtotal-transferencia">${{ total_transferencia }}</span>
+                        <span class="fw-semibold carrito-resumen-subtotal-transferencia">${{ total_transferencia|format_price }}</span>
                     </div>
                     <div class="d-flex justify-content-between mb-4 pb-1{% if not total_ahorro %} d-none{% endif %}">
                         <span class="carrito-ahorro">Ahorro total</span>
-                        <span class="carrito-ahorro carrito-resumen-ahorro">${{ total_ahorro }}</span>
+                        <span class="carrito-ahorro carrito-resumen-ahorro">${{ total_ahorro|format_price }}</span>
                     </div>
                     <hr class="my-3">
                     <div class="d-flex justify-content-between mb-2">
                         <span class="carrito-total-label">Total</span>
-                        <span class="fw-bold carrito-resumen-total">${{ total }}</span>
+                        <span class="fw-bold carrito-resumen-total">${{ total|format_price }}</span>
                     </div>
                     <div class="d-flex justify-content-between mb-4">
                         <span class="carrito-total-label" style="color:var(--tertiary-color)">Total transferencia</span>
-                        <span class="fw-bold carrito-resumen-total-transferencia" style="color:var(--tertiary-color)">${{ total_transferencia }}</span>
+                        <span class="fw-bold carrito-resumen-total-transferencia" style="color:var(--tertiary-color)">${{ total_transferencia|format_price }}</span>
                     </div>
                     {% csrf_token %}
                     <div class="d-grid gap-2">

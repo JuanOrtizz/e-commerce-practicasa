@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% load static %}
+{% load static precio_tags %}
 
 {% block title %}{{ titulo }} | Practicasa{% endblock %}
 
@@ -174,16 +174,16 @@
                                         <div class="mt-auto">
                                         {% if producto.tiene_promocion_porcentaje %}
                                             <p class="card-text text-secondary mb-0">
-                                                <span style="text-decoration: line-through;">${{ producto.precio }}</span>
-                                                <span> ${{ producto.precio_final }}</span>
+                                                <span style="text-decoration: line-through;">${{ producto.precio|format_price }}</span>
+                                                <span> ${{ producto.precio_final|format_price }}</span>
                                             </p>
                                             <p class="card-text fw-bold mb-0">
-                                                <span class="text-secondary" style="text-decoration: line-through;">${{ producto.precio_transferencia }}</span>
-                                                <span class="fw-bold" style="color:var(--tertiary-color)">${{ producto.precio_transferencia_final }} Con transferencia.</span>
+                                                <span class="text-secondary" style="text-decoration: line-through;">${{ producto.precio_transferencia|format_price }}</span>
+                                                <span class="fw-bold" style="color:var(--tertiary-color)">${{ producto.precio_transferencia_final|format_price }} Con transferencia.</span>
                                             </p>
                                         {% else %}
-                                            <p class="card-text text-secondary mb-0">${{ producto.precio }}</p>
-                                            <p class="card-text fw-bold mb-0" style="color:var(--tertiary-color)">${{ producto.precio_transferencia }} Con transferencia.</p>
+                                            <p class="card-text text-secondary mb-0">${{ producto.precio|format_price }}</p>
+                                            <p class="card-text fw-bold mb-0" style="color:var(--tertiary-color)">${{ producto.precio_transferencia|format_price }} Con transferencia.</p>
                                         {% endif %}
                                         </div>
                                     </div>

@@ -1,6 +1,6 @@
 {% extends 'panel_admin/base.html' %}
 
-{% load static %}
+{% load static precio_tags %}
 
 {% block title %}{{ producto.nombre }} | Practicasa{% endblock %}
 
@@ -45,13 +45,13 @@
                 <dt class="col-sm-3 text-secondary">Categoría</dt>
                 <dd class="col-sm-9">{{ producto.subcategoria.categoria.nombre }} / {{ producto.subcategoria.nombre }}</dd>
                 <dt class="col-sm-3 text-secondary">Precio</dt>
-                <dd class="col-sm-9">${{ producto.precio }}</dd>
+                <dd class="col-sm-9">${{ producto.precio|format_price }}</dd>
                 <dt class="col-sm-3 text-secondary">Precio final</dt>
-                <dd class="col-sm-9">${{ producto.precio_final }}</dd>
+                <dd class="col-sm-9">${{ producto.precio_final|format_price }}</dd>
                 <dt class="col-sm-3 text-secondary">Precio transferencia</dt>
-                <dd class="col-sm-9">${{ producto.precio_transferencia }}</dd>
+                <dd class="col-sm-9">${{ producto.precio_transferencia|format_price }}</dd>
                 <dt class="col-sm-3 text-secondary">Precio transferencia final</dt>
-                <dd class="col-sm-9">${{ producto.precio_transferencia_final }}</dd>
+                <dd class="col-sm-9">${{ producto.precio_transferencia_final|format_price }}</dd>
                 <dt class="col-sm-3 text-secondary">Stock</dt>
                 <dd class="col-sm-9">
                     {% if producto.stock == 0 %}

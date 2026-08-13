@@ -1,5 +1,13 @@
 import {successToast, errorToast, confirmAlert} from '/static/js/alertas.js'
 
+function formatearPrecio(valor) {
+    const numero = Number(valor)
+    if (!Number.isFinite(numero)) return valor
+    const [entero, decimales] = numero.toFixed(2).split('.')
+    const enteroFormateado = entero.replace(/\B(?=(\d{3})+(?!\d))/g, '.')
+    return `${enteroFormateado},${decimales}`
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value
 
@@ -93,10 +101,10 @@ function actualizarItem(card, item) {
         input.max = item.stock
     })
     card.querySelectorAll('.carrito-item-subtotal').forEach(el => {
-        el.textContent = `$${item.subtotal}`
+        el.textContent = `$${formatearPrecio(item.subtotal)}`
     })
     card.querySelectorAll('.carrito-item-subtotal-transferencia').forEach(el => {
-        el.textContent = `$${item.subtotal_transferencia}`
+        el.textContent = `$${formatearPrecio(item.subtotal_transferencia)}`
     })
     const pagas = card.querySelector('.carrito-item-pagas')
     if (pagas) {
@@ -107,7 +115,7 @@ function actualizarItem(card, item) {
     const ahorroEl = card.querySelector('.carrito-item-ahorro-item')
     if (ahorroEl) {
         if (parseFloat(item.ahorro) > 0) {
-            ahorroEl.textContent = ` | Ahorrás $${item.ahorro}`
+            ahorroEl.textContent = ` | Ahorrás $${formatearPrecio(item.ahorro)}`
             ahorroEl.classList.remove('d-none')
         } else {
             ahorroEl.classList.add('d-none')
@@ -134,7 +142,7 @@ function actualizarStocksDisponibles(stocks) {
 function actualizarResumen(carrito) {
     const set = (sel, val) => {
         const el = document.querySelector(sel)
-        if (el) el.textContent = `$${val}`
+        if (el) el.textContent = `$${formatearPrecio(val)}`
     }
     set('.carrito-resumen-subtotal', carrito.total)
     set('.carrito-resumen-subtotal-transferencia', carrito.total_transferencia)
@@ -148,7 +156,7 @@ function actualizarResumen(carrito) {
             ahorroRow.classList.add('d-none')
         }
         const ahorroEl = ahorroRow.querySelector('.carrito-resumen-ahorro')
-        if (ahorroEl) ahorroEl.textContent = `$${carrito.total_ahorro}`
+        if (ahorroEl) ahorroEl.textContent = `$${formatearPrecio(carrito.total_ahorro)}`
     }
 }
 
