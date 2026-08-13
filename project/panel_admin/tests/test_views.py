@@ -221,25 +221,23 @@ def test_consulta_detalle_200(admin_client, consulta):
 @pytest.mark.django_db
 def test_consulta_modificar_post_actualiza(admin_client, consulta):
     data = {
-        'nombre': consulta.nombre,
-        'email': consulta.email,
-        'telefono': consulta.telefono,
+        'estado': 'resuelta',
+        'nombre': 'Nombre cambiado',
         'mensaje': 'Mensaje actualizado.',
     }
     response = admin_client.post(reverse('panel_consulta_modificar', args=[consulta.id]), data)
-    assert response.status_code == 302
+    data_json = response.json()
+    assert data_json['success'] is True
+    assert data_json['redirect'] == reverse('panel_consulta_detalle', args=[consulta.id])
     consulta.refresh_from_db()
-    assert consulta.mensaje == 'Mensaje actualizado.'
+    assert consulta.estado == 'resuelta'
+    assert consulta.nombre == 'Juan Pérez'
+    assert consulta.mensaje == 'Mensaje de prueba válido.'
 
 
 @pytest.mark.django_db
 def test_consulta_modificar_post_invalido_200(admin_client, consulta):
-    data = {
-        'nombre': 'A',
-        'email': consulta.email,
-        'telefono': consulta.telefono,
-        'mensaje': consulta.mensaje,
-    }
+    data = {'estado': 'invalido'}
     response = admin_client.post(reverse('panel_consulta_modificar', args=[consulta.id]), data)
     assert response.status_code == 200
 
@@ -247,8 +245,57 @@ def test_consulta_modificar_post_invalido_200(admin_client, consulta):
 @pytest.mark.django_db
 def test_consulta_eliminar_post_elimina(admin_client, consulta):
     response = admin_client.post(reverse('panel_consulta_eliminar', args=[consulta.id]))
-    assert response.status_code == 302
+    data_json = response.json()
+    assert data_json['success'] is True
     assert not ConsultaModel.objects.filter(id=consulta.id).exists()
+
+
+@pytest.mark.django_db
+def test_lista_consultas_requiere_admin(client, cliente_client):
+    assert client.get(reverse('panel_consultas')).status_code == 302
+    assert cliente_client.get(reverse('panel_consultas')).status_code == 302
+
+
+@pytest.mark.django_db
+def test_lista_consultas_muestra_estado_pendiente(admin_client, consulta):
+    response = admin_client.get(reverse('panel_consultas'))
+    assert 'Pendiente' in response.content.decode()
+
+
+@pytest.mark.django_db
+def test_consulta_detalle_inexistente_404(admin_client):
+    response = admin_client.get(reverse('panel_consulta_detalle', args=[999]))
+    assert response.status_code == 404
+
+
+@pytest.mark.django_db
+def test_consulta_modificar_get_200(admin_client, consulta):
+    response = admin_client.get(reverse('panel_consulta_modificar', args=[consulta.id]))
+    assert response.status_code == 200
+    assert response.context['form'].instance == consulta
+
+
+@pytest.mark.django_db
+def test_consulta_modificar_post_sin_cambios(admin_client, consulta):
+    data = {'estado': 'pendiente'}
+    response = admin_client.post(reverse('panel_consulta_modificar', args=[consulta.id]), data)
+    data_json = response.json()
+    assert data_json['success'] is False
+    assert data_json['message'] == 'No realizaste modificaciones.'
+    consulta.refresh_from_db()
+    assert consulta.estado == 'pendiente'
+
+
+@pytest.mark.django_db
+def test_consulta_eliminar_get_405(admin_client, consulta):
+    response = admin_client.get(reverse('panel_consulta_eliminar', args=[consulta.id]))
+    assert response.status_code == 405
+
+
+@pytest.mark.django_db
+def test_consulta_eliminar_404(admin_client):
+    response = admin_client.post(reverse('panel_consulta_eliminar', args=[999]))
+    assert response.status_code == 404
 
 
 @pytest.mark.django_db
