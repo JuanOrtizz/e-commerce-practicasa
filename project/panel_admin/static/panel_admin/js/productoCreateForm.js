@@ -1,4 +1,4 @@
-import {validateForm, textErrorInput} from './validacionesProducto.js'
+import {validateForm, textErrorInput, scrollToFirstError, scrollToElement} from './validacionesProducto.js'
 import {successAlertRedirectOnClose, errorAlert} from '/static/js/alertas.js'
 
 document.addEventListener('DOMContentLoaded', ()=>{
@@ -46,6 +46,7 @@ async function postForm(formData, csrfToken, form){
             //Si los errores son string (provenientes de la vista)
             if (typeof errors === "string") {
                 errorAlert(data.errors)//Muestro una alerta
+                scrollToElement("#card-imagenes")
             }
             else{ // Sino (errores en formulario), muestro mediante un for estos errores provenientes de forms.py
                 for (let field in errors) {
@@ -55,6 +56,7 @@ async function postForm(formData, csrfToken, form){
                         textErrorInput(input, msj)
                     }
                 }
+                scrollToFirstError()
             }
         }
     }catch(error){

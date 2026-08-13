@@ -57,6 +57,9 @@ export function validateForm(formData){
             if(!validarInputPeso(input, valor)) isValid = false
         }
     }
+    if(!isValid){
+        scrollToFirstError()
+    }
     return isValid
 }
 
@@ -149,5 +152,19 @@ export function clearErrorText(input){
     input.classList.remove("is-invalid")
     if ( errorText ){
         errorText.textContent = ""
+    }
+}
+
+export function scrollToFirstError(){
+    const primerError = document.querySelector("#form .is-invalid")
+    if (primerError){
+        primerError.scrollIntoView({behavior: "smooth", block: "center"})
+    }
+}
+
+export function scrollToElement(selector){
+    const elemento = document.querySelector(selector)
+    if (elemento){
+        elemento.scrollIntoView({behavior: "smooth", block: "center"})
     }
 }
