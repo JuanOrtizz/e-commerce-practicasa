@@ -1,10 +1,9 @@
-from django.contrib import messages
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.views.decorators.http import require_POST
 
-from base.forms import ConsultaForm
+from base.forms import ConsultaAdminForm
 from base.models import ConsultaModel
 from productos.forms import MAX_IMAGENES_PRODUCTO, ProductoForm, ProductoImagenFormset
 from productos.models import ProductoModel
@@ -124,13 +123,18 @@ def consulta_detalle(request, id):
 def consulta_modificar(request, id):
     consulta = get_object_or_404(ConsultaModel, id=id)
     if request.method == 'POST':
-        form = ConsultaForm(request.POST, instance=consulta)
+        form = ConsultaAdminForm(request.POST, instance=consulta)
         if form.is_valid():
+            if not form.changed_data:
+                return JsonResponse({"success": False, "message": "No realizaste modificaciones."})
             form.save()
-            messages.success(request, 'Consulta modificada correctamente.')
-            return redirect('panel_consulta_detalle', id=consulta.id)
+            return JsonResponse({
+                "success": True,
+                "message": "Consulta modificada correctamente.",
+                "redirect": reverse('panel_consulta_detalle', args=[consulta.id]),
+            })
     else:
-        form = ConsultaForm(instance=consulta)
+        form = ConsultaAdminForm(instance=consulta)
 
     return render(request, 'panel_admin/consulta_form.html', {
         'form': form,
@@ -144,8 +148,10 @@ def consulta_modificar(request, id):
 def consulta_eliminar(request, id):
     consulta = get_object_or_404(ConsultaModel, id=id)
     consulta.delete()
-    messages.success(request, 'Consulta eliminada correctamente.')
-    return redirect('panel_consultas')
+    return JsonResponse({
+        "success": True,
+        "message": f"Consulta de {consulta.nombre} eliminada."
+    })
 
 
 @requiere_admin

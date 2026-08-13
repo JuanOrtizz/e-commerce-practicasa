@@ -1,33 +1,43 @@
 {% extends 'panel_admin/base.html' %}
 
+{% load static %}
+
 {% block title %}{{ titulo }} | Practicasa{% endblock %}
 
 {% block titulo_pagina %}{{ titulo }}{% endblock %}
 
 {% block content %}
 <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
-    <a class="btn btn-panel-secundario" href="{% url 'panel_consultas' %}">
+    <a class="btn btn-secondary d-flex justify-content-center align-items-center gap-2" href="{% url 'panel_consultas' %}">
         <span class="material-symbols-outlined">arrow_back</span> Volver
     </a>
 </div>
 
-<form method="post">
+<div class="panel-card p-3">
+    <dl class="row mb-0">
+        <dt class="col-sm-3 text-secondary">Nombre</dt>
+        <dd class="col-sm-9">{{ consulta.nombre }}</dd>
+        <dt class="col-sm-3 text-secondary">Email</dt>
+        <dd class="col-sm-9">{{ consulta.email }}</dd>
+        <dt class="col-sm-3 text-secondary">Teléfono</dt>
+        <dd class="col-sm-9">{{ consulta.telefono }}</dd>
+        <dt class="col-sm-3 text-secondary">Fecha</dt>
+        <dd class="col-sm-9">{{ consulta.fecha_y_hora|date:'d/m/Y H:i' }}</dd>
+        <dt class="col-sm-3 text-secondary">Mensaje</dt>
+        <dd class="col-sm-9 text-muted">{{ consulta.mensaje|linebreaks }}</dd>
+    </dl>
+</div>
+
+<form method="post" id="form" novalidate action="{% url 'panel_consulta_modificar' consulta.id %}">
     {% csrf_token %}
-
-    {% if form.non_field_errors %}
-        <div class="alert alert-danger py-2">{{ form.non_field_errors }}</div>
-    {% endif %}
-
-    <div class="panel-card p-3">
+    <div class="panel-card p-3 mt-3">
+        <h5 class="fw-bold mb-3">Estado</h5>
         <div class="row g-0">
             {% for field in form %}
-                <div class="col-md-6">
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                <div class="col-12">
+                    <div class="form-floating mb-1 w-100">
                         {{ field }}
-                        {% if field.errors %}
-                            <div class="text-danger small mt-1">{{ field.errors }}</div>
-                        {% endif %}
+                        <label for="{{ field.widget.attrs.id }}">{{ field.label }}</label>
                     </div>
                 </div>
             {% endfor %}
@@ -35,10 +45,15 @@
     </div>
 
     <div class="d-flex justify-content-end gap-2 mt-3">
-        <a class="btn btn-panel-secundario" href="{% url 'panel_consultas' %}">Cancelar</a>
-        <button class="btn btn-panel-primario" type="submit">
-            <span class="material-symbols-outlined">save</span> Guardar
+        <button class="btn btn-enviar text-white fw-bold w-100" type="submit" id="btn-submit">
+             <span class="btn-text" id="btn-text">
+                Guardar
+             </span>
+            <span class="spinner-border spinner-border-sm d-none text-black" role="status" id="btn-spinner"></span>
         </button>
     </div>
 </form>
+{% endblock %}
+{% block extra_js %}
+    <script type="module" src="{% static 'panel_admin/js/consultaUpdateForm.js' %}"></script>
 {% endblock %}
