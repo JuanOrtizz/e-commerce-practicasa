@@ -15,11 +15,14 @@
 - Agrego hover sutil a los indicadores del carrusel
 #### Refactor
 - Muevo estilos del index a utilidades de Bootstrap en los templates (position-relative, object-fit-cover, overlay del slogan, text-white, rounded-circle/bg-white en flechas, rounded-3 y fs-2 en "Ver más"), dejando el CSS solo con lo puntual
+- Fusiono las dos media queries `min-width: 992px` de index.css en un solo bloque (fila-categorias y flechas `[hidden]`)
+- Reemplazo la media query que ocultaba las flechas de las filas en mobile/tablet por utilidades de Bootstrap `d-none d-lg-flex` en los botones
 #### Fixes
 - Corrijo el overlay del slogan del carrusel que desaparecía al moverlo a utilities: inset-0 no existe en Bootstrap 5.3.0, se usa top-0 start-0 bottom-0 end-0
 - Corrijo el recorte y aplanado de cards al aparecer/ocultarse las flechas: ahora reservan espacio con visibility:hidden y hay tolerancia de sub-pixel en los límites del scroll
 - Corrijo el hover de las flechas que no pintaba el fondo (la clase bg-white con !important de Bootstrap lo bloqueaba)
 - Corrijo el estado de stock en la home: al recargar el index, un producto agotado por el carrito volvía a mostrarse habilitado; ahora usa stock_restante (service set_stock_restante_productos) igual que en la página de productos
+- Unifico la altura de las imágenes de productos del index a 250px en las tres secciones (Destacados usaba 225px)
 ---
 ## [v0.12.0] - 2026-08-09
 ### Rama: feature/home
