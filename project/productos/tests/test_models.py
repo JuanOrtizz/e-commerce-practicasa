@@ -151,6 +151,61 @@ def test_save_calcula_precios_finales_con_2x1(producto_data, subcategoria_data):
 
 
 @pytest.mark.django_db
+def test_2x1_sin_stock_suficiente_elimina_promocion(producto_data, subcategoria_data):
+    data = {**producto_data,
+        'stock': 1,
+        'promocion': ProductoModel.PromocionChoices.DOS_POR_UNO,
+    }
+    producto = ProductoModel.objects.create(subcategoria=subcategoria_data, **data)
+    assert producto.promocion is None
+    assert not producto.tags.filter(nombre=TagModel.TagChoices.OFERTA).exists()
+
+
+@pytest.mark.django_db
+def test_2x1_con_stock_suficiente_conserva_promocion(producto_data, subcategoria_data):
+    data = {**producto_data,
+        'stock': 2,
+        'promocion': ProductoModel.PromocionChoices.DOS_POR_UNO,
+    }
+    producto = ProductoModel.objects.create(subcategoria=subcategoria_data, **data)
+    assert producto.promocion == ProductoModel.PromocionChoices.DOS_POR_UNO
+
+
+@pytest.mark.django_db
+def test_3x2_sin_stock_suficiente_elimina_promocion(producto_data, subcategoria_data):
+    data = {**producto_data,
+        'stock': 2,
+        'promocion': ProductoModel.PromocionChoices.TRES_POR_DOS,
+    }
+    producto = ProductoModel.objects.create(subcategoria=subcategoria_data, **data)
+    assert producto.promocion is None
+    assert not producto.tags.filter(nombre=TagModel.TagChoices.OFERTA).exists()
+
+
+@pytest.mark.django_db
+def test_3x2_con_stock_suficiente_conserva_promocion(producto_data, subcategoria_data):
+    data = {**producto_data,
+        'stock': 3,
+        'promocion': ProductoModel.PromocionChoices.TRES_POR_DOS,
+    }
+    producto = ProductoModel.objects.create(subcategoria=subcategoria_data, **data)
+    assert producto.promocion == ProductoModel.PromocionChoices.TRES_POR_DOS
+
+
+@pytest.mark.django_db
+def test_bajar_stock_elimina_promocion_2x1(producto_data, subcategoria_data):
+    data = {**producto_data,
+        'stock': 10,
+        'promocion': ProductoModel.PromocionChoices.DOS_POR_UNO,
+    }
+    producto = ProductoModel.objects.create(subcategoria=subcategoria_data, **data)
+    producto.stock = 1
+    producto.save()
+    assert producto.promocion is None
+    assert not producto.tags.filter(nombre=TagModel.TagChoices.OFERTA).exists()
+
+
+@pytest.mark.django_db
 def test_str_producto(producto_data, subcategoria_data):
     subcategoria = subcategoria_data
     producto = ProductoModel.objects.create(

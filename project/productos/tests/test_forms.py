@@ -4,7 +4,7 @@ import pytest
 from django.core.files.uploadedfile import SimpleUploadedFile
 
 from productos.forms import ProductoForm, ProductoImagenForm, ProductoImagenFormset
-from productos.models import ProductoImagenModel, SubcategoriaModel
+from productos.models import ProductoImagenModel, ProductoModel, SubcategoriaModel
 
 
 def _imagen_png(nombre):
@@ -98,6 +98,58 @@ def test_sku_duplicado_invalido(subcategoria_data, producto):
     form = ProductoForm(data=producto_form_data(subcategoria_data, nombre='Camiseta Negra', sku=producto.sku))
     assert not form.is_valid()
     assert 'Ya existe un producto con este código.' in form.errors['sku']
+
+
+@pytest.mark.django_db
+def test_promocion_2x1_sin_stock_suficiente_invalido(subcategoria_data):
+    form = ProductoForm(data=producto_form_data(
+        subcategoria_data, promocion='2x1', stock='1'
+    ))
+    assert not form.is_valid()
+    assert 'La promoción 2x1 requiere al menos 2 unidades de stock.' in form.errors['promocion']
+
+
+@pytest.mark.django_db
+def test_promocion_2x1_con_stock_suficiente_valido(subcategoria_data):
+    form = ProductoForm(data=producto_form_data(
+        subcategoria_data, promocion='2x1', stock='2'
+    ))
+    assert form.is_valid()
+
+
+@pytest.mark.django_db
+def test_promocion_3x2_sin_stock_suficiente_invalido(subcategoria_data):
+    form = ProductoForm(data=producto_form_data(
+        subcategoria_data, promocion='3x2', stock='2'
+    ))
+    assert not form.is_valid()
+    assert 'La promoción 3x2 requiere al menos 3 unidades de stock.' in form.errors['promocion']
+
+
+@pytest.mark.django_db
+def test_promocion_3x2_con_stock_suficiente_valido(subcategoria_data):
+    form = ProductoForm(data=producto_form_data(
+        subcategoria_data, promocion='3x2', stock='3'
+    ))
+    assert form.is_valid()
+
+
+@pytest.mark.django_db
+def test_bajar_stock_con_promocion_existente_guarda_y_elimina_promo(subcategoria_data):
+    producto = ProductoModel.objects.create(
+        subcategoria=subcategoria_data, nombre='Promo 3x2', descripcion='Test',
+        slug='promo-3x2-existente', sku='SKU-P32', precio='300',
+        precio_transferencia='270', stock=3,
+        promocion=ProductoModel.PromocionChoices.TRES_POR_DOS,
+    )
+    form = ProductoForm(
+        data=producto_form_data(subcategoria_data, sku=producto.sku, stock='2', promocion='3x2'),
+        instance=producto,
+    )
+    assert form.is_valid()
+    form.save()
+    producto.refresh_from_db()
+    assert producto.promocion is None
 
 
 @pytest.mark.django_db

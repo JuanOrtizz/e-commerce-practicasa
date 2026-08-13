@@ -195,6 +195,20 @@ class ProductoForm(forms.ModelForm):
                 raise forms.ValidationError('El peso no puede superar 9999.99 kg.')
         return peso
 
+    def clean(self):
+        cleaned_data = super().clean()
+        if 'promocion' not in self.changed_data:
+            return cleaned_data
+        promocion = cleaned_data.get('promocion')
+        stock = cleaned_data.get('stock')
+        stock_minimo = self.instance.stock_minimo_para_promocion(promocion)
+        if stock_minimo is not None and stock is not None and stock < stock_minimo:
+            self.add_error(
+                'promocion',
+                f'La promoción {promocion} requiere al menos {stock_minimo} unidades de stock.',
+            )
+        return cleaned_data
+
 
 class ProductoImagenForm(forms.ModelForm):
     class Meta:
