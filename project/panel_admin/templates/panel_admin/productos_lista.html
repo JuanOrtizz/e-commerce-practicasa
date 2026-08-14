@@ -1,0 +1,125 @@
+{% extends 'panel_admin/base.html' %}
+
+{% load static precio_tags %}
+
+{% block title %}Productos | Practicasa{% endblock %}
+
+{% block titulo_pagina %}Productos{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+    <p class="text-muted mb-0"><span id="productos-count">{{ productos|length }}</span> productos cargados.</p>
+    <a class="btn btn-success d-flex justify-content-center align-items-center gap-2" href="{% url 'panel_producto_nuevo' %}">
+        <span class="material-symbols-outlined">add</span> Nuevo Producto
+    </a>
+</div>
+
+<div class="d-flex flex-wrap gap-2 align-items-center mb-3">
+    <div class="input-group input-group-sm rounded-1" style="max-width: 320px;">
+        <span class="input-group-text border-0"><span class="material-symbols-outlined fs-6">search</span></span>
+        <input type="search" id="buscador-productos" class="form-control border-0" placeholder="Buscar por nombre..." aria-label="Buscar por nombre">
+    </div>
+    <select id="filtro-productos" class="form-select form-select-sm w-auto" aria-label="Filtrar productos">
+        <option value="todos">Todos</option>
+        <option value="sin-stock">Sin stock</option>
+        <option value="bajo-stock">Bajo stock</option>
+        <option value="activos">Activos</option>
+        <option value="inactivos">Inactivos</option>
+        <option value="promociones">Con promoción</option>
+    </select>
+    <select id="orden-productos" class="form-select form-select-sm w-auto" aria-label="Ordenar productos">
+        <option value="">Ordenar...</option>
+        <option value="az">A-Z</option>
+        <option value="za">Z-A</option>
+    </select>
+</div>
+
+<div class="panel-card p-3">
+    <div class="table-responsive">
+        <table class="table panel-table align-middle mb-0">
+            <thead>
+                <tr>
+                    <th class="text-nowrap">Imagen</th>
+                    <th class="text-nowrap">Producto</th>
+                    <th class="text-nowrap">Categoría</th>
+                    <th class="text-nowrap">Precio</th>
+                    <th class="text-nowrap">Precio Transferencia</th>
+                    <th class="text-nowrap">Stock</th>
+                    <th class="text-nowrap">Estado</th>
+                    <th class="text-center text-nowrap">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for producto in productos %}
+                <tr id="producto-{{ producto.id }}" class="producto-item">
+                    <td>
+                        {% with primera_imagen=producto.primera_imagen_valida %}
+                            {% if primera_imagen %}
+                                <img class="imagen-miniatura" src="{{ primera_imagen.imagen.url }}" alt="{{ producto.nombre }}">
+                            {% else %}
+                                <img class="imagen-miniatura" src="{% static 'productos/img/logo_default_practicasa.webp' %}" alt="{{ producto.nombre }}">
+                            {% endif %}
+                        {% endwith %}
+                    </td>
+                    <td class="fw-bold">{{ producto.nombre }}</td>
+                    <td>{{ producto.subcategoria.categoria.nombre }} / {{ producto.subcategoria.nombre }}</td>
+                    <td>${{ producto.precio|format_price }}</td>
+                    <td>${{ producto.precio_transferencia|format_price }}</td>
+                    <td>
+                        {% if producto.stock == 0 %}
+                            <span class="badge rounded-pill badge-stock-sin">Sin stock</span>
+                        {% elif producto.stock <= 5 %}
+                            <span class="badge rounded-pill badge-stock-bajo">{{ producto.stock }} u.</span>
+                        {% else %}
+                            <span class="badge rounded-pill badge-stock-ok">{{ producto.stock }} u.</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if producto.activo %}
+                            <span class="badge rounded-pill badge-estado-activo">Activo</span>
+                        {% else %}
+                            <span class="badge rounded-pill badge-estado-inactivo">Inactivo</span>
+                        {% endif %}
+                        {% if producto.promocion %}
+                            <span class="badge rounded-pill badge-promocion d-block mt-1">
+                                {% if producto.tiene_promocion_porcentaje %}-{{ producto.porcentaje_descuento }}%{% else %}{{ producto.promocion }}{% endif %}
+                            </span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="d-flex justify-content-end gap-2">
+                            <a class="btn btn-sm btn-info d-flex justify-content-center align-item-center" href="{% url 'panel_producto_detalle' producto.id %}" aria-label="Ver {{ producto.nombre }}">
+                                <span class="material-symbols-outlined text-black">visibility</span>
+                            </a>
+                            <a class="btn btn-sm btn-warning d-flex justify-content-center align-item-center" href="{% url 'panel_producto_modificar' producto.id %}" aria-label="Modificar {{ producto.nombre }}">
+                                <span class="material-symbols-outlined">edit</span>
+                            </a>
+                            <form method="post" action="{% url 'panel_producto_eliminar' producto.id %}">
+                                {% csrf_token %}
+                                <button class="btn-delete btn btn-sm btn-danger d-flex justify-content-center align-item-center" type="submit" data-id="{{ producto.id }}" aria-label="Eliminar {{ producto.nombre }}">
+                                    <span class="material-symbols-outlined">delete</span>
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" class="text-center text-muted py-4">No hay productos cargados.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% if productos %}
+        <div id="no-productos-message" class="d-none">
+            <p class="text-center text-muted py-4 mb-0">No hay productos cargados.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+    <script type="module" src="{% static 'panel_admin/js/productosLista.js' %}"></script>
+    <script type="module" src="{% static 'panel_admin/js/productoDeleteForm.js' %}"></script>
+{% endblock %}

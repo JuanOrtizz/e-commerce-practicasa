@@ -1,0 +1,78 @@
+html, body {
+    overflow-x: hidden;
+}
+
+.dashboard-kpi {
+    transition: box-shadow 0.25s ease, transform 0.25s ease;
+}
+
+.dashboard-kpi:hover {
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
+    transform: translateY(-2px);
+}
+
+.kpi-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    color: var(--white);
+    background: linear-gradient(135deg, #C46A3E, #A25630);
+    flex-shrink: 0;
+}
+
+.kpi-icon-stock { background: linear-gradient(135deg, #6A6A6A, #424242); }
+
+.kpi-icon-consulta { background: linear-gradient(135deg, #D9A021, #B57E14); }
+
+.kpi-icon-valor { background: linear-gradient(135deg, #7E9B57, #5C7A3A); }
+
+.kpi-badge {
+    padding: 3px 8px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.kpi-badge-neutral { background-color: var(--primary-color); color: var(--secondary-color-hover); }
+
+.kpi-badge-up { background-color: #D4EDDA; color: #155724; }
+
+.kpi-badge-down { background-color: #F8D7DA; color: #842029; }
+
+.kpi-valor { font-size: 1.75rem; }
+
+.kpi-sparkline {
+    height: 44px;
+    position: relative;
+}
+
+.kpi-placeholder {
+    min-height: 44px;
+    border-radius: 10px;
+    background-color: var(--primary-color);
+    color: var(--secondary-color-hover);
+}
+
+.kpi-placeholder .material-symbols-outlined {
+    font-size: 22px;
+}
+
+.chart-area {
+    position: relative;
+    height: 260px;
+}
+
+.icon-inline {
+    font-size: 14px;
+    vertical-align: -2px;
+    margin-right: 2px;
+}
+
+@media (max-width: 1199.98px) {
+    .chart-area { height: 220px; }
+}

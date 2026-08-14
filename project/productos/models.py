@@ -153,9 +153,24 @@ class ProductoModel(models.Model):
     def save(self, *args, **kwargs):
         if not self.slug:
             self.slug = slugify(self.nombre)
+        self._quitar_promocion_sin_stock()
         self._calcular_precios_finales()
         super().save(*args, **kwargs)
         self._asignar_tags_automaticos()
+
+    def stock_minimo_para_promocion(self, promocion=None):
+        if promocion is None:
+            promocion = self.promocion
+        if promocion == self.PromocionChoices.DOS_POR_UNO:
+            return 2
+        if promocion == self.PromocionChoices.TRES_POR_DOS:
+            return 3
+        return None
+
+    def _quitar_promocion_sin_stock(self):
+        stock_minimo = self.stock_minimo_para_promocion()
+        if stock_minimo is not None and self.stock < stock_minimo:
+            self.promocion = None
 
     def _calcular_precios_finales(self):
         if self.tiene_promocion_porcentaje and self.precio:

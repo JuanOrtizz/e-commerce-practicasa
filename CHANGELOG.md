@@ -1,5 +1,39 @@
 # Changelog
 ---
+## [v0.14.0] - 2026-08-13
+### Rama: feature/panel-admin
+#### Features
+- Agrego módulo de administración de la tienda (app panel_admin): base.html con sidebar responsive (offcanvas en móviles), header con logout y gestión de productos (lista, detalle, creación, modificación y eliminación), consultas, referencias y pagos
+- Agrego formulario de productos con imágenes en el panel (carga múltiple de imágenes, colores, medidas y tags) y sus tests
+- Agrego columna Precio Transferencia en la tabla de productos del panel
+- Agrego logout de panel-admin
+- Agrego campo estado al modelo Consulta (pendiente/resuelta)
+- Agrego consultas al panel admin: listado con filtro por estado y orden por fecha, detalle, modificación y eliminación con confirmación, con tests
+- Agrego sección de referencias al panel admin (colores, medidas, categorías y subcategorías) con listados y formularios, con tests
+- Agrego filtros y ordenamiento en tiempo real a las listas del panel admin (búsqueda por nombre, filtro por stock/estado/promoción y orden A-Z/Z-A)
+- Agrego filtro "Con promoción" y badge de promoción en la lista de productos del panel
+- Rediseño el dashboard del panel admin: KPIs (productos activos, stock bajo, consultas y placeholder de ventas), gráficos Chart.js (consultas por estado, productos por categoría y tags, promociones activas), tabla de productos con menos stock y sparklines
+- Agrego scroll al primer error en los formularios de producto del panel
+- Agrego alerta de éxito con redirección al cerrar
+- Formateo de precios en tienda y panel: separador de miles con punto y decimal con coma (1.234.567,89) en lista y detalle de productos, carrito (incluidas las actualizaciones AJAX) y tabla/detalle del panel
+- Agrego test de regresión: el tag nuevo persiste al editar un producto
+#### Fixes
+- Elimino del carrito los productos desactivados por el admin
+- Ajusto el carrito al stock real: limito la cantidad al stock disponible por variante y elimino los items sin stock
+- Elimino automáticamente las promociones 2x1/3x2 cuando el stock no alcanza para aplicarlas y notifico al admin al asignarlas sin stock suficiente
+- Hago el login del panel silencioso: solo usuarios admin y sin flujo de recuperación de contraseña
+- Re-habilito el botón de eliminar tras un error de red en el panel admin
+- Evito desbordes por nombres largos en la card del carrito, en detalle/lista/breadcrumb de productos y del path del archivo en el formulario (FileInput)
+- Corrijo bugs de selector en los estilos de formularios globales
+- Corrijo el desacople visual del ícono del menú hamburguesa en celulares
+- Corrijo el desborde horizontal de las tablas del panel en pantallas chicas: scroll interno en el eje X (min-width: 0 en el layout)
+#### Style
+- Ajusto el diseño del logout de panel admin
+#### Refactor
+- Organizo el código de views del panel y lo divido en decorators y services
+- Elimino redirect innecesario en producto_eliminar
+- Elimino 3 tests redundantes en carrito y productos: test duplicado de la señal del carrito, test tautológico del related_name y test de búsqueda sin search sin aporte de cobertura (318 tests)
+---
 ## [v0.13.0] - 2026-08-12
 ### Rama: feature/home-ui
 #### Features

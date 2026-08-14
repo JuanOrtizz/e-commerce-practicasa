@@ -1,0 +1,32 @@
+{% extends 'panel_admin/base.html' %}
+
+{% block title %}Consulta de {{ consulta.nombre }} | Practicasa{% endblock %}
+
+{% block titulo_pagina %}Consulta de {{ consulta.nombre }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+    <a class="btn btn-secondary d-flex justify-content-center align-items-center gap-2" href="{% url 'panel_consultas' %}">
+        <span class="material-symbols-outlined">arrow_back</span> Volver
+    </a>
+</div>
+
+<div class="panel-card p-3">
+    <dl class="row mb-0">
+        <dt class="col-sm-3 text-secondary">Nombre</dt>
+        <dd class="col-sm-9">{{ consulta.nombre }}</dd>
+        <dt class="col-sm-3 text-secondary">Email</dt>
+        <dd class="col-sm-9">{{ consulta.email }}</dd>
+        <dt class="col-sm-3 text-secondary">Teléfono</dt>
+        <dd class="col-sm-9">{{ consulta.telefono }}</dd>
+        <dt class="col-sm-3 text-secondary">Fecha</dt>
+        <dd class="col-sm-9">{{ consulta.fecha_y_hora|date:'d/m/Y H:i' }}</dd>
+        <dt class="col-sm-3 text-secondary">Estado</dt>
+        <dd class="col-sm-9">
+            <span class="badge {% if consulta.estado == 'pendiente' %}text-bg-warning{% else %}text-bg-success{% endif %}">{{ consulta.get_estado_display }}</span>
+        </dd>
+        <dt class="col-sm-3 text-secondary">Mensaje</dt>
+        <dd class="col-sm-9 text-muted">{{ consulta.mensaje|linebreaks }}</dd>
+    </dl>
+</div>
+{% endblock %}

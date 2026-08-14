@@ -1,0 +1,104 @@
+{% extends 'panel_admin/base.html' %}
+
+{% load static precio_tags %}
+
+{% block title %}{{ producto.nombre }} | Practicasa{% endblock %}
+
+{% block titulo_pagina %}{{ producto.nombre }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+    <a class="btn btn-secondary d-flex justify-content-center align-items-center gap-2" href="{% url 'panel_productos' %}">
+        <span class="material-symbols-outlined">arrow_back</span> Volver
+    </a>
+</div>
+
+<div class="panel-card p-3 mb-3">
+    <div class="row gap-4">
+        <div class="col-12 col-md-4">
+            {% with primera_imagen=producto.primera_imagen_valida %}
+                {% if primera_imagen %}
+                    <img src="{{ primera_imagen.imagen.url }}" class="img-fluid rounded" alt="{{ producto.nombre }}" style="width:100%;max-height:350px;object-fit:contain;">
+                {% else %}
+                    <img src="{% static 'productos/img/logo_default_practicasa.webp' %}" class="img-fluid rounded" alt="{{ producto.nombre }}" style="width:100%;max-height:350px;object-fit:contain;">
+                {% endif %}
+            {% endwith %}
+            {% if producto.imagenes.count > 1 %}
+                <div class="d-flex flex-wrap gap-2 mt-2">
+                    {% for imagen in producto.imagenes.all %}
+                        <img src="{{ imagen.imagen.url }}" class="imagen-miniatura" alt="{{ producto.nombre }}" style="width:64px;height:64px;">
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+        <div class="col-12 col-md-7">
+            <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+                {% if producto.activo %}
+                    <span class="badge rounded-pill badge-estado-activo">Activo</span>
+                {% else %}
+                    <span class="badge rounded-pill badge-estado-inactivo">Inactivo</span>
+                {% endif %}
+            </div>
+            <dl class="row mb-0">
+                <dt class="col-sm-3 text-secondary">SKU</dt>
+                <dd class="col-sm-9">{{ producto.sku }}</dd>
+                <dt class="col-sm-3 text-secondary">Categoría</dt>
+                <dd class="col-sm-9">{{ producto.subcategoria.categoria.nombre }} / {{ producto.subcategoria.nombre }}</dd>
+                <dt class="col-sm-3 text-secondary">Precio</dt>
+                <dd class="col-sm-9">${{ producto.precio|format_price }}</dd>
+                <dt class="col-sm-3 text-secondary">Precio final</dt>
+                <dd class="col-sm-9">${{ producto.precio_final|format_price }}</dd>
+                <dt class="col-sm-3 text-secondary">Precio transferencia</dt>
+                <dd class="col-sm-9">${{ producto.precio_transferencia|format_price }}</dd>
+                <dt class="col-sm-3 text-secondary">Precio transferencia final</dt>
+                <dd class="col-sm-9">${{ producto.precio_transferencia_final|format_price }}</dd>
+                <dt class="col-sm-3 text-secondary">Stock</dt>
+                <dd class="col-sm-9">
+                    {% if producto.stock == 0 %}
+                        <span class="badge rounded-pill badge-stock-sin">Sin stock</span>
+                    {% elif producto.stock <= 5 %}
+                        <span class="badge rounded-pill badge-stock-bajo">{{ producto.stock }} u.</span>
+                    {% else %}
+                        <span class="badge rounded-pill badge-stock-ok">{{ producto.stock }} u.</span>
+                    {% endif %}
+                </dd>
+                <dt class="col-sm-3 text-secondary">Peso</dt>
+                <dd class="col-sm-9">{% if producto.peso %}{{ producto.peso }} kg{% else %}-{% endif %}</dd>
+                <dt class="col-sm-3 text-secondary">Colores</dt>
+                <dd class="col-sm-9">{% for color in producto.colores.all %}<span class="me-2">{{ color.nombre }}</span>{% empty %}-{% endfor %}</dd>
+                <dt class="col-sm-3 text-secondary">Medidas</dt>
+                <dd class="col-sm-9">{% for medida in producto.medidas.all %}<span class="me-2">{{ medida.nombre }}</span>{% empty %}-{% endfor %}</dd>
+                <dt class="col-sm-3 text-secondary">Etiquetas</dt>
+                <dd class="col-sm-9">
+                    {% for tag in producto.tags.all %}
+                        {% if tag.nombre == 'oferta' %}
+                            <span class="badge bg-danger">{{ tag.get_nombre_display }}</span>
+                        {% elif tag.nombre == 'nuevo' %}
+                            <span class="badge bg-success">{{ tag.get_nombre_display }}</span>
+                        {% elif tag.nombre == 'sin_stock' %}
+                            <span class="badge bg-secondary">{{ tag.get_nombre_display }}</span>
+                        {% elif tag.nombre == 'ultima_unidad' %}
+                            <span class="badge bg-warning text-dark">{{ tag.get_nombre_display }}</span>
+                        {% elif tag.nombre == 'destacado' %}
+                            <span class="badge bg-info text-dark">{{ tag.get_nombre_display }}</span>
+                        {% endif %}
+                    {% empty %}-
+                    {% endfor %}
+                </dd>
+                <dt class="col-sm-3 text-secondary">Creado</dt>
+                <dd class="col-sm-9">{{ producto.created_at|date:'d/m/Y H:i' }}</dd>
+                <dt class="col-sm-3 text-secondary">Modificado</dt>
+                <dd class="col-sm-9">{{ producto.updated_at|date:'d/m/Y H:i' }}</dd>
+            </dl>
+        </div>
+    </div>
+</div>
+
+<div class="panel-card p-3">
+    <h5 class="fw-bold mb-2">Descripción</h5>
+    <p class="mb-0 text-muted">{{ producto.descripcion|linebreaks }}</p>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{% endblock %}

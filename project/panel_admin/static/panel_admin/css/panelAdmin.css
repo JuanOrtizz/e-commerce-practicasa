@@ -1,0 +1,141 @@
+.panel-layout { min-height: 100dvh; }
+
+.panel-sidebar {
+    width: 260px;
+    background-color: var(--primary-color);
+    border-right: 1px solid var(--secondary-color);
+    overflow-y: auto;
+}
+
+.panel-brand h1 { color: var(--tertiary-color); }
+
+.panel-nav-link {
+    color: var(--black);
+    text-decoration: none;
+    transition: color 0.3s ease, background-color 0.3s ease;
+}
+
+.panel-nav-link:hover {
+    color: var(--tertiary-color-hover);
+    background-color: var(--white);
+}
+
+.panel-nav-link.active { color: var(--white); background-color: var(--tertiary-color); }
+
+.panel-nav-link.active:hover { background-color: var(--tertiary-color-hover); }
+
+.panel-nav-link .material-symbols-outlined { font-size: 22px; }
+
+.panel-card {
+    background-color: var(--white);
+    border: 1px solid var(--secondary-color);
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.metrica-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 12px;
+    background-color: var(--primary-color);
+    color: var(--tertiary-color);
+}
+
+.btn-logout {
+    background-color: transparent;
+    border: 2px solid #ff0000;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    color: #ff0000;
+}
+
+.btn-logout:hover {
+    background-color: #ff0000;
+    color: var(--white);
+
+.metrica-icon .material-symbols-outlined { font-size: 28px; }
+
+.metrica-etiqueta { color: var(--secondary-color-hover); }
+
+.panel-table thead th { background-color: var(--primary-color); }
+
+.panel-table tbody tr:hover { background-color: var(--primary-color); }
+
+.panel-table td {
+    overflow-wrap: break-word;
+    word-break: break-word;
+}
+
+.imagen-miniatura {
+    width: 48px;
+    height: 48px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 1px solid var(--secondary-color);
+}
+
+.btn .material-symbols-outlined { font-size: 20px; }
+
+.btn-sm .material-symbols-outlined { font-size: 18px; }
+
+.badge-stock-bajo { background-color: #FFF3CD; color: #856404; }
+
+.badge-stock-sin { background-color: var(--secondary-color); color: var(--black); }
+
+.badge-stock-ok { background-color: #D4EDDA; color: #155724; }
+
+.badge-estado-activo { background-color: #D4EDDA; color: #155724; }
+
+.badge-estado-inactivo { background-color: var(--secondary-color); color: var(--black); }
+
+.badge-promocion { background-color: #ff0000; color: var(--white); }
+
+.checklist { border: 2px solid var(--primary-color); border-radius: 8px; }
+
+.checklist .form-check-input:checked {
+    background-color: var(--tertiary-color);
+    border-color: var(--tertiary-color);
+}
+
+.formset-fila { border: 2px solid var(--primary-color); border-radius: 8px; }
+
+.placeholder-grafico {
+    min-height: 220px;
+    background-color: var(--primary-color);
+    border-radius: 12px;
+    color: var(--secondary-color-hover);
+}
+
+.placeholder-grafico .material-symbols-outlined {
+    font-size: 48px;
+    margin-bottom: 8px;
+}
+
+.panel-card dl.row > dt,
+.panel-card dl.row > dd {
+    border-top: 1px solid var(--secondary-color);
+    padding: 5px;
+    margin-bottom: 0;
+    width:50%;
+    box-sizing:border-box;
+    min-width: 0;
+    overflow-wrap: break-word;
+    word-break: break-word;
+}
+
+.panel-card dl.row > dt:first-of-type,
+.panel-card dl.row > dd:first-of-type {
+    border-top: 0;
+}
+
+header h2 {
+    min-width: 0;
+    overflow-wrap: break-word;
+    word-break: break-word;
+}
+
+.panel-card p {
+    overflow-wrap: break-word;
+    word-break: break-word;
+}
+
+.min-w-0 { min-width: 0; }

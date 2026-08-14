@@ -1,0 +1,184 @@
+{% extends 'panel_admin/base.html' %}
+
+{% load static %}
+
+{% block title %}Dashboard | Practicasa{% endblock %}
+
+{% block titulo_pagina %}Dashboard{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'panel_admin/css/dashboard.css' %}">
+{% endblock %}
+
+{% block content %}
+{{ consultas_por_mes|json_script:"datos-consultas-mes" }}
+{{ consultas_por_estado|json_script:"datos-consultas-estado" }}
+{{ productos_por_categoria|json_script:"datos-categorias" }}
+{{ tags_distribucion|json_script:"datos-tags" }}
+{{ productos_en_promocion|json_script:"datos-en-promocion" }}
+{{ productos_activos|json_script:"datos-productos-activos" }}
+
+<div class="row g-3 mb-4">
+    <div class="col-12 col-md-3">
+        <div class="panel-card dashboard-kpi p-3 h-100">
+            <div class="d-flex align-items-center justify-content-between mb-2">
+                <span class="kpi-icon material-symbols-outlined">inventory_2</span>
+                <span class="kpi-badge kpi-badge-neutral">{{ pct_productos_activos }}% del total</span>
+            </div>
+            <div class="fs-3 fw-bold lh-1 kpi-valor">{{ productos_activos }}</div>
+            <div class="metrica-etiqueta small mb-2">Productos activos</div>
+        </div>
+    </div>
+    <div class="col-12 col-md-3">
+        <div class="panel-card dashboard-kpi p-3 h-100">
+            <div class="d-flex align-items-center justify-content-between mb-2">
+                <span class="kpi-icon kpi-icon-stock material-symbols-outlined">warehouse</span>
+                {% if productos_sin_stock %}
+                    <span class="kpi-badge kpi-badge-down">{{ productos_sin_stock }} sin stock</span>
+                {% else %}
+                    <span class="kpi-badge kpi-badge-up">Stock completo</span>
+                {% endif %}
+            </div>
+            <div class="fs-3 fw-bold lh-1 kpi-valor">{{ stock_total }}</div>
+            <div class="metrica-etiqueta small mb-2">Unidades en stock</div>
+            <div class="kpi-sparkline">
+                <canvas class="sparkline-canvas" data-series="stock"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-md-3">
+        <div class="panel-card dashboard-kpi p-3 h-100">
+            <div class="d-flex align-items-center justify-content-between mb-2">
+                <span class="kpi-icon kpi-icon-consulta material-symbols-outlined">forum</span>
+                <span class="kpi-badge {% if consultas_variacion >= 0 %}kpi-badge-up{% else %}kpi-badge-down{% endif %}">
+                    {% if consultas_variacion >= 0 %}+{% endif %}{{ consultas_variacion }}%
+                </span>
+            </div>
+            <div class="fs-3 fw-bold lh-1 kpi-valor">{{ consultas_mes }}</div>
+            <div class="metrica-etiqueta small mb-2">Consultas últimos 30 días</div>
+            <div class="kpi-sparkline">
+                <canvas class="sparkline-canvas" data-series="consultas"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-md-3">
+        <div class="panel-card dashboard-kpi p-3 h-100">
+            <div class="d-flex align-items-center justify-content-between mb-2">
+                <span class="kpi-icon kpi-icon-valor material-symbols-outlined">payments</span>
+                <span class="kpi-badge kpi-badge-neutral">Ventas</span>
+            </div>
+            <div class="kpi-placeholder d-flex flex-column align-items-center justify-content-center text-center mb-2">
+                <span class="material-symbols-outlined">monitoring</span>
+                <p class="mb-0 small">Disponible con el módulo de ventas</p>
+            </div>
+            <div class="metrica-etiqueta small">Total recaudado (último mes)</div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-xl-8">
+        <div class="panel-card p-3 h-100">
+            <h5 class="fw-bold mb-3">Productos más vendidos</h5>
+            <div class="placeholder-grafico d-flex flex-column align-items-center justify-content-center text-center p-3">
+                <span class="material-symbols-outlined">leaderboard</span>
+                <p class="mb-1">Gráfico disponible cuando se implemente el módulo de ventas.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-4">
+        <div class="panel-card p-3 h-100">
+            <h5 class="fw-bold mb-3">Consultas por estado</h5>
+            <div class="chart-area">
+                <canvas id="graficoConsultasEstado"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-xl-4">
+        <div class="panel-card p-3 h-100">
+            <h5 class="fw-bold mb-3">Productos por categoría</h5>
+            <div class="chart-area">
+                <canvas id="graficoCategorias"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-4">
+        <div class="panel-card p-3 h-100">
+            <h5 class="fw-bold mb-3">Distribución de etiquetas</h5>
+            <div class="chart-area">
+                <canvas id="graficoTags"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-4">
+        <div class="panel-card p-3 h-100">
+            <h5 class="fw-bold mb-3">Productos en promoción</h5>
+            <div class="chart-area">
+                <canvas id="graficoGauge"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-xl-12">
+        <div class="panel-card p-3 h-100">
+            <h5 class="fw-bold mb-3">Ventas histórico</h5>
+            <div class="placeholder-grafico d-flex flex-column align-items-center justify-content-center text-center p-3">
+                <span class="material-symbols-outlined">monitoring</span>
+                <p class="mb-1">Gráfico disponible cuando se implemente el módulo de ventas.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-12">
+        <div class="panel-card p-3 h-100">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold mb-0">Productos con menos stock</h5>
+                <a class="btn btn-secondary" href="{% url 'panel_productos' %}">Ver todos</a>
+            </div>
+            <div class="table-responsive">
+                <table class="table panel-table align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Producto</th>
+                            <th>SKU</th>
+                            <th>Stock</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for producto in productos_menos_stock %}
+                            <tr>
+                                <td class="fw-bold">{{ producto.nombre }}</td>
+                                <td>{{ producto.sku }}</td>
+                                <td>
+                                    {% if producto.stock == 0 %}
+                                        <span class="badge rounded-pill badge-stock-sin">Sin stock</span>
+                                    {% elif producto.stock <= 5 %}
+                                        <span class="badge rounded-pill badge-stock-bajo">{{ producto.stock }} unidades</span>
+                                    {% else %}
+                                        <span class="badge rounded-pill badge-stock-ok">{{ producto.stock }} unidades</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="3" class="text-center text-muted py-4">Sin productos activos.</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block extra_js %}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script type="module" src="{% static 'panel_admin/js/dashboardGraficos.js' %}"></script>
+{% endblock %}

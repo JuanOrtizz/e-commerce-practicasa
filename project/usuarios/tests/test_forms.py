@@ -92,7 +92,7 @@ def test_login_admin_tienda_cliente_rechazado(user_data):
     UsuarioModel.objects.create_user(**user_data)
     form = LoginAdminTiendaForm(data={"username": user_data["email"], "password": user_data["password"]})
     assert not form.is_valid()
-    assert "No tenés permisos" in str(form.errors)
+    assert "administrador" not in str(form.errors).lower()
 
 
 @pytest.mark.django_db

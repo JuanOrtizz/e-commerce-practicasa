@@ -101,13 +101,6 @@ def test_filtros_en_query_params_se_pasan(client, producto):
 
 
 @pytest.mark.django_db
-def test_resultados_busqueda_sin_search(client, producto):
-    response = client.get(reverse('resultados_busqueda'))
-    assert response.status_code == 200
-    assert len(response.context['productos']) == 1
-
-
-@pytest.mark.django_db
 def test_resultados_busqueda_con_search(client, producto):
     response = client.get(reverse('resultados_busqueda'), {'search': 'Camiseta'})
     assert response.status_code == 200

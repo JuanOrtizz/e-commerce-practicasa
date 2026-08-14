@@ -33,6 +33,7 @@ def test_flujo_contacto_valido(client, consulta_data):
     assert data['success'] is True
     assert 'Recibimos tu consulta' in data['message']
     assert ConsultaModel.objects.count() == 1
+    assert ConsultaModel.objects.first().estado == ConsultaModel.Estados.PENDIENTE
     assert len(mail.outbox) == 1
     assert 'Consulta en la web' in mail.outbox[0].subject
 

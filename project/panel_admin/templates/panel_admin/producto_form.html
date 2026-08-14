@@ -1,0 +1,96 @@
+{% extends 'panel_admin/base.html' %}
+
+{% load static %}
+
+{% block title %}{{ titulo }} | Practicasa{% endblock %}
+
+{% block titulo_pagina %}{{ titulo }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+    <a class="btn btn-secondary d-flex justify-content-center align-items-center gap-2" href="{% url 'panel_productos' %}">
+        <span class="material-symbols-outlined">arrow_back</span> Volver
+    </a>
+</div>
+
+
+<form method="post" enctype="multipart/form-data" id="form" novalidate action="{% if producto %}{% url 'panel_producto_modificar' producto.id %}{% else %}{% url 'panel_producto_nuevo' %}{% endif %}">
+    {% csrf_token %}
+    <div class="panel-card p-3">
+        <div class="row g-0 d-flex flex-column">
+            {% for field in form %}
+                {% if field.field.widget.input_type == 'checkbox' and field.name != 'colores' and field.name != 'medidas' %}
+                    <div class="col-12">
+                        <div class="form-check mt-4">
+                            {{ field }}
+                            <label class="form-check-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="col-12">
+                        <div class="input-group has-validation mb-3 border-0">
+                            {% if field.name == 'colores' or field.name == 'medidas' %}
+                                <div class="mb-1 w-100">
+                                    <label class="form-label fw-semibold" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                                    <div class="checklist d-flex flex-wrap gap-2 p-2">{{ field }}</div>
+                                </div>
+                            {% else %}
+                                <div class="form-floating mb-1 w-100">
+                                    {{ field }}
+                                    <label for="{{ field.widget.attrs.id }}">{{ field.label }}</label>
+                                </div>
+                            {% endif %}
+                            <div class="invalid-feedback" id="{{ field.name }}-error"></div>
+                        </div>
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="panel-card p-3 mt-3" id="card-imagenes">
+        <h5 class="fw-bold mb-3">Imágenes</h5>
+        {{ formset.management_form }}
+        <div class="row g-3">
+            {% for form_imagen in formset %}
+                <div class="col-12 col-md-6 col-xl-4">
+                    <div class="formset-fila p-3">
+                        {{ form_imagen.id }}
+                        {% if form_imagen.instance.pk and form_imagen.instance.imagen %}
+                            <div class="mb-2">
+                                <img src="{{ form_imagen.instance.imagen.url }}" alt="Imagen actual" class="imagen-miniatura" style="width:80px;height:80px;">
+                            </div>
+                        {% endif %}
+                        <div class="mb-2">
+                            <label class="form-label fw-semibold" for="{{ form_imagen.imagen.id_for_label }}">Imagen</label>
+                            {{ form_imagen.imagen }}
+                        </div>
+                        {% if form_imagen.instance.pk %}
+                            <div class="form-check">
+                                {{ form_imagen.DELETE }}
+                                <label class="form-check-label" for="{{ form_imagen.DELETE.id_for_label }}">Eliminar imagen</label>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-end gap-2 mt-3">
+        <button class="btn btn-enviar text-white fw-bold w-100" type="submit" id="btn-submit">
+             <span class="btn-text" id="btn-text">
+                Guardar
+             </span>
+            <span class="spinner-border spinner-border-sm d-none text-black" role="status" id="btn-spinner"></span>
+        </button>
+    </div>
+</form>
+{% endblock %}
+{% block extra_js %}
+    {% if producto %}
+        <script type="module" src="{% static 'panel_admin/js/productoUpdateForm.js' %}"></script>
+    {% else %}
+        <script type="module" src="{% static 'panel_admin/js/productoCreateForm.js' %}"></script>
+    {% endif %}
+{% endblock %}

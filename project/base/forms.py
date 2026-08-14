@@ -47,3 +47,12 @@ class ConsultaForm(forms.ModelForm):
         if len(mensaje) < 2 or len(mensaje) > 1000:
             raise forms.ValidationError("Mensaje: de 2 a 1000 caracteres.")
         return mensaje
+
+
+class ConsultaAdminForm(forms.ModelForm):
+    class Meta:
+        model = ConsultaModel
+        fields = ['estado']
+        widgets = {
+            'estado': forms.Select(attrs={'class': 'form-select', 'id': 'id_estado'}),
+        }

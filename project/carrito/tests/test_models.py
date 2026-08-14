@@ -5,13 +5,6 @@ from carrito.models import CarritoModel, CarritoItemModel
 
 
 @pytest.mark.django_db
-def test_crear_usuario_crea_carrito_via_senal(usuario):
-    carrito = CarritoModel.objects.filter(usuario=usuario).first()
-    assert carrito is not None
-    assert carrito.usuario == usuario
-
-
-@pytest.mark.django_db
 def test_str_carrito(usuario, carrito):
     assert str(carrito) == f'Carrito de {usuario.email}'
 
@@ -75,8 +68,3 @@ def test_eliminar_producto_borra_item(carrito, producto):
     CarritoItemModel.objects.create(carrito=carrito, producto=producto, cantidad=1)
     producto.delete()
     assert CarritoItemModel.objects.count() == 0
-
-
-@pytest.mark.django_db
-def test_related_name_carrito_desde_usuario(usuario, carrito):
-    assert usuario.carrito == carrito

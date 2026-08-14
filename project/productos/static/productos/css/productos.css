@@ -57,3 +57,13 @@
 .input-filtro{
     color: var(--tertiary-color) !important;
 }
+
+.breadcrumb-item{
+    overflow-wrap: break-word;
+}
+
+.titulo-producto-detalle,
+.card-title{
+    overflow-wrap: break-word;
+    word-break: break-word;
+}

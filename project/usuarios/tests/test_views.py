@@ -78,6 +78,20 @@ def test_login_admin_tienda_get_200(client):
 
 
 @pytest.mark.django_db
+def test_login_admin_tienda_post_exitoso_redirige_panel(client, user_data):
+    UsuarioModel.objects.create_user(
+        **user_data, tipo=UsuarioModel.Tipos.ADMINISTRADOR_TIENDA
+    )
+    response = client.post(reverse("login_admin_tienda"), {
+        "username": user_data["email"],
+        "password": user_data["password"],
+    }, HTTP_X_REQUESTED_WITH="XMLHttpRequest")
+    data = response.json()
+    assert data["success"] is True
+    assert data["redirect"] == reverse("panel_inicio")
+
+
+@pytest.mark.django_db
 def test_login_admin_tienda_post_rechaza_cliente(client, user_data):
     UsuarioModel.objects.create_user(**user_data)
     response = client.post(reverse("login_admin_tienda"), {
@@ -86,6 +100,32 @@ def test_login_admin_tienda_post_rechaza_cliente(client, user_data):
     }, HTTP_X_REQUESTED_WITH="XMLHttpRequest")
     data = response.json()
     assert data["success"] is False
+    assert "_auth_user_id" not in client.session
+    msj = data["errors"]["__all__"][0]
+    assert "administrador" not in msj.lower()
+
+
+@pytest.mark.django_db
+def test_login_admin_tienda_post_superuser_redirige_panel(client, user_data):
+    UsuarioModel.objects.create_user(
+        **user_data, tipo=UsuarioModel.Tipos.SUPERUSER
+    )
+    response = client.post(reverse("login_admin_tienda"), {
+        "username": user_data["email"],
+        "password": user_data["password"],
+    }, HTTP_X_REQUESTED_WITH="XMLHttpRequest")
+    data = response.json()
+    assert data["success"] is True
+    assert data["redirect"] == reverse("panel_inicio")
+
+
+@pytest.mark.django_db
+def test_login_admin_tienda_get_cliente_autenticado_redirige_home(client, user_data):
+    UsuarioModel.objects.create_user(**user_data)
+    client.login(username=user_data["email"], password=user_data["password"])
+    response = client.get(reverse("login_admin_tienda"))
+    assert response.status_code == 302
+    assert response.url == "/"
 
 
 @override_settings(EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend")
@@ -107,3 +147,12 @@ def test_logout_post_redirect(client, user_data):
     client.login(username=user_data["email"], password=user_data["password"])
     response = client.post(reverse("logout"))
     assert response.status_code == 302
+
+
+@pytest.mark.django_db
+def test_logout_admin_tienda_redirige_login_admin(client, user_data):
+    UsuarioModel.objects.create_user(**user_data)
+    client.login(username=user_data["email"], password=user_data["password"])
+    response = client.post(reverse("logout_admin_tienda"))
+    assert response.status_code == 302
+    assert response.url == reverse("login_admin_tienda")

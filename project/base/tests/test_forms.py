@@ -1,5 +1,6 @@
 import pytest
-from base.forms import ConsultaForm
+from base.forms import ConsultaAdminForm, ConsultaForm
+from base.models import ConsultaModel
 
 
 @pytest.mark.parametrize('nombre', [
@@ -59,3 +60,41 @@ def test_mensaje(mensaje, esperado, consulta_data):
     data = {**consulta_data, 'mensaje': mensaje}
     form = ConsultaForm(data=data)
     assert form.is_valid() == esperado
+
+
+def test_consulta_admin_form_solo_campo_estado():
+    assert list(ConsultaAdminForm().fields) == ['estado']
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize('estado', [
+    ConsultaModel.Estados.PENDIENTE,
+    ConsultaModel.Estados.RESUELTA,
+])
+def test_consulta_admin_form_estado_valido(estado):
+    consulta = ConsultaModel.objects.create(
+        nombre='Juan Pérez',
+        email='juan@example.com',
+        telefono='1122334455',
+        mensaje='Mensaje de prueba válido.',
+    )
+    form = ConsultaAdminForm(data={'estado': estado}, instance=consulta)
+    assert form.is_valid()
+
+
+@pytest.mark.django_db
+def test_consulta_admin_form_estado_invalido():
+    consulta = ConsultaModel.objects.create(
+        nombre='Juan Pérez',
+        email='juan@example.com',
+        telefono='1122334455',
+        mensaje='Mensaje de prueba válido.',
+    )
+    form = ConsultaAdminForm(data={'estado': 'invalido'}, instance=consulta)
+    assert not form.is_valid()
+
+
+@pytest.mark.django_db
+def test_consulta_por_defecto_pendiente(consulta_data):
+    consulta = ConsultaModel.objects.create(**consulta_data)
+    assert consulta.estado == ConsultaModel.Estados.PENDIENTE
