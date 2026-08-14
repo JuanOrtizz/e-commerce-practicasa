@@ -1,5 +1,37 @@
 # Changelog
 ---
+## [v0.13.0] - 2026-08-12
+### Rama: feature/home-ui
+#### Features
+- Agrego trust bar en la home sobre el footer con ítems de confianza (Envíos a todo el país, Pagos seguros, Atención al cliente), íconos Material Symbols en color terciario y separadores finos en desktop (responsive: en mobile se apilan)
+- Agrego carrusel de productos por tag de a 4 en desktop con desplazamiento de a 1 card por click y flechas dinámicas que se ocultan al llegar a los extremos; en mobile/tablet swipe libre con el dedo y flechas ocultas
+- Reemplazo las flechas del carrusel hero por indicadores cuadrados (manteniendo el auto-play)
+- Centro los títulos de las secciones Destacados, Última unidad y Ofertas
+- Agrego animaciones GSAP en la home con ScrollTrigger: las cards y los enlaces "Ver más" de las filas (Destacados, Última unidad, Ofertas) entran con fade + subida en cascada (stagger 0.08s, power3.out) cuando la fila entra en pantalla
+- Agrego animación de entrada para los títulos de sección y el trust bar (en cascada) al hacer scroll
+- Agrego efecto Ken Burns en las imágenes del hero: zoom continuo (scale 1.05 → 1.2 en 3s) que se reinicia en cada cambio de slide (`slid.bs.carousel`)
+- Agrego micro-interacciones GSAP en el botón "Agregar al carrito": pulse al enviar (scale 0.96 → 1 con back.out) y pop de confirmación al éxito (scale 1.08 con yoyo repeat:1)
+- Migro el botón "Subir" (btnSubir) a animación GSAP (autoAlpha + scale) dentro del ScrollTrigger existente, reemplazando el toggle de clase CSS
+#### Style
+- Oculto la barra de scroll horizontal de las filas de productos del index
+- Aplico a las cards del index el mismo tamaño que las de la página de productos (imagen 250px, ancho 230px)
+- Agrego aire vertical (py-2) a las filas para que el hover de las cards no se recorte
+- Igualo el hover de las flechas al de "Ver más" (fondo terciario + ícono blanco)
+- Agrego hover sutil a los indicadores del carrusel
+- Hago el hero 16:9 responsivo: reemplazo `height: 600px` fijo por `aspect-ratio: 16/9` con `width: 100%` y `height: auto` para que respete el formato paisaje en todos los tamaños y no se alargue en el eje Y en móviles
+- Hago el hero full-width en móviles (<768px): rompe el container y el padding de main (`width: 100vw` + `margin-left: calc(50% - 50vw)`) y quito las esquinas redondeadas; desktop sin cambios
+- Quito la `transition` CSS del `.btn-subir` para que la animación quede 100% controlada por GSAP
+#### Refactor
+- Muevo estilos del index a utilidades de Bootstrap en los templates (position-relative, object-fit-cover, overlay del slogan, text-white, rounded-circle/bg-white en flechas, rounded-3 y fs-2 en "Ver más"), dejando el CSS solo con lo puntual
+- Fusiono las dos media queries `min-width: 992px` de index.css en un solo bloque (fila-categorias y flechas `[hidden]`)
+- Reemplazo la media query que ocultaba las flechas de las filas en mobile/tablet por utilidades de Bootstrap `d-none d-lg-flex` en los botones
+#### Fixes
+- Corrijo el overlay del slogan del carrusel que desaparecía al moverlo a utilities: inset-0 no existe en Bootstrap 5.3.0, se usa top-0 start-0 bottom-0 end-0
+- Corrijo el recorte y aplanado de cards al aparecer/ocultarse las flechas: ahora reservan espacio con visibility:hidden y hay tolerancia de sub-pixel en los límites del scroll
+- Corrijo el hover de las flechas que no pintaba el fondo (la clase bg-white con !important de Bootstrap lo bloqueaba)
+- Corrijo el estado de stock en la home: al recargar el index, un producto agotado por el carrito volvía a mostrarse habilitado; ahora usa stock_restante (service set_stock_restante_productos) igual que en la página de productos
+- Unifico la altura de las imágenes de productos del index a 250px en las tres secciones (Destacados usaba 225px)
+---
 ## [v0.12.0] - 2026-08-09
 ### Rama: feature/home
 #### Features

@@ -1,0 +1,121 @@
+.hero-slide {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 9;
+}
+
+@media (max-width: 767.98px) {
+    #carouselHero {
+        width: 100vw;
+        margin-left: calc(50% - 50vw);
+        border-radius: 0;
+    }
+}
+
+.carousel-indicators [data-bs-target] {
+    width: 20px;
+    height: 6px;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.carousel-indicators [data-bs-target]:hover {
+    opacity: 1;
+    transform: scale(1.12);
+}
+
+.slogan-ofertas {
+    background-color: rgba(0, 0, 0, 0.35);
+}
+
+.slogan-ofertas h2 {
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
+}
+
+.titulo-apartado {
+    color: var(--tertiary-color);
+}
+
+.fila-categorias > * {
+    flex: 0 0 230px;
+}
+
+.fila-categorias {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.fila-categorias::-webkit-scrollbar {
+    display: none;
+}
+
+.btn-flecha-fila {
+    width: 40px;
+    height: 40px;
+    border: 1px solid var(--tertiary-color);
+    color: var(--tertiary-color);
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.btn-flecha-fila:hover {
+    background-color: var(--tertiary-color) !important;
+    color: #fff;
+}
+
+@media (min-width: 992px) {
+    .fila-categorias > * {
+        flex: 0 0 calc((100% - 3rem) / 4);
+    }
+
+    .fila-categorias {
+        overflow: hidden;
+    }
+
+    .btn-flecha-fila[hidden] {
+        display: flex !important;
+        visibility: hidden;
+        pointer-events: none;
+    }
+}
+
+.ver-mas {
+    border: 2px dashed var(--tertiary-color);
+    color: var(--tertiary-color);
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.ver-mas:hover {
+    background-color: var(--tertiary-color);
+    color: #fff;
+}
+
+.card{
+    transition: border 0.3s ease, transform 0.4s ease;
+}
+
+.card:hover{
+    transform: translateY(-4px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    border: 2px solid var(--tertiary-color) !important;
+}
+
+.card-disabled{
+    opacity: 0.6;
+    pointer-events: none;
+    filter: grayscale(0.5);
+}
+
+.card-disabled:hover{
+    transform: none !important;
+    border-color: var(--bs-gray-300) !important;
+}
+
+.trust-bar-icon {
+    font-size: 2.5rem;
+    color: var(--tertiary-color);
+}
+
+@media (min-width: 768px) {
+    .trust-bar-item + .trust-bar-item {
+        border-left: 1px solid var(--primary-color-hover);
+    }
+}
