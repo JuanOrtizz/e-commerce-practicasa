@@ -32,6 +32,7 @@
 #### Refactor
 - Organizo el código de views del panel y lo divido en decorators y services
 - Elimino redirect innecesario en producto_eliminar
+- Elimino 3 tests redundantes en carrito y productos: test duplicado de la señal del carrito, test tautológico del related_name y test de búsqueda sin search sin aporte de cobertura (318 tests)
 ---
 ## [v0.11.0] - 2026-08-05
 ### Rama: feature/carrito-model
