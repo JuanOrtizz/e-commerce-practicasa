@@ -20,6 +20,8 @@ async function postForm(formData, csrfToken, action, form){
     text.textContent = ""
     spinner.classList.remove("d-none")
 
+    window.gsap?.fromTo(btnSubmit, { scale: 0.96 }, { scale: 1, duration: 0.25, ease: "back.out(1.8)" })
+
     try {
         const response = await fetch(action, {
             method: "POST",
@@ -33,6 +35,7 @@ async function postForm(formData, csrfToken, action, form){
             infoLoginAlertRedirect("Debés iniciar sesión para agregar productos al carrito", `/usuarios/login/?next=${encodeURIComponent(window.location.pathname + window.location.search)}`)
         } else if(data.success){
             successToast(data.success.message)
+            window.gsap?.fromTo(btnSubmit, { scale: 1 }, { scale: 1.08, duration: 0.15, ease: "power2.out", yoyo: true, repeat: 1 })
             actualizarStockRestante(data.success)
         }else{
             if (typeof data.errors === "string") {
