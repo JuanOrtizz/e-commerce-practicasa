@@ -54,7 +54,7 @@
             <div class="ms-auto d-flex align-items-center gap-2 gap-md-3">
                 <form method="post" action="{% url 'logout_admin_tienda' %}">
                     {% csrf_token %}
-                    <button class="btn btn-danger gap-2 d-flex justify-content-center align-item-center" type="submit">
+                    <button class="btn btn-logout gap-2 d-flex justify-content-center align-item-center" type="submit">
                         <span class="material-symbols-outlined">logout</span>
                     </button>
                 </form>

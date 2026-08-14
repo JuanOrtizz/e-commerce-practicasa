@@ -41,6 +41,17 @@
     color: var(--tertiary-color);
 }
 
+.btn-logout {
+    background-color: transparent;
+    border: 2px solid #ff0000;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    color: #ff0000;
+}
+
+.btn-logout:hover {
+    background-color: #ff0000;
+    color: var(--white);
+
 .metrica-icon .material-symbols-outlined { font-size: 28px; }
 
 .metrica-etiqueta { color: var(--secondary-color-hover); }
