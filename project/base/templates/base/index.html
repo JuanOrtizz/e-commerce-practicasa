@@ -42,7 +42,7 @@
     </div>
 
     <section class="my-5">
-        <h3 class="fw-bold mb-3 titulo-apartado text-center">Destacados</h3>
+        <h3 class="fw-bold mb-3 titulo-apartado animacion-titulo text-center">Destacados</h3>
         {% if destacados %}
             <div class="d-flex align-items-center gap-2">
                 <button class="btn-flecha-fila d-none d-lg-flex align-items-center justify-content-center flex-shrink-0 rounded-circle bg-white" type="button" data-fila="fila-destacados" data-direccion="-1" aria-label="Destacados anteriores">
@@ -50,7 +50,7 @@
                 </button>
                 <div class="d-flex flex-nowrap overflow-auto fila-categorias gap-3 py-2 flex-grow-1" id="fila-destacados">
                 {% for producto in destacados %}
-                    <div>
+                    <div class="animacion-card">
                         <div class="card h-100 shadow-sm border-2 d-flex flex-column{% if producto.stock_restante <= 0 %} card-disabled{% endif %}">
                             <a href="{% url 'detalle_producto' producto.subcategoria.categoria.slug producto.subcategoria.slug producto.slug %}" class="text-decoration-none text-black d-flex flex-column flex-grow-1">
                                 <div class="position-relative">
@@ -134,7 +134,7 @@
                         </div>
                     </div>
                 {% endfor %}
-                    <a href="{% url 'productos' %}?tag=destacado" class="ver-mas rounded-3 text-decoration-none d-flex flex-column justify-content-center align-items-center gap-1" aria-label="Ver más destacados">
+                    <a href="{% url 'productos' %}?tag=destacado" class="ver-mas animacion-card rounded-3 text-decoration-none d-flex flex-column justify-content-center align-items-center gap-1" aria-label="Ver más destacados">
                         <span class="fw-bold">Ver más</span>
                         <span class="material-symbols-outlined fs-2">arrow_forward</span>
                     </a>
@@ -149,7 +149,7 @@
     </section>
 
     <section class="my-5">
-        <h3 class="fw-bold mb-3 titulo-apartado text-center">Última unidad</h3>
+        <h3 class="fw-bold mb-3 titulo-apartado animacion-titulo text-center">Última unidad</h3>
         {% if ultima_unidad %}
             <div class="d-flex align-items-center gap-2">
                 <button class="btn-flecha-fila d-none d-lg-flex align-items-center justify-content-center flex-shrink-0 rounded-circle bg-white" type="button" data-fila="fila-ultima-unidad" data-direccion="-1" aria-label="Última unidad anteriores">
@@ -157,7 +157,7 @@
                 </button>
                 <div class="d-flex flex-nowrap overflow-auto fila-categorias gap-3 py-2 flex-grow-1" id="fila-ultima-unidad">
                 {% for producto in ultima_unidad %}
-                    <div>
+                    <div class="animacion-card">
                         <div class="card h-100 shadow-sm border-2 d-flex flex-column{% if producto.stock_restante <= 0 %} card-disabled{% endif %}">
                             <a href="{% url 'detalle_producto' producto.subcategoria.categoria.slug producto.subcategoria.slug producto.slug %}" class="text-decoration-none text-black d-flex flex-column flex-grow-1">
                                 <div class="position-relative">
@@ -241,7 +241,7 @@
                         </div>
                     </div>
                 {% endfor %}
-                    <a href="{% url 'productos' %}?tag=ultima_unidad" class="ver-mas rounded-3 text-decoration-none d-flex flex-column justify-content-center align-items-center gap-1" aria-label="Ver más última unidad">
+                    <a href="{% url 'productos' %}?tag=ultima_unidad" class="ver-mas animacion-card rounded-3 text-decoration-none d-flex flex-column justify-content-center align-items-center gap-1" aria-label="Ver más última unidad">
                         <span class="fw-bold">Ver más</span>
                         <span class="material-symbols-outlined fs-2">arrow_forward</span>
                     </a>
@@ -256,7 +256,7 @@
     </section>
 
     <section class="my-5">
-        <h3 class="fw-bold mb-3 titulo-apartado text-center">Ofertas</h3>
+        <h3 class="fw-bold mb-3 titulo-apartado animacion-titulo text-center">Ofertas</h3>
         {% if oferta %}
             <div class="d-flex align-items-center gap-2">
                 <button class="btn-flecha-fila d-none d-lg-flex align-items-center justify-content-center flex-shrink-0 rounded-circle bg-white" type="button" data-fila="fila-ofertas" data-direccion="-1" aria-label="Ofertas anteriores">
@@ -264,7 +264,7 @@
                 </button>
                 <div class="d-flex flex-nowrap overflow-auto fila-categorias gap-3 py-2 flex-grow-1" id="fila-ofertas">
                 {% for producto in oferta %}
-                    <div>
+                    <div class="animacion-card">
                         <div class="card h-100 shadow-sm border-2 d-flex flex-column{% if producto.stock_restante <= 0 %} card-disabled{% endif %}">
                             <a href="{% url 'detalle_producto' producto.subcategoria.categoria.slug producto.subcategoria.slug producto.slug %}" class="text-decoration-none text-black d-flex flex-column flex-grow-1">
                                 <div class="position-relative">
@@ -348,7 +348,7 @@
                         </div>
                     </div>
                 {% endfor %}
-                    <a href="{% url 'productos' %}?tag=oferta" class="ver-mas rounded-3 text-decoration-none d-flex flex-column justify-content-center align-items-center gap-1" aria-label="Ver más ofertas">
+                    <a href="{% url 'productos' %}?tag=oferta" class="ver-mas animacion-card rounded-3 text-decoration-none d-flex flex-column justify-content-center align-items-center gap-1" aria-label="Ver más ofertas">
                         <span class="fw-bold">Ver más</span>
                         <span class="material-symbols-outlined fs-2">arrow_forward</span>
                     </a>
@@ -364,21 +364,21 @@
 
     <section class="my-5 py-2">
         <div class="d-flex flex-column flex-md-row align-items-stretch text-center">
-            <div class="trust-bar-item d-flex flex-column flex-md-row align-items-center justify-content-center gap-2 gap-md-3 px-3 py-3 flex-fill">
+            <div class="trust-bar-item animacion-trust d-flex flex-column flex-md-row align-items-center justify-content-center gap-2 gap-md-3 px-3 py-3 flex-fill">
                 <span class="material-symbols-outlined trust-bar-icon">local_shipping</span>
                 <div>
                     <h6 class="fw-bold mb-0">Envíos a todo el país</h6>
                     <p class="text-secondary small mb-0">Comprá y recibí donde estés</p>
                 </div>
             </div>
-            <div class="trust-bar-item d-flex flex-column flex-md-row align-items-center justify-content-center gap-2 gap-md-3 px-3 py-3 flex-fill">
+            <div class="trust-bar-item animacion-trust d-flex flex-column flex-md-row align-items-center justify-content-center gap-2 gap-md-3 px-3 py-3 flex-fill">
                 <span class="material-symbols-outlined trust-bar-icon">verified_user</span>
                 <div>
                     <h6 class="fw-bold mb-0">Pagos seguros</h6>
                     <p class="text-secondary small mb-0">Efectivo o transferencia</p>
                 </div>
             </div>
-            <div class="trust-bar-item d-flex flex-column flex-md-row align-items-center justify-content-center gap-2 gap-md-3 px-3 py-3 flex-fill">
+            <div class="trust-bar-item animacion-trust d-flex flex-column flex-md-row align-items-center justify-content-center gap-2 gap-md-3 px-3 py-3 flex-fill">
                 <span class="material-symbols-outlined trust-bar-icon">support_agent</span>
                 <div>
                     <h6 class="fw-bold mb-0">Atención al cliente</h6>

@@ -1,5 +1,15 @@
 .hero-slide {
-    height: 600px;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 9;
+}
+
+@media (max-width: 767.98px) {
+    #carouselHero {
+        width: 100vw;
+        margin-left: calc(50% - 50vw);
+        border-radius: 0;
+    }
 }
 
 .carousel-indicators [data-bs-target] {
