@@ -51,6 +51,7 @@
 .btn-logout:hover {
     background-color: #ff0000;
     color: var(--white);
+    }
 
 .metrica-icon .material-symbols-outlined { font-size: 28px; }
 
