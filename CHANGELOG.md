@@ -27,6 +27,8 @@
 - Corrijo bugs de selector en los estilos de formularios globales
 - Corrijo el desacople visual del ícono del menú hamburguesa en celulares
 - Corrijo el desborde horizontal de las tablas del panel en pantallas chicas: scroll interno en el eje X (min-width: 0 en el layout)
+#### Style
+- Ajusto el diseño del logout de panel admin
 #### Refactor
 - Organizo el código de views del panel y lo divido en decorators y services
 - Elimino redirect innecesario en producto_eliminar
