@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block title %}Método de envío | Practicasa{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'ventas/css/ventas.css' %}">
+{% endblock %}
+
+{% block content %}
+{% include 'ventas/_breadcrumb.html' with breadcrumb_paso='envio' %}
+<div class="container my-4 animacion-aparicion-abajo-fade">
+    <h2 class="fw-bold mb-4">Método de envío</h2>
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="ventas-paso">
+                <h5 class="fw-bold mb-3">¿Cómo querés recibir tu pedido?</h5>
+                <form method="post" id="form-envio">
+                    {% csrf_token %}
+                    <div class="d-flex flex-column gap-3">
+                        <label class="ventas-opcion d-flex align-items-center gap-3 p-3 {% if form.metodo_envio.value == 'retiro_local' %}selected{% endif %}" data-metodo="retiro_local">
+                            <input class="form-check-input" type="radio" name="metodo_envio" value="retiro_local"
+                                   {% if form.metodo_envio.value == 'retiro_local' %}checked{% endif %}>
+                            <span class="material-symbols-outlined ventas-pago-icon">storefront</span>
+                            <div>
+                                <div class="fw-semibold">Retiro en el local</div>
+                                <div class="ventas-opcion-desc text-muted small">
+                                    Retirá tu pedido por nuestro local en Nogoyá sin costo.
+                                </div>
+                            </div>
+                        </label>
+
+                        {% if datos.codigo_postal == '3150' %}
+                            <label class="ventas-opcion d-flex align-items-center gap-3 p-3 {% if form.metodo_envio.value == 'envio_domicilio' %}selected{% endif %}" data-metodo="envio_domicilio">
+                                <input class="form-check-input" type="radio" name="metodo_envio" value="envio_domicilio"
+                                       {% if form.metodo_envio.value == 'envio_domicilio' %}checked{% endif %}>
+                                <span class="material-symbols-outlined ventas-pago-icon">local_shipping</span>
+                                <div>
+                                    <div class="fw-semibold">Envío a domicilio</div>
+                                    <div class="ventas-opcion-desc text-muted small">
+                                        Envío a domicilio dentro de Nogoyá, sin costo.
+                                    </div>
+                                </div>
+                            </label>
+                        {% endif %}
+
+                        <div class="ventas-opcion ventas-opcion-disabled d-flex align-items-center gap-3 p-3">
+                            <input class="form-check-input" type="radio" disabled>
+                            <span class="material-symbols-outlined ventas-pago-icon">send</span>
+                            <div>
+                                <div class="fw-semibold">Retiro desde sucursal (Correo Argentino)</div>
+                                <div class="ventas-opcion-desc text-muted small">
+                                    No disponible por el momento.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="ventas-sidebar">
+                {% include 'ventas/_resumen_pedido.html' %}
+                <div class="d-grid gap-2">
+                    <button class="btn btn-enviar text-white fw-bold py-2" type="submit" form="form-envio" id="btn-submit" disabled>
+                        <span id="btn-text">Continuar</span>
+                        <span class="spinner-border spinner-border-sm d-none" role="status" id="btn-spinner"></span>
+                    </button>
+                    <a class="btn btn-outline-secondary fw-bold py-2" href="{% url 'checkout' %}">Volver</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+    <script type="module" src="{% static 'ventas/js/checkout.js' %}"></script>
+{% endblock %}
