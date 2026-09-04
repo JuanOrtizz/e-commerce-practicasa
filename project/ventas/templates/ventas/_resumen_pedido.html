@@ -1,0 +1,57 @@
+{% load static precio_tags %}
+
+<div class="ventas-resumen">
+    <h5 class="fw-bold mb-4">Resumen</h5>
+    <div class="ventas-resumen-items">
+        {% for data in order_context.items %}
+            {% if forloop.counter <= 3 %}
+            <div class="ventas-resumen-item d-flex gap-2{% if order_context.cantidad_items <= 3 and forloop.last %} ventas-resumen-item-last{% endif %}">
+                <div class="ventas-resumen-item-img-wrap flex-shrink-0">
+                    {% with primera=data.producto.primera_imagen_valida %}
+                        {% if primera %}
+                            <img src="{{ primera.imagen.url }}" alt="{{ data.producto.nombre }}" class="ventas-resumen-item-img">
+                        {% else %}
+                            <img src="{% static 'productos/img/logo_default_practicasa.webp' %}" alt="{{ data.producto.nombre }}" class="ventas-resumen-item-img">
+                        {% endif %}
+                    {% endwith %}
+                    <span class="ventas-resumen-item-cant">{{ data.cantidad }}</span>
+                </div>
+                <div class="flex-grow-1 min-w-0">
+                    <p class="ventas-resumen-item-nombre mb-0">{{ data.producto.nombre }}</p>
+                    {% if data.item.color_nombre or data.item.medida_nombre %}
+                        <p class="ventas-resumen-item-variante mb-0">
+                            {% if data.item.color_nombre %}{{ data.item.color_nombre }}{% endif %}
+                            {% if data.item.color_nombre and data.item.medida_nombre %} · {% endif %}
+                            {% if data.item.medida_nombre %}{{ data.item.medida_nombre }}{% endif %}
+                        </p>
+                    {% endif %}
+                </div>
+                <span class="ventas-resumen-item-precio flex-shrink-0">${{ data.subtotal|format_price }}</span>
+            </div>
+            {% endif %}
+            {% if forloop.counter == 4 %}
+            <div class="ventas-resumen-extra">
+                y {{ order_context.cantidad_items|add:"-3" }} producto{{ order_context.cantidad_items|add:"-3"|pluralize }} más
+            </div>
+            {% endif %}
+        {% endfor %}
+    </div>
+    <hr class="my-3">
+    <div class="d-flex justify-content-between mb-2">
+        <span>Subtotal</span>
+        <span class="fw-semibold">${{ order_context.total|format_price }}</span>
+    </div>
+    <div class="d-flex justify-content-between mb-2">
+        <span>Envío</span>
+        <span class="fw-semibold ventas-envio-label">Gratis</span>
+    </div>
+    <hr class="my-3">
+    <div class="d-flex justify-content-between mb-1">
+        <span class="ventas-total-label">Total</span>
+        <span class="ventas-total-valor">${{ order_context.total|format_price }}</span>
+    </div>
+    <div class="d-flex justify-content-between">
+        <span class="ventas-total-transf-label">Total con transferencia</span>
+        <span class="ventas-total-transf-valor">${{ order_context.total_transferencia|format_price }}</span>
+    </div>
+</div>
