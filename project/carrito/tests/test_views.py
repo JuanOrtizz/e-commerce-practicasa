@@ -33,6 +33,7 @@ def test_ver_carrito_con_items_200(client, usuario, producto):
     assert response.context['total_transferencia'] == Decimal('27000.00')
     assert response.context['total_ahorro'] == Decimal('0')
     assert response.context['cantidad_items'] == 1
+    assert b'ventas-breadcrumb-steps' in response.content
 
 
 @pytest.mark.django_db
