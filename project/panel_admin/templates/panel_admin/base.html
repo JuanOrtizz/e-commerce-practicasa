@@ -32,6 +32,9 @@
                 <a class="panel-nav-link d-flex align-items-center gap-3 px-3 py-3 fw-semibold {% if view_actual == 'panel_consultas' or view_actual == 'panel_consulta_detalle' or view_actual == 'panel_consulta_modificar' %}active{% endif %}" href="{% url 'panel_consultas' %}">
                     <span class="material-symbols-outlined">forum</span> Consultas
                 </a>
+                <a class="panel-nav-link d-flex align-items-center gap-3 px-3 py-3 fw-semibold {% if view_actual == 'panel_ventas' or view_actual == 'panel_venta_detalle' or view_actual == 'panel_venta_modificar' %}active{% endif %}" href="{% url 'panel_ventas' %}">
+                    <span class="material-symbols-outlined">receipt_long</span> Ventas
+                </a>
                 <a class="panel-nav-link d-flex align-items-center gap-3 px-3 py-3 fw-semibold {% if view_actual == 'panel_productos' or view_actual == 'panel_producto_nuevo' or view_actual == 'panel_producto_modificar' or view_actual == 'panel_producto_detalle' %}active{% endif %}" href="{% url 'panel_productos' %}">
                     <span class="material-symbols-outlined">inventory_2</span> Productos
                 </a>
