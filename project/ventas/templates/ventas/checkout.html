@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block title %}Checkout | Practicasa{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'ventas/css/ventas.css' %}">
+{% endblock %}
+
+{% block content %}
+{% include 'ventas/_breadcrumb.html' with breadcrumb_paso='checkout' %}
+<div class="container my-4 animacion-aparicion-abajo-fade">
+    <h2 class="fw-bold mb-4">Checkout</h2>
+    <div class="row g-4">
+        <div class="col-lg-8">
+                <div class="ventas-paso">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <h5 class="fw-bold mb-0">Datos de facturación</h5>
+                    </div>
+                <form method="post" id="form-checkout">
+                    {% csrf_token %}
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <div class="form-floating">
+                                {{ form.email }}
+                                <label for="id_email">Email <span class="ventas-requerido">*</span></label>
+                            </div>
+                            {% if form.email.errors %}<div class="text-danger small mt-1">{{ form.email.errors.0 }}</div>{% endif %}
+                        </div>
+                        <div class="col-12">
+                            <div class="form-floating">
+                                {{ form.nombre }}
+                                <label for="id_nombre">Nombre completo <span class="ventas-requerido">*</span></label>
+                            </div>
+                            {% if form.nombre.errors %}<div class="text-danger small mt-1">{{ form.nombre.errors.0 }}</div>{% endif %}
+                        </div>
+                        <div class="col-12">
+                            <div class="form-floating">
+                                {{ form.telefono }}
+                                <label for="id_telefono">Teléfono <span class="ventas-requerido">*</span></label>
+                            </div>
+                            {% if form.telefono.errors %}<div class="text-danger small mt-1">{{ form.telefono.errors.0 }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                {{ form.provincia }}
+                                <label for="id_provincia">Provincia <span class="ventas-requerido">*</span></label>
+                            </div>
+                            {% if form.provincia.errors %}<div class="text-danger small mt-1">{{ form.provincia.errors.0 }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                {{ form.ciudad }}
+                                <label for="id_ciudad">Ciudad <span class="ventas-requerido">*</span></label>
+                            </div>
+                            {% if form.ciudad.errors %}<div class="text-danger small mt-1">{{ form.ciudad.errors.0 }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-9">
+                            <div class="form-floating">
+                                {{ form.direccion }}
+                                <label for="id_direccion">Dirección <span class="ventas-requerido">*</span></label>
+                            </div>
+                            {% if form.direccion.errors %}<div class="text-danger small mt-1">{{ form.direccion.errors.0 }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-floating">
+                                {{ form.codigo_postal }}
+                                <label for="id_codigo_postal">CP <span class="ventas-requerido">*</span></label>
+                            </div>
+                            {% if form.codigo_postal.errors %}<div class="text-danger small mt-1">{{ form.codigo_postal.errors.0 }}</div>{% endif %}
+                        </div>
+                        <div class="col-12">
+                            <div class="form-floating">
+                                {{ form.notas }}
+                                <label for="id_notas">Notas o referencias (opcional)</label>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+                </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="ventas-sidebar">
+                {% include 'ventas/_resumen_pedido.html' %}
+                <div class="d-grid gap-2">
+                    <button class="btn btn-enviar text-white fw-bold py-2" type="submit" form="form-checkout" id="btn-submit">
+                        <span id="btn-text">Continuar</span>
+                        <span class="spinner-border spinner-border-sm d-none" role="status" id="btn-spinner"></span>
+                    </button>
+                    <a class="btn btn-outline-secondary fw-bold py-2" href="{% url 'ver_carrito' %}">Volver</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+    <script type="module" src="{% static 'ventas/js/checkout.js' %}"></script>
+{% endblock %}
