@@ -12,6 +12,7 @@ from productos.models import (
     ProductoImagenModel,
     SubcategoriaModel,
 )
+from ventas.models import VentaItemModel, VentaModel
 
 
 def producto_form_data(subcategoria, **kwargs):
@@ -558,3 +559,137 @@ def test_subcategoria_eliminar_get_405(admin_client, subcategoria):
 def test_subcategoria_eliminar_404(admin_client):
     response = admin_client.post(reverse('panel_subcategoria_eliminar', args=[999]))
     assert response.status_code == 404
+
+
+@pytest.mark.django_db
+def test_lista_ventas_200(admin_client, venta):
+    response = admin_client.get(reverse('panel_ventas'))
+    assert response.status_code == 200
+    assert list(response.context['ventas']) == [venta]
+    content = response.content.decode()
+    assert 'id="filtro-ventas"' in content
+    assert 'id="orden-ventas"' in content
+    assert f'venta-{venta.id}' in content
+
+
+@pytest.mark.django_db
+def test_lista_ventas_requiere_admin(client, cliente_client):
+    assert client.get(reverse('panel_ventas')).status_code == 302
+    assert cliente_client.get(reverse('panel_ventas')).status_code == 302
+
+
+@pytest.mark.django_db
+def test_venta_detalle_200(admin_client, venta):
+    response = admin_client.get(reverse('panel_venta_detalle', args=[venta.id]))
+    assert response.status_code == 200
+    assert response.context['venta'] == venta
+
+
+@pytest.mark.django_db
+def test_venta_detalle_inexistente_404(admin_client):
+    response = admin_client.get(reverse('panel_venta_detalle', args=[999]))
+    assert response.status_code == 404
+
+
+@pytest.mark.django_db
+def test_venta_modificar_get_200(admin_client, venta):
+    response = admin_client.get(reverse('panel_venta_modificar', args=[venta.id]))
+    assert response.status_code == 200
+    assert response.context['form'].instance == venta
+
+
+@pytest.mark.django_db
+def test_venta_modificar_post_confirmada(admin_client, venta):
+    data = {'estado': 'confirmada'}
+    response = admin_client.post(reverse('panel_venta_modificar', args=[venta.id]), data)
+    data_json = response.json()
+    assert data_json['success'] is True
+    assert data_json['redirect'] == reverse('panel_venta_detalle', args=[venta.id])
+    venta.refresh_from_db()
+    assert venta.estado == 'confirmada'
+
+
+@pytest.mark.django_db
+def test_venta_modificar_post_sin_cambios(admin_client, venta):
+    data = {'estado': 'pendiente'}
+    response = admin_client.post(reverse('panel_venta_modificar', args=[venta.id]), data)
+    data_json = response.json()
+    assert data_json['success'] is False
+    assert data_json['message'] == 'No realizaste modificaciones.'
+
+
+@pytest.mark.django_db
+def test_venta_eliminar_post_elimina(admin_client, venta):
+    response = admin_client.post(reverse('panel_venta_eliminar', args=[venta.id]))
+    data_json = response.json()
+    assert data_json['success'] is True
+    assert not VentaModel.objects.filter(id=venta.id).exists()
+
+
+@pytest.mark.django_db
+def test_venta_eliminar_get_405(admin_client, venta):
+    response = admin_client.get(reverse('panel_venta_eliminar', args=[venta.id]))
+    assert response.status_code == 405
+
+
+@pytest.mark.django_db
+def test_venta_modificar_post_cancelada_restaura_stock(admin_client, producto, venta):
+    VentaItemModel.objects.create(
+        venta=venta,
+        producto=producto,
+        cantidad=2,
+        precio_unitario=Decimal('15000'),
+        precio_transferencia_unitario=Decimal('13500'),
+    )
+    producto.stock = 8
+    producto.save(update_fields=['stock'])
+    data = {'estado': 'cancelada'}
+    response = admin_client.post(reverse('panel_venta_modificar', args=[venta.id]), data)
+    data_json = response.json()
+    assert data_json['success'] is True
+    venta.refresh_from_db()
+    assert venta.estado == 'cancelada'
+    producto.refresh_from_db()
+    assert producto.stock == 10
+
+
+@pytest.mark.django_db
+def test_venta_eliminar_restaura_stock_y_mensaje_con_id(admin_client, producto, venta):
+    VentaItemModel.objects.create(
+        venta=venta,
+        producto=producto,
+        cantidad=2,
+        precio_unitario=Decimal('15000'),
+        precio_transferencia_unitario=Decimal('13500'),
+    )
+    producto.stock = 8
+    producto.save(update_fields=['stock'])
+    response = admin_client.post(reverse('panel_venta_eliminar', args=[venta.id]))
+    data_json = response.json()
+    assert data_json['success'] is True
+    assert data_json['message'] == f'Venta #{venta.id} eliminada.'
+    assert not VentaModel.objects.filter(id=venta.id).exists()
+    producto.refresh_from_db()
+    assert producto.stock == 10
+
+
+@pytest.mark.django_db
+def test_venta_eliminar_cancelada_no_duplica_stock(admin_client, producto, venta):
+    VentaItemModel.objects.create(
+        venta=venta,
+        producto=producto,
+        cantidad=2,
+        precio_unitario=Decimal('15000'),
+        precio_transferencia_unitario=Decimal('13500'),
+    )
+    producto.stock = 8
+    producto.save(update_fields=['stock'])
+    venta.estado = VentaModel.EstadoChoices.CANCELADA
+    venta.save(update_fields=['estado'])
+    producto.refresh_from_db()
+    assert producto.stock == 10
+    response = admin_client.post(reverse('panel_venta_eliminar', args=[venta.id]))
+    data_json = response.json()
+    assert data_json['success'] is True
+    producto.refresh_from_db()
+    assert producto.stock == 10
