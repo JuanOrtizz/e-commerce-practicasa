@@ -1,0 +1,88 @@
+{% extends 'panel_admin/base.html' %}
+
+{% load static %}
+
+{% block title %}Ventas | Practicasa{% endblock %}
+
+{% block titulo_pagina %}Ventas{% endblock %}
+
+{% block content %}
+<p class="text-muted mb-2"><span id="ventas-count">{{ ventas|length }}</span> ventas.</p>
+
+<div class="d-flex flex-wrap gap-2 align-items-center mb-3">
+    <select id="filtro-ventas" class="form-select form-select-sm w-auto" aria-label="Filtrar ventas">
+        <option value="todas">Todas</option>
+        <option value="pendiente">Pendientes</option>
+        <option value="confirmada">Confirmadas</option>
+        <option value="cancelada">Canceladas</option>
+    </select>
+    <select id="orden-ventas" class="form-select form-select-sm w-auto" aria-label="Ordenar ventas">
+        <option value="recientes">Más recientes</option>
+        <option value="antiguas">Más antiguas</option>
+    </select>
+</div>
+
+<div class="panel-card p-3">
+    <div class="table-responsive">
+        <table class="table panel-table align-middle mb-0">
+            <thead>
+                <tr>
+                    <th class="text-nowrap">Nº</th>
+                    <th class="text-nowrap">Cliente</th>
+                    <th class="text-nowrap">Fecha</th>
+                    <th class="text-nowrap">Pago</th>
+                    <th class="text-nowrap">Envío</th>
+                    <th class="text-nowrap">Total</th>
+                    <th class="text-nowrap">Estado</th>
+                    <th class="text-end text-nowrap">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for venta in ventas %}
+                <tr id="venta-{{ venta.id }}" class="venta-item" data-fecha="{{ venta.created_at|date:'c' }}" data-estado="{{ venta.estado }}">
+                    <td class="fw-bold">#{{ venta.id }}</td>
+                    <td>{{ venta.nombre }}</td>
+                    <td>{{ venta.created_at|date:'d/m/Y H:i' }}</td>
+                    <td>{{ venta.get_metodo_pago_display }}</td>
+                    <td>{{ venta.get_metodo_envio_display }}</td>
+                    <td>${{ venta.total }}</td>
+                    <td>
+                        <span class="badge {% if venta.estado == 'pendiente' %}text-bg-warning{% elif venta.estado == 'confirmada' %}text-bg-success{% else %}text-bg-danger{% endif %}">{{ venta.get_estado_display }}</span>
+                    </td>
+                    <td>
+                        <div class="d-flex justify-content-end gap-2">
+                            <a class="btn btn-sm btn-info d-flex justify-content-center align-items-center" href="{% url 'panel_venta_detalle' venta.id %}" aria-label="Ver venta #{{ venta.id }}">
+                                <span class="material-symbols-outlined">visibility</span>
+                            </a>
+                            <a class="btn btn-sm btn-warning d-flex justify-content-center align-items-center" href="{% url 'panel_venta_modificar' venta.id %}" aria-label="Modificar venta #{{ venta.id }}">
+                                <span class="material-symbols-outlined">edit</span>
+                            </a>
+                            <form method="post" action="{% url 'panel_venta_eliminar' venta.id %}">
+                                {% csrf_token %}
+                                <button class="btn-delete btn btn-sm btn-danger d-flex justify-content-center align-items-center" data-id="{{ venta.id }}" type="submit" aria-label="Eliminar venta #{{ venta.id }}">
+                                    <span class="material-symbols-outlined">delete</span>
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="8" class="text-center text-muted py-4">No hay ventas registradas.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% if ventas %}
+            <div id="no-ventas-message" class="d-none">
+                <p class="text-center text-muted py-4 mb-0">No hay ventas cargadas.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+    <script type="module" src="{% static 'panel_admin/js/ventasLista.js' %}"></script>
+    <script type="module" src="{% static 'panel_admin/js/ventaDeleteForm.js' %}"></script>
+{% endblock %}
