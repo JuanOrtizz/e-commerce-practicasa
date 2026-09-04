@@ -1,5 +1,40 @@
 # Changelog
 ---
+## [v0.15.0] - 2026-09-04
+### Rama: feature/proceso-compra
+#### Features
+- Agrego app de ventas completa: modelos VentaModel y VentaItemModel (estados pendiente/confirmada/cancelada, métodos de envío y pago, snapshot de color/medida por item), migración inicial y registro en Django admin
+- Agrego services de ventas: crear_venta_confirmada_service (transaccional: crea la venta con sus items, descuenta stock y vacía el carrito), get_order_context_service, gestión de datos de venta en sesión y DATOS_LOCAL
+- Agrego flujo de compra de 3 pasos con formularios y servicios: checkout (datos de contacto y envío), envío (retiro local o domicilio) y confirmación (revisión + forma de pago), con redirecciones de guarda (carrito vacío o sesión incompleta)
+- Agrego páginas pos-compra: pago (Mercado Pago) y pago_local (efectivo con retiro en el local), con confirmación del pedido pendiente y datos del local
+- Agrego breadcrumb circular de 5 pasos (sin Inicio) y resumen lateral del pedido (sidebar sticky con línea punteada, máximo 3 productos y "+ N más") reutilizado en checkout, envío y confirmación
+- Agrego botones del flujo: Continuar/Volver (checkout), Confirmar compra/Volver (confirmación) y Volver al carrito
+- Preselecciono Mercado Pago en envío a domicilio y efectivo en retiro local, con subtítulos de la forma de pago actualizados por JS según la selección (checkout.js)
+- Integro el carrito al flujo: breadcrumb, header con título y botón Vaciar Carrito, botones Ir a Checkout (habilitado) y Volver (gris) fuera del resumen, y card de resumen con scroll propio alineada con la primera card
+- Agrego gestión de ventas al panel admin: link en el sidebar, listado con filtros y orden (ventasLista.js), detalle, modificación de estado y eliminación con confirmación, con sus JS de alertas
+- Repongo el stock al cancelar una venta: señal post_save en VentaModel que revierte stock al pasar a cancelada (cubre panel-admin y Django admin) y VentaAdmin.delete_model/delete_queryset que revierten antes de borrar
+- Agrego tests de ventas (servicios, vistas y señales) y del panel de ventas (restauración de stock al cancelar/eliminar)
+- Agrego mapa embebido de Google Maps en pago_local (compra por efectivo)
+- Quito la preselección del método de envío: el usuario elige retiro local o envío a domicilio y el botón "Continuar" queda deshabilitado hasta que lo haga, igual que la forma de pago
+#### Fixes
+- Corrijo el mensaje de eliminación de venta que mostraba "Venta #None eliminada." (el id se leía después del delete)
+- Evito reponer stock dos veces: no se sumariza si la venta ya estaba cancelada al eliminarla
+- Corrijo el scroll de la card de resumen del carrito (ya no tapa los botones) y la alineo con la primera card en desktop
+- Corrijo el radio del método de envío que se deformaba en móvil: tamaño fijo (1em) y flex-shrink en las opciones de envío y pago
+- Corrijo el salto de la card de forma de pago al seleccionar: la ayuda reserva siempre su espacio y muestra un texto por defecto ("Seleccioná una forma de pago.") que cambia al elegir el método, sin dejar huecos en blanco ni mover la card
+#### Style
+- Ajusto el espaciado de la trust bar en la home (my-5 → mt-5)
+- Hago los mini-dots del breadcrumb responsivos: 3 por tramo en desktop, 2 en tablet y ninguno en móvil, compactando los círculos de las secciones en pantallas chicas
+- En móvil y tablet la descripción del método de envío se muestra solo al seleccionar la opción, reservando el espacio (fade con visibility/opacity) para que la card no cambie de tamaño; en desktop siempre visible
+- Compacto el campo "Notas o referencias" del checkout: una línea en móvil y dos en tablet, sobreescribiendo el alto global de textareas
+- Alineo la tipografía y el posicionamiento de la card de resumen del carrito con las secciones del proceso de compra: subtotales, total y total con transferencia con las mismas clases y espaciados que el resumen de checkout/envío/confirmación
+#### Refactor
+- Rebalanceo la estructura HTML del carrito (botones en d-grid fuera del resumen) y la reindento igualando checkout/envío/confirmación
+- Reemplazo ventas/tests.py por el paquete ventas/tests/ con __init__.py
+#### Docs
+- Actualizo el email de contacto del footer a practicasaok@gmail.com
+- Actualizo CHANGELOG.md
+---
 ## [v0.14.0] - 2026-08-13
 ### Rama: feature/panel-admin
 #### Features
