@@ -1,0 +1,97 @@
+{% extends 'panel_admin/base.html' %}
+
+{% load static precio_tags %}
+
+{% block title %}Venta #{{ venta.id }} | Practicasa{% endblock %}
+
+{% block titulo_pagina %}Venta #{{ venta.id }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+    <a class="btn btn-secondary d-flex justify-content-center align-items-center gap-2" href="{% url 'panel_ventas' %}">
+        <span class="material-symbols-outlined">arrow_back</span> Volver
+    </a>
+    <a class="btn btn-warning d-flex justify-content-center align-items-center gap-2" href="{% url 'panel_venta_modificar' venta.id %}">
+        <span class="material-symbols-outlined">edit</span> Modificar
+    </a>
+</div>
+
+<div class="panel-card p-3 mb-3">
+    <dl class="row mb-0">
+        <dt class="col-sm-3 text-secondary">Estado</dt>
+        <dd class="col-sm-9">
+            <span class="badge {% if venta.estado == 'pendiente' %}text-bg-warning{% elif venta.estado == 'confirmada' %}text-bg-success{% else %}text-bg-danger{% endif %}">{{ venta.get_estado_display }}</span>
+        </dd>
+        <dt class="col-sm-3 text-secondary">Fecha</dt>
+        <dd class="col-sm-9">{{ venta.created_at|date:'d/m/Y H:i' }}</dd>
+        <dt class="col-sm-3 text-secondary">Cliente</dt>
+        <dd class="col-sm-9">{{ venta.nombre }} ({{ venta.email }})</dd>
+        <dt class="col-sm-3 text-secondary">Teléfono</dt>
+        <dd class="col-sm-9">{{ venta.telefono }}</dd>
+        <dt class="col-sm-3 text-secondary">Método de envío</dt>
+        <dd class="col-sm-9">{{ venta.get_metodo_envio_display }}</dd>
+        {% if venta.direccion %}
+            <dt class="col-sm-3 text-secondary">Dirección</dt>
+            <dd class="col-sm-9">{{ venta.direccion }}, {{ venta.ciudad }}, {{ venta.provincia }} ({{ venta.codigo_postal }})</dd>
+        {% endif %}
+        <dt class="col-sm-3 text-secondary">Forma de pago</dt>
+        <dd class="col-sm-9">{{ venta.get_metodo_pago_display }}</dd>
+        {% if venta.notas %}
+            <dt class="col-sm-3 text-secondary">Notas</dt>
+            <dd class="col-sm-9">{{ venta.notas }}</dd>
+        {% endif %}
+    </dl>
+</div>
+
+<div class="panel-card p-3 mb-3">
+    <h5 class="fw-bold mb-3">Items</h5>
+    <div class="table-responsive">
+        <table class="table panel-table align-middle mb-0">
+            <thead>
+                <tr>
+                    <th class="text-nowrap">Producto</th>
+                    <th class="text-nowrap">Variante</th>
+                    <th class="text-nowrap">Cantidad</th>
+                    <th class="text-nowrap">Precio unitario</th>
+                    <th class="text-end text-nowrap">Subtotal</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in venta.items.select_related.all %}
+                <tr>
+                    <td>{{ item.producto.nombre }}</td>
+                    <td>
+                        {% if item.color_nombre or item.medida_nombre %}
+                            {% if item.color_nombre %}{{ item.color_nombre }}{% endif %}
+                            {% if item.color_nombre and item.medida_nombre %} · {% endif %}
+                            {% if item.medida_nombre %}{{ item.medida_nombre }}{% endif %}
+                        {% else %}
+                            —
+                        {% endif %}
+                    </td>
+                    <td>{{ item.cantidad }}</td>
+                    <td>${{ item.precio_unitario|format_price }}</td>
+                    <td class="text-end">${{ item.subtotal|format_price }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="panel-card p-3">
+    <div class="d-flex justify-content-between mb-2">
+        <span>Subtotal</span>
+        <span>${{ venta.subtotal|format_price }}</span>
+    </div>
+    <div class="d-flex justify-content-between mb-2">
+        <span>Costo de envío</span>
+        <span>${{ venta.costo_envio|format_price }}</span>
+    </div>
+    <hr>
+    <div class="d-flex justify-content-between">
+        <span class="fw-bold">Total</span>
+        <span class="fw-bold">${{ venta.total|format_price }}</span>
+    </div>
+</div>
+{% endblock %}
