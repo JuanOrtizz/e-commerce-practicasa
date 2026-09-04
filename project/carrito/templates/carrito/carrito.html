@@ -5,12 +5,14 @@
 
 {% block extra_css %}
     <link rel="stylesheet" href="{% static 'carrito/css/carrito.css' %}">
+    <link rel="stylesheet" href="{% static 'ventas/css/ventas.css' %}">
 {% endblock %}
 
 {% block content %}
+{% include 'ventas/_breadcrumb.html' with breadcrumb_paso='carrito' %}
 <div class="container my-4 animacion-aparicion-abajo-fade">
-    <h2 class="fw-bold mb-4">Carrito de Compras</h2>
     {% if not items %}
+        <h2 class="fw-bold mb-4">Carrito de Compras</h2>
         <div class="text-center py-5 gap-3">
             <span class="material-symbols-outlined cart-empty-icon d-block mb-2">shopping_cart</span>
             <p class="text-secondary mb-3">Tu carrito está vacío</p>
@@ -18,8 +20,13 @@
         </div>
     {% else %}
         <div class="row g-4">
-            <div class="col-lg-8 d-flex flex-column gap-3">
-                {% for data in items %}
+            <div class="col-lg-8">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h2 class="fw-bold mb-0">Carrito de Compras</h2>
+                    <button id="btn-vaciar-carrito" class="btn btn-outline-danger fw-bold px-3 py-2">Vaciar Carrito</button>
+                </div>
+                <div class="d-flex flex-column gap-3">
+                    {% for data in items %}
                     <div class="carrito-item p-3 p-lg-4" data-item-id="{{ data.item.id }}">
                         <div class="row g-2 g-lg-3 align-items-start align-items-lg-center">
                             <div class="col-12 d-lg-none d-flex align-items-start gap-3">
@@ -135,39 +142,42 @@
                         </div>
                     </div>
                 {% endfor %}
+                </div>
             </div>
 
             <div class="col-lg-4">
-                <div class="carrito-resumen">
-                    <h5 class="fw-bold mb-4">Resumen</h5>
-                    <div class="d-flex justify-content-between mb-3 pb-1">
-                        <span class="carrito-subtotal-label">Subtotal</span>
-                        <span class="fw-semibold carrito-resumen-subtotal">${{ total|format_price }}</span>
+                <div class="ventas-sidebar carrito-sidebar">
+                    <div class="carrito-resumen">
+                        <h5 class="fw-bold mb-4">Resumen</h5>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Subtotal</span>
+                            <span class="fw-semibold carrito-resumen-subtotal">${{ total|format_price }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Subtotal transferencia</span>
+                            <span class="fw-semibold carrito-resumen-subtotal-transferencia">${{ total_transferencia|format_price }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2{% if not total_ahorro %} d-none{% endif %}">
+                            <span class="carrito-ahorro">Ahorro total</span>
+                            <span class="carrito-ahorro carrito-resumen-ahorro">${{ total_ahorro|format_price }}</span>
+                        </div>
+                        <hr class="my-3">
+                        <div class="d-flex justify-content-between mb-1">
+                            <span class="ventas-total-label">Total</span>
+                            <span class="ventas-total-valor carrito-resumen-total">${{ total|format_price }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span class="ventas-total-transf-label">Total transferencia</span>
+                            <span class="ventas-total-transf-valor carrito-resumen-total-transferencia">${{ total_transferencia|format_price }}</span>
+                        </div>
+                        {% csrf_token %}
+                        <div class="carrito-resumen-overlay d-none">
+                            <span class="spinner-border spinner-border-sm"></span>
+                        </div>
                     </div>
-                    <div class="d-flex justify-content-between mb-3 pb-1">
-                        <span class="carrito-subtotal-label">Subtotal transferencia</span>
-                        <span class="fw-semibold carrito-resumen-subtotal-transferencia">${{ total_transferencia|format_price }}</span>
-                    </div>
-                    <div class="d-flex justify-content-between mb-4 pb-1{% if not total_ahorro %} d-none{% endif %}">
-                        <span class="carrito-ahorro">Ahorro total</span>
-                        <span class="carrito-ahorro carrito-resumen-ahorro">${{ total_ahorro|format_price }}</span>
-                    </div>
-                    <hr class="my-3">
-                    <div class="d-flex justify-content-between mb-2">
-                        <span class="carrito-total-label">Total</span>
-                        <span class="fw-bold carrito-resumen-total">${{ total|format_price }}</span>
-                    </div>
-                    <div class="d-flex justify-content-between mb-4">
-                        <span class="carrito-total-label" style="color:var(--tertiary-color)">Total transferencia</span>
-                        <span class="fw-bold carrito-resumen-total-transferencia" style="color:var(--tertiary-color)">${{ total_transferencia|format_price }}</span>
-                    </div>
-                    {% csrf_token %}
                     <div class="d-grid gap-2">
-                        <button class="btn btn-enviar text-white fw-bold py-2" disabled>Ir a Checkout</button>
-                        <button id="btn-vaciar-carrito" class="btn btn-outline-danger fw-bold py-2">Vaciar Carrito</button>
-                    </div>
-                    <div class="carrito-resumen-overlay d-none">
-                        <span class="spinner-border spinner-border-sm"></span>
+                        <a class="btn btn-enviar text-white fw-bold py-2" href="{% url 'checkout' %}">Ir a Checkout</a>
+                        <a class="btn btn-outline-secondary fw-bold py-2 disabled" href="#" aria-disabled="true" tabindex="-1">Volver</a>
                     </div>
                 </div>
             </div>
