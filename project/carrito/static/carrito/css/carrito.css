@@ -106,20 +106,18 @@
     padding: 1.75rem;
     box-shadow: 0 4px 20px rgba(0,0,0,0.05);
     border: 1px solid rgba(162,86,48,0.06);
-    position: sticky;
-    top: 1.5rem;
+    position: relative;
 }
 
-.carrito-total-label {
-    font-size: 1rem;
-    font-weight: 600;
-    color: var(--black);
+.carrito-sidebar {
+    max-height: calc(100vh - 3rem);
+    overflow-y: auto;
 }
 
-.carrito-total-valor {
-    font-size: 1.1rem;
-    font-weight: 800;
-    color: var(--tertiary-color);
+@media (min-width: 992px) {
+    .carrito-sidebar {
+        margin-top: 3.5rem;
+    }
 }
 
 .variante-label {
