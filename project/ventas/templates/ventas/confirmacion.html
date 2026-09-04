@@ -1,0 +1,109 @@
+{% extends 'base.html' %}
+
+{% load static precio_tags %}
+
+{% block title %}Confirmación | Practicasa{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'ventas/css/ventas.css' %}">
+{% endblock %}
+
+{% block content %}
+{% include 'ventas/_breadcrumb.html' with breadcrumb_paso='confirmacion' %}
+<div class="container my-4 animacion-aparicion-abajo-fade">
+    <h2 class="fw-bold mb-4">Confirmá tu compra</h2>
+
+    {% if error %}
+        <div class="alert alert-danger py-2">{{ error }}</div>
+    {% endif %}
+
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="d-flex flex-column gap-4">
+                <div class="ventas-paso">
+                    <h5 class="fw-bold mb-3">Datos de facturación</h5>
+                    <dl class="row mb-0">
+                        <dt class="col-sm-4 text-secondary">Nombre</dt>
+                        <dd class="col-sm-8">{{ datos.nombre }}</dd>
+                        <dt class="col-sm-4 text-secondary">Email</dt>
+                        <dd class="col-sm-8">{{ datos.email }}</dd>
+                        <dt class="col-sm-4 text-secondary">Teléfono</dt>
+                        <dd class="col-sm-8">{{ datos.telefono }}</dd>
+                        {% if datos.direccion %}
+                            <dt class="col-sm-4 text-secondary">Dirección</dt>
+                            <dd class="col-sm-8">{{ datos.direccion }}, {{ datos.ciudad }}, {{ datos.provincia }} ({{ datos.codigo_postal }})</dd>
+                        {% endif %}
+                        {% if datos.notas %}
+                            <dt class="col-sm-4 text-secondary">Notas</dt>
+                            <dd class="col-sm-8">{{ datos.notas }}</dd>
+                        {% endif %}
+                    </dl>
+                </div>
+
+                <div class="ventas-paso">
+                    <h5 class="fw-bold mb-3">Método de envío</h5>
+                    <p class="mb-0">
+                        {% if datos.metodo_envio == 'retiro_local' %}
+                            Retiro en el local (Nogoyá)
+                        {% else %}
+                            Envío a domicilio (Nogoyá) — Gratis
+                        {% endif %}
+                    </p>
+                </div>
+
+                <div>
+                    {% include 'ventas/_resumen_pedido.html' %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="ventas-sidebar">
+                <div class="ventas-paso">
+                    <h5 class="fw-bold mb-3">Forma de pago</h5>
+                    <div class="d-flex flex-column gap-2">
+                        {% if datos.metodo_envio == 'retiro_local' %}
+                            <label class="ventas-opcion d-flex align-items-center gap-3 p-3" data-metodo="mercado_pago">
+                                <input class="form-check-input" type="radio" name="metodo_pago" value="mercado_pago">
+                                <span class="material-symbols-outlined ventas-pago-icon">account_balance_wallet</span>
+                                <span class="fw-semibold">Mercado Pago</span>
+                            </label>
+                            <label class="ventas-opcion d-flex align-items-center gap-3 p-3" data-metodo="efectivo">
+                                <input class="form-check-input" type="radio" name="metodo_pago" value="efectivo">
+                                <span class="material-symbols-outlined ventas-pago-icon">payments</span>
+                                <span class="fw-semibold">Efectivo (local)</span>
+                            </label>
+                        {% else %}
+                            <label class="ventas-opcion d-flex align-items-center gap-3 p-3 selected" data-metodo="mercado_pago">
+                                <input class="form-check-input" type="radio" name="metodo_pago" value="mercado_pago" checked>
+                                <span class="material-symbols-outlined ventas-pago-icon">account_balance_wallet</span>
+                                <span class="fw-semibold">Mercado Pago</span>
+                            </label>
+                        {% endif %}
+                    </div>
+                    <p class="text-muted small mt-2 mb-0" id="pago-ayuda">
+                        Seleccioná una forma de pago.
+                    </p>
+                </div>
+
+                <form method="post" id="form-confirmacion">
+                    {% csrf_token %}
+                    <input type="hidden" name="metodo_pago" id="metodo-pago-hidden" value="{% if datos.metodo_envio == 'envio_domicilio' %}mercado_pago{% endif %}">
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-enviar text-white fw-bold py-2" type="submit" id="btn-submit"
+                                {% if datos.metodo_envio == 'retiro_local' %}disabled{% endif %}>
+                            <span id="btn-text">Confirmar compra</span>
+                            <span class="spinner-border spinner-border-sm d-none" role="status" id="btn-spinner"></span>
+                        </button>
+                        <a class="btn btn-outline-secondary fw-bold py-2" href="{% url 'envio' %}">Volver</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+    <script type="module" src="{% static 'ventas/js/checkout.js' %}"></script>
+{% endblock %}
