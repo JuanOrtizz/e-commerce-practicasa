@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% load static precio_tags %}
+
+{% block title %}Pago | Practicasa{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'ventas/css/ventas.css' %}">
+{% endblock %}
+
+{% block content %}
+{% include 'ventas/_breadcrumb.html' with breadcrumb_paso='pago' %}
+<div class="container my-4 animacion-aparicion-abajo-fade text-center">
+    <span class="material-symbols-outlined ventas-pago-icon-aviso">hourglass_top</span>
+    <h2 class="fw-bold mt-2">Pago con Mercado Pago</h2>
+    <p class="text-muted mb-1">El pago con Mercado Pago estará disponible próximamente.</p>
+    <p class="mb-0">Tu pedido <strong>#{{ venta.id }}</strong> fue registrado por un total de <strong>${{ venta.total|format_price }}</strong>.</p>
+    <div class="d-flex justify-content-center gap-2 mt-4">
+        <a class="btn btn-outline-secondary fw-bold px-4 py-2" href="{% url 'productos' %}">Seguir comprando</a>
+        <a class="btn btn-enviar text-white fw-bold px-4 py-2" href="{% url 'ver_carrito' %}">Ver mi carrito</a>
+    </div>
+</div>
+{% endblock %}
