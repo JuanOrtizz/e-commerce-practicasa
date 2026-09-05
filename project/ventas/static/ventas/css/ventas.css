@@ -256,6 +256,27 @@ a.ventas-breadcrumb-circle:hover {
     border-radius: 12px;
 }
 
+.ventas-btn-wsp {
+    margin-top: 1.25rem;
+    background-color: #25D366;
+    border: none;
+}
+
+.ventas-btn-wsp:hover {
+    background-color: #1DA851;
+}
+
+.ventas-btn-wsp img {
+    width: 18px;
+    height: 18px;
+    filter: brightness(0) invert(1);
+}
+
+.ventas-info-chevron {
+    font-size: 1.1rem;
+    line-height: 1;
+}
+
 .ventas-pago-icon {
     color: var(--tertiary-color);
 }

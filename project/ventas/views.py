@@ -6,9 +6,12 @@ from .models import VentaModel
 from .services import (
     DATOS_LOCAL,
     crear_venta_confirmada_service,
+    enviar_factura_venta_service,
     get_datos_venta_session,
     get_order_context_service,
     limpiar_datos_venta_session,
+    localidad_para_coordinar_entrega_service,
+    permite_coordinar_entrega_service,
     set_datos_venta_session,
 )
 
@@ -25,6 +28,7 @@ def checkout(request):
         'email': datos.get('email', request.user.email),
         'telefono': datos.get('telefono', ''),
         'direccion': datos.get('direccion', ''),
+        'numero': datos.get('numero', ''),
         'ciudad': datos.get('ciudad', ''),
         'provincia': datos.get('provincia', ''),
         'codigo_postal': datos.get('codigo_postal', ''),
@@ -68,6 +72,8 @@ def envio(request):
         'form': form,
         'order_context': order_context,
         'datos': datos,
+        'permite_coordinar_entrega': permite_coordinar_entrega_service(datos.get('codigo_postal')),
+        'localidad_coordinar_entrega': localidad_para_coordinar_entrega_service(datos.get('codigo_postal')),
     })
 
 
@@ -87,6 +93,7 @@ def confirmacion(request):
             return render(request, 'ventas/confirmacion.html', {
                 'order_context': order_context,
                 'datos': datos,
+                'localidad_coordinar_entrega': localidad_para_coordinar_entrega_service(datos.get('codigo_postal')),
                 'error': 'Seleccioná una forma de pago.',
             })
 
@@ -99,8 +106,12 @@ def confirmacion(request):
             return render(request, 'ventas/confirmacion.html', {
                 'order_context': order_context,
                 'datos': datos,
+                'localidad_coordinar_entrega': localidad_para_coordinar_entrega_service(datos.get('codigo_postal')),
                 'error': str(e),
             })
+
+        if metodo_pago == VentaModel.MetodoPagoChoices.EFECTIVO:
+            enviar_factura_venta_service(venta, request)
 
         if metodo_pago == VentaModel.MetodoPagoChoices.EFECTIVO:
             return redirect('pago_local', venta_id=venta.id)
@@ -109,6 +120,7 @@ def confirmacion(request):
     return render(request, 'ventas/confirmacion.html', {
         'order_context': order_context,
         'datos': datos,
+        'localidad_coordinar_entrega': localidad_para_coordinar_entrega_service(datos.get('codigo_postal')),
     })
 
 

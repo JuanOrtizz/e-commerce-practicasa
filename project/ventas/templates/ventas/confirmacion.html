@@ -31,7 +31,7 @@
                         <dd class="col-sm-8">{{ datos.telefono }}</dd>
                         {% if datos.direccion %}
                             <dt class="col-sm-4 text-secondary">Dirección</dt>
-                            <dd class="col-sm-8">{{ datos.direccion }}, {{ datos.ciudad }}, {{ datos.provincia }} ({{ datos.codigo_postal }})</dd>
+                            <dd class="col-sm-8">{{ datos.direccion }}{% if datos.numero %} {{ datos.numero }}{% endif %}, {{ datos.ciudad }}, {{ datos.provincia }} ({{ datos.codigo_postal }})</dd>
                         {% endif %}
                         {% if datos.notas %}
                             <dt class="col-sm-4 text-secondary">Notas</dt>
@@ -45,6 +45,8 @@
                     <p class="mb-0">
                         {% if datos.metodo_envio == 'retiro_local' %}
                             Retiro en el local (Nogoyá)
+                        {% elif datos.metodo_envio == 'coordinar_entrega' %}
+                            Coordinar entrega{% if localidad_coordinar_entrega %} ({{ localidad_coordinar_entrega }}){% endif %} — Gratis
                         {% else %}
                             Envío a domicilio (Nogoyá) — Gratis
                         {% endif %}

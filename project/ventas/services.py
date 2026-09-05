@@ -1,6 +1,9 @@
 from decimal import Decimal
 
 from django.db import transaction
+from django.template.loader import render_to_string
+
+from project.services import enviar_email
 
 from carrito.services import (
     get_o_crear_carrito_service,
@@ -11,6 +14,16 @@ from .models import VentaModel, VentaItemModel
 
 SESSION_DATOS_CLAVE = 'datos_venta'
 
+CODIGOS_POSTALES_COORDINAR = {'3156', '3158', '3164', '3100'}
+
+LOCALIDADES_POR_CP = {
+    '3150': 'Nogoyá',
+    '3156': 'Hernández',
+    '3158': 'Lucas González',
+    '3164': 'Ramírez',
+    '3100': 'Paraná',
+}
+
 DATOS_LOCAL = {
     'nombre': 'Practicasa',
     'ciudad': 'Nogoyá',
@@ -19,6 +32,8 @@ DATOS_LOCAL = {
     'whatsapp': '+54 3435 46-8162',
     'mapa_url': 'https://www.google.com/maps?q=-32.399059,-59.783521&z=16&output=embed',
 }
+
+EMAIL_COMERCIO = 'practicasaok@gmail.com'
 
 
 def get_datos_venta_session(request):
@@ -41,9 +56,19 @@ def get_order_context_service(usuario):
 
 
 def calcular_costo_envio_service(metodo_envio, subtotal):
-    if metodo_envio == VentaModel.MetodoEnvioChoices.ENVIO_DOMICILIO:
-        return Decimal('0')
     return Decimal('0')
+
+
+def permite_coordinar_entrega_service(codigo_postal):
+    if not codigo_postal:
+        return False
+    return codigo_postal.strip() in CODIGOS_POSTALES_COORDINAR
+
+
+def localidad_para_coordinar_entrega_service(codigo_postal):
+    if not codigo_postal:
+        return None
+    return LOCALIDADES_POR_CP.get(codigo_postal.strip())
 
 
 def _validar_stock_service(carrito, carrito_context):
@@ -76,6 +101,7 @@ def crear_venta_confirmada_service(usuario, datos, metodo_envio, metodo_pago):
         email=datos.get('email'),
         telefono=datos.get('telefono'),
         direccion=datos.get('direccion') or None,
+        numero=datos.get('numero') or None,
         ciudad=datos.get('ciudad') or None,
         provincia=datos.get('provincia') or None,
         codigo_postal=datos.get('codigo_postal') or None,
@@ -109,3 +135,42 @@ def revertir_stock_venta_service(venta):
     for item in venta.items.select_related('producto'):
         item.producto.stock += item.cantidad
         item.producto.save(update_fields=['stock'])
+
+
+def _render_factura_venta(venta, request, titulo):
+    contexto = {
+        'titulo': titulo,
+        'venta': venta,
+        'logo_url': request.build_absolute_uri('/static/img/logo_practicasa.png'),
+    }
+    return render_to_string('email/email_factura.html', contexto)
+
+
+def enviar_factura_venta_service(venta, request):
+    enviar_email(
+        asunto=f'Tu pedido #{venta.id} | Practicasa',
+        mensaje_texto=f'Tu pedido #{venta.id} fue registrado. Total: ${venta.total}.',
+        mensaje_html=_render_factura_venta(venta, request, '¡Gracias por tu compra!'),
+        destinatarios=[venta.email],
+    )
+    enviar_email(
+        asunto=f'Nuevo pedido #{venta.id} | Practicasa',
+        mensaje_texto=f'Nuevo pedido #{venta.id} de {venta.nombre} ({venta.email}).',
+        mensaje_html=_render_factura_venta(venta, request, 'Nuevo pedido recibido'),
+        destinatarios=[EMAIL_COMERCIO],
+    )
+
+
+def enviar_factura_venta_pagada_service(venta, request):
+    enviar_email(
+        asunto=f'Tu pago fue acreditado #{venta.id} | Practicasa',
+        mensaje_texto=f'Tu pago del pedido #{venta.id} fue acreditado. Total: ${venta.total}.',
+        mensaje_html=_render_factura_venta(venta, request, '¡Tu pago fue acreditado!'),
+        destinatarios=[venta.email],
+    )
+    enviar_email(
+        asunto=f'Pago recibido #{venta.id} | Practicasa',
+        mensaje_texto=f'Pago del pedido #{venta.id} de {venta.nombre} ({venta.email}) acreditado.',
+        mensaje_html=_render_factura_venta(venta, request, 'Pago recibido'),
+        destinatarios=[EMAIL_COMERCIO],
+    )

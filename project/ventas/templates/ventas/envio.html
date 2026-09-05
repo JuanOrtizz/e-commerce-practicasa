@@ -45,6 +45,20 @@
                             </label>
                         {% endif %}
 
+                        {% if permite_coordinar_entrega %}
+                            <label class="ventas-opcion d-flex align-items-center gap-3 p-3 {% if form.metodo_envio.value == 'coordinar_entrega' %}selected{% endif %}" data-metodo="coordinar_entrega">
+                                <input class="form-check-input" type="radio" name="metodo_envio" value="coordinar_entrega"
+                                       {% if form.metodo_envio.value == 'coordinar_entrega' %}checked{% endif %}>
+                                <span class="material-symbols-outlined ventas-pago-icon">handshake</span>
+                                <div>
+                                    <div class="fw-semibold">Coordinar entrega</div>
+                                    <div class="ventas-opcion-desc text-muted small">
+                                        Coordinamos la entrega por WhatsApp en tu localidad{% if localidad_coordinar_entrega %} ({{ localidad_coordinar_entrega }}){% endif %}, sin costo.
+                                    </div>
+                                </div>
+                            </label>
+                        {% endif %}
+
                         <div class="ventas-opcion ventas-opcion-disabled d-flex align-items-center gap-3 p-3">
                             <input class="form-check-input" type="radio" disabled>
                             <span class="material-symbols-outlined ventas-pago-icon">send</span>

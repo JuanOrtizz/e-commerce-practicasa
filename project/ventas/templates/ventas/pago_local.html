@@ -14,7 +14,7 @@
     <div class="text-center mb-4">
         <span class="material-symbols-outlined ventas-exito-icon">check_circle</span>
         <h2 class="fw-bold mt-2">¡Pedido realizado!</h2>
-        <p class="text-muted mb-1">Tu pedido quedó <strong>pendiente</strong>. Pasá por nuestro local para retirar y pagar en efectivo.</p>
+        <p class="text-muted mb-1">Tu pedido quedó <strong>pendiente</strong>. Pasá por nuestro local para retirar y pagar en efectivo. <br> En breve nos comunicaremos para <strong>coordinar</strong> horarios </p>
         <p class="mb-0">Nº de pedido: <strong>#{{ venta.id }}</strong></p>
     </div>
 
@@ -39,13 +39,11 @@
                             <span>{{ datos_local.horario }}</span>
                         </li>
                     {% endif %}
-                    {% if datos_local.whatsapp %}
-                        <li class="d-flex align-items-center gap-2">
-                            <span class="material-symbols-outlined ventas-pago-icon">chat</span>
-                            <span>{{ datos_local.whatsapp }}</span>
-                        </li>
-                    {% endif %}
-                </ul>
+                    </ul>
+                <a class="btn ventas-btn-wsp text-white fw-bold w-100 d-flex align-items-center justify-content-center gap-2" href="https://wa.me/543435468162?text=Hola%2C%20quiero%20coordinar%20el%20pedido%20N%C2%B0%3A%20%23{{ venta.id }}" target="_blank" rel="noopener noreferrer">
+                    <img src="{% static 'img/logo_whatsapp.png' %}" alt="WhatsApp">
+                    Coordinar horarios
+                </a>
                 <div class="ventas-resumen-mapa-wrap">
                     <iframe src="{{ datos_local.mapa_url }}" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade" title="Mapa de Practicasa"></iframe>
                 </div>
