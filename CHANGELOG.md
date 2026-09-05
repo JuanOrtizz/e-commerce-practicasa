@@ -35,6 +35,16 @@
 - Actualizo el email de contacto del footer a practicasaok@gmail.com
 - Actualizo CHANGELOG.md
 ---
+## [v0.16.0] - 2026-09-05
+### Rama: feature/proceso-compra
+#### Features
+- Agrego campo "Número" a los datos de facturación del checkout, lo muestro en confirmación, detalle de venta y comprobante, y lo persisto con la migración 0002
+- Agrego validaciones al checkout: número (solo dígitos, 1-6), código postal (4 dígitos), dirección (letras/dígitos/símbolos, 2-100), ciudad y provincia (solo letras y espacios, 2-100)
+- Agrego el método de envío "Coordinar entrega" solo para CPs cercanos al local (3156, 3158, 3164 y 3100): en envío y confirmación muestra la localidad del CP y solo se puede combinar con Mercado Pago
+- Agrego botón de WhatsApp en la página de pago en efectivo para coordinar horarios de retiro (reemplaza el número de teléfono por un botón verde con logo)
+- Agrego ayuda desplegable "¿Para qué pedimos estos datos?" junto al título del checkout, que explica el uso de cada campo (email, teléfono, dirección, ciudad/CP y notas)
+- Agrego envío de comprobante del pedido por email al cliente y a practicasaok@gmail.com al confirmar la compra (template email_factura.html, reutilizando enviar_email), dejando preparado el envío para cuando se integre la API de Mercado Pago
+---
 ## [v0.14.0] - 2026-08-13
 ### Rama: feature/panel-admin
 #### Features
