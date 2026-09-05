@@ -11,6 +11,7 @@ class VentaModel(models.Model):
     class MetodoEnvioChoices(models.TextChoices):
         RETIRO_LOCAL = 'retiro_local', 'Retiro en el local'
         ENVIO_DOMICILIO = 'envio_domicilio', 'Envío a domicilio'
+        COORDINAR_ENTREGA = 'coordinar_entrega', 'Coordinar entrega'
 
     class MetodoPagoChoices(models.TextChoices):
         MERCADO_PAGO = 'mercado_pago', 'Mercado Pago'
@@ -32,6 +33,7 @@ class VentaModel(models.Model):
     email = models.EmailField()
     telefono = models.CharField(max_length=20)
     direccion = models.CharField(max_length=255, null=True, blank=True)
+    numero = models.CharField(max_length=10, null=True, blank=True)
     ciudad = models.CharField(max_length=100, null=True, blank=True)
     provincia = models.CharField(max_length=100, null=True, blank=True)
     codigo_postal = models.CharField(max_length=10, null=True, blank=True)

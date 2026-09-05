@@ -18,7 +18,7 @@ class VentaAdmin(admin.ModelAdmin):
     list_display = ['id', 'nombre', 'estado', 'metodo_pago', 'metodo_envio', 'total', 'created_at']
     list_filter = ['estado', 'metodo_pago', 'metodo_envio']
     readonly_fields = [
-        'usuario', 'nombre', 'email', 'telefono', 'direccion', 'ciudad',
+        'usuario', 'nombre', 'email', 'telefono', 'direccion', 'numero', 'ciudad',
         'provincia', 'codigo_postal', 'notas', 'metodo_envio', 'metodo_pago',
         'subtotal', 'costo_envio', 'total', 'created_at',
     ]

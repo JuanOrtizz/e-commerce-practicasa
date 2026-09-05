@@ -32,7 +32,7 @@
         <dd class="col-sm-9">{{ venta.get_metodo_envio_display }}</dd>
         {% if venta.direccion %}
             <dt class="col-sm-3 text-secondary">Dirección</dt>
-            <dd class="col-sm-9">{{ venta.direccion }}, {{ venta.ciudad }}, {{ venta.provincia }} ({{ venta.codigo_postal }})</dd>
+            <dd class="col-sm-9">{{ venta.direccion }}{% if venta.numero %} {{ venta.numero }}{% endif %}, {{ venta.ciudad }}, {{ venta.provincia }} ({{ venta.codigo_postal }})</dd>
         {% endif %}
         <dt class="col-sm-3 text-secondary">Forma de pago</dt>
         <dd class="col-sm-9">{{ venta.get_metodo_pago_display }}</dd>

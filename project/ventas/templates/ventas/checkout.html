@@ -17,6 +17,19 @@
                 <div class="ventas-paso">
                     <div class="d-flex align-items-center justify-content-between mb-3">
                         <h5 class="fw-bold mb-0">Datos de facturación</h5>
+                        <button class="btn btn-link btn-sm text-muted text-decoration-none p-0 d-inline-flex align-items-center gap-1" type="button" data-bs-toggle="collapse" data-bs-target="#datos-info" aria-expanded="false" aria-controls="datos-info">
+                            ¿Para qué pedimos estos datos?
+                            <span class="material-symbols-outlined ventas-info-chevron">keyboard_arrow_down</span>
+                        </button>
+                    </div>
+                    <div class="collapse" id="datos-info">
+                        <ul class="small text-muted mb-3 ps-3">
+                            <li><strong>Email</strong>: Te enviamos la confirmación y el seguimiento de tu pedido.</li>
+                            <li><strong>Teléfono</strong>: Para coordinar el retiro o la entrega.</li>
+                            <li><strong>Dirección, ciudad y CP</strong>: Los usamos para saber donde dejar tu pedido.</li>
+                            <li><strong>Notas</strong>: Para aclarar datos de la ubicación.</li>
+                        </ul>
+                        <p class="small text-muted mb-3">Tus datos se usan solo para procesar este pedido; no los compartimos ni los usamos para spam.</p>
                     </div>
                 <form method="post" id="form-checkout">
                     {% csrf_token %}
@@ -56,12 +69,19 @@
                             </div>
                             {% if form.ciudad.errors %}<div class="text-danger small mt-1">{{ form.ciudad.errors.0 }}</div>{% endif %}
                         </div>
-                        <div class="col-md-9">
+                        <div class="col-md-6">
                             <div class="form-floating">
                                 {{ form.direccion }}
                                 <label for="id_direccion">Dirección <span class="ventas-requerido">*</span></label>
                             </div>
                             {% if form.direccion.errors %}<div class="text-danger small mt-1">{{ form.direccion.errors.0 }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-floating">
+                                {{ form.numero }}
+                                <label for="id_numero">Número <span class="ventas-requerido">*</span></label>
+                            </div>
+                            {% if form.numero.errors %}<div class="text-danger small mt-1">{{ form.numero.errors.0 }}</div>{% endif %}
                         </div>
                         <div class="col-md-3">
                             <div class="form-floating">

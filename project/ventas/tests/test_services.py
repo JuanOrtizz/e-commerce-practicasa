@@ -27,6 +27,7 @@ def test_crear_venta_confirmada_descarta_stock_y_vacia_carrito(carrito, producto
     assert venta.costo_envio == Decimal('0')
     assert venta.total == Decimal('30000')
     assert venta.direccion == datos_checkout['direccion']
+    assert venta.numero == datos_checkout['numero']
 
     assert VentaItemModel.objects.filter(venta=venta).count() == 1
     venta_item = venta.items.first()

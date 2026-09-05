@@ -53,6 +53,14 @@ class CheckoutForm(forms.Form):
             'placeholder': '',
         }),
     )
+    numero = forms.CharField(
+        max_length=10,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'id': 'id_numero',
+            'placeholder': '',
+        }),
+    )
     codigo_postal = forms.CharField(
         max_length=10,
         widget=forms.TextInput(attrs={
@@ -97,6 +105,48 @@ class CheckoutForm(forms.Form):
         else:
             raise forms.ValidationError("Teléfono: de 6 a 25 caracteres.")
         return telefono
+
+    def clean_direccion(self):
+        direccion = self.cleaned_data.get('direccion', '').strip()
+        if len(direccion) >= 2 and len(direccion) <= 100:
+            if not re.fullmatch(r"^[a-zA-Z0-9áéíóúüñÁÉÍÓÚÜÑ .\-'º#]+$", direccion, re.IGNORECASE):
+                raise forms.ValidationError("La dirección no es válida.")
+        else:
+            raise forms.ValidationError("Dirección: de 2 a 100 caracteres")
+        return direccion
+
+    def clean_numero(self):
+        numero = self.cleaned_data.get('numero', '').strip()
+        if len(numero) >= 1 and len(numero) <= 6:
+            if not re.fullmatch(r'^\d+$', numero):
+                raise forms.ValidationError("El número no es válido (solo dígitos).")
+        else:
+            raise forms.ValidationError("Número: de 1 a 6 dígitos.")
+        return numero
+
+    def clean_ciudad(self):
+        ciudad = self.cleaned_data.get('ciudad', '').strip()
+        if len(ciudad) >= 2 and len(ciudad) <= 100:
+            if not re.fullmatch(r'^[a-zA-ZáéíóúñÁÉÍÓÚÑ]+(?:\s[a-zA-ZáéíóúñÁÉÍÓÚÑ]+)*$', ciudad, re.IGNORECASE):
+                raise forms.ValidationError("La ciudad no es válida (solo letras y espacios).")
+        else:
+            raise forms.ValidationError("Ciudad: de 2 a 100 caracteres")
+        return ciudad
+
+    def clean_provincia(self):
+        provincia = self.cleaned_data.get('provincia', '').strip()
+        if len(provincia) >= 2 and len(provincia) <= 100:
+            if not re.fullmatch(r'^[a-zA-ZáéíóúñÁÉÍÓÚÑ]+(?:\s[a-zA-ZáéíóúñÁÉÍÓÚÑ]+)*$', provincia, re.IGNORECASE):
+                raise forms.ValidationError("La provincia no es válida (solo letras y espacios).")
+        else:
+            raise forms.ValidationError("Provincia: de 2 a 100 caracteres")
+        return provincia
+
+    def clean_codigo_postal(self):
+        codigo_postal = self.cleaned_data.get('codigo_postal', '').strip()
+        if not re.fullmatch(r'^\d{4}$', codigo_postal):
+            raise forms.ValidationError("El CP debe tener 4 dígitos.")
+        return codigo_postal
 
 
 class EnvioForm(forms.Form):
