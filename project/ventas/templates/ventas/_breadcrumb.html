@@ -1,0 +1,69 @@
+{% load static %}
+
+<nav class="ventas-breadcrumb" aria-label="breadcrumb">
+    <div class="container">
+        <div class="ventas-breadcrumb-steps">
+            <span class="ventas-breadcrumb-paso">
+                <a class="ventas-breadcrumb-circle is-activo" href="{% url 'ver_carrito' %}" title="Carrito">
+                    <span class="material-symbols-outlined">shopping_cart</span>
+                </a>
+            </span>
+            <span class="ventas-breadcrumb-dots {% if breadcrumb_paso != 'carrito' %}is-activo{% endif %}">
+                <i></i><i></i><i></i>
+            </span>
+            <span class="ventas-breadcrumb-paso">
+                {% if breadcrumb_paso != 'carrito' %}
+                    <a class="ventas-breadcrumb-circle is-activo" href="{% url 'checkout' %}" title="Checkout">
+                        <span class="material-symbols-outlined">shopping_bag</span>
+                    </a>
+                {% else %}
+                    <span class="ventas-breadcrumb-circle" title="Checkout">
+                        <span class="material-symbols-outlined">shopping_bag</span>
+                    </span>
+                {% endif %}
+            </span>
+            <span class="ventas-breadcrumb-dots {% if breadcrumb_paso == 'envio' or breadcrumb_paso == 'confirmacion' or breadcrumb_paso == 'pago' %}is-activo{% endif %}">
+                <i></i><i></i><i></i>
+            </span>
+            <span class="ventas-breadcrumb-paso">
+                {% if breadcrumb_paso == 'envio' or breadcrumb_paso == 'confirmacion' or breadcrumb_paso == 'pago' %}
+                    <a class="ventas-breadcrumb-circle is-activo" href="{% url 'envio' %}" title="Envío">
+                        <span class="material-symbols-outlined">local_shipping</span>
+                    </a>
+                {% else %}
+                    <span class="ventas-breadcrumb-circle" title="Envío">
+                        <span class="material-symbols-outlined">local_shipping</span>
+                    </span>
+                {% endif %}
+            </span>
+            <span class="ventas-breadcrumb-dots {% if breadcrumb_paso == 'confirmacion' or breadcrumb_paso == 'pago' %}is-activo{% endif %}">
+                <i></i><i></i><i></i>
+            </span>
+            <span class="ventas-breadcrumb-paso">
+                {% if breadcrumb_paso == 'confirmacion' or breadcrumb_paso == 'pago' %}
+                    <a class="ventas-breadcrumb-circle is-activo" href="{% url 'confirmacion' %}" title="Confirmación">
+                        <span class="material-symbols-outlined">verified</span>
+                    </a>
+                {% else %}
+                    <span class="ventas-breadcrumb-circle" title="Confirmación">
+                        <span class="material-symbols-outlined">verified</span>
+                    </span>
+                {% endif %}
+            </span>
+            <span class="ventas-breadcrumb-dots {% if breadcrumb_paso == 'pago' %}is-activo{% endif %}">
+                <i></i><i></i><i></i>
+            </span>
+            <span class="ventas-breadcrumb-paso">
+                {% if breadcrumb_paso == 'pago' %}
+                    <span class="ventas-breadcrumb-circle is-activo" title="Pago">
+                        <span class="material-symbols-outlined">payments</span>
+                    </span>
+                {% else %}
+                    <span class="ventas-breadcrumb-circle" title="Pago">
+                        <span class="material-symbols-outlined">payments</span>
+                    </span>
+                {% endif %}
+            </span>
+        </div>
+    </div>
+</nav>

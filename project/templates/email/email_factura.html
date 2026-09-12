@@ -1,0 +1,154 @@
+{% load precio_tags %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ titulo }} | Practicasa</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #F2F2F2; font-family: Roboto, Arial, sans-serif;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color: #F2F2F2; padding: 20px 0;">
+        <tr>
+            <td align="center">
+                <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 12px rgba(0,0,0,0.08);">
+
+                    <!-- Header -->
+                    <tr>
+                        <td style="background-color: #F2F2F2; padding: 30px 40px; text-align: center; border-bottom: 3px solid #A25630;">
+                            <table role="presentation" cellpadding="0" cellspacing="0" style="margin: 0 auto;">
+                                <tr>
+                                    <td style="vertical-align: middle; padding-right: 12px;">
+                                        <img src="{{ logo_url }}" alt="Practicasa" width="55" style="display: block;">
+                                    </td>
+                                    <td style="vertical-align: middle;">
+                                        <h1 style="margin: 0; font-style: italic; color: #A25630; font-size: 28px; font-family: Roboto, Arial, sans-serif; letter-spacing: 2px;">practicasa</h1>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+
+                    <!-- Body -->
+                    <tr>
+                        <td style="padding: 40px 40px 30px;">
+                            <h2 style="margin: 0 0 8px; color: #A25630; font-size: 24px; font-family: Roboto, Arial, sans-serif;">{{ titulo }}</h2>
+                            <p style="margin: 0 0 24px; color: #7E4326; font-size: 14px; font-family: Roboto, Arial, sans-serif;">
+                                Pedido <strong>#{{ venta.id }}</strong> &mdash; {{ venta.created_at|date:'d/m/Y H:i' }} &mdash; Estado: {{ venta.get_estado_display }}
+                            </p>
+
+                            <!-- Datos del cliente -->
+                            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color: #F2F2F2; border-radius: 8px; border-left: 4px solid #A25630; margin-bottom: 24px;">
+                                <tr>
+                                    <td style="padding: 20px;">
+                                        <h3 style="margin: 0 0 12px; color: #A25630; font-size: 16px; font-family: Roboto, Arial, sans-serif;">Datos del cliente</h3>
+                                        <table role="presentation" cellpadding="0" cellspacing="0" style="width: 100%;">
+                                            <tr>
+                                                <td style="padding: 4px 0; color: #7E4326; font-size: 13px; font-weight: bold; font-family: Roboto, Arial, sans-serif; width: 120px; vertical-align: top;">Nombre:</td>
+                                                <td style="padding: 4px 0; color: #000000; font-size: 14px; font-family: Roboto, Arial, sans-serif;">{{ venta.nombre }}</td>
+                                            </tr>
+                                            <tr>
+                                                <td style="padding: 4px 0; color: #7E4326; font-size: 13px; font-weight: bold; font-family: Roboto, Arial, sans-serif; width: 120px; vertical-align: top;">Email:</td>
+                                                <td style="padding: 4px 0; color: #000000; font-size: 14px; font-family: Roboto, Arial, sans-serif;">{{ venta.email }}</td>
+                                            </tr>
+                                            <tr>
+                                                <td style="padding: 4px 0; color: #7E4326; font-size: 13px; font-weight: bold; font-family: Roboto, Arial, sans-serif; width: 120px; vertical-align: top;">Teléfono:</td>
+                                                <td style="padding: 4px 0; color: #000000; font-size: 14px; font-family: Roboto, Arial, sans-serif;">{{ venta.telefono }}</td>
+                                            </tr>
+                                            <tr>
+                                                <td style="padding: 4px 0; color: #7E4326; font-size: 13px; font-weight: bold; font-family: Roboto, Arial, sans-serif; width: 120px; vertical-align: top;">Dirección:</td>
+                                                <td style="padding: 4px 0; color: #000000; font-size: 14px; font-family: Roboto, Arial, sans-serif;">{{ venta.direccion }}{% if venta.numero %} {{ venta.numero }}{% endif %}{% if venta.ciudad %}, {{ venta.ciudad }}{% endif %}{% if venta.provincia %}, {{ venta.provincia }}{% endif %}{% if venta.codigo_postal %} ({{ venta.codigo_postal }}){% endif %}</td>
+                                            </tr>
+                                            {% if venta.notas %}
+                                                <tr>
+                                                    <td style="padding: 4px 0; color: #7E4326; font-size: 13px; font-weight: bold; font-family: Roboto, Arial, sans-serif; width: 120px; vertical-align: top;">Notas:</td>
+                                                    <td style="padding: 4px 0; color: #000000; font-size: 14px; font-family: Roboto, Arial, sans-serif;">{{ venta.notas }}</td>
+                                                </tr>
+                                            {% endif %}
+                                        </table>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <!-- Métodos -->
+                            <table role="presentation" cellpadding="0" cellspacing="0" style="width: 100%; margin-bottom: 24px;">
+                                <tr>
+                                    <td style="padding: 4px 0; color: #7E4326; font-size: 13px; font-weight: bold; font-family: Roboto, Arial, sans-serif; width: 120px; vertical-align: top;">Método de envío:</td>
+                                    <td style="padding: 4px 0; color: #000000; font-size: 14px; font-family: Roboto, Arial, sans-serif;">{{ venta.get_metodo_envio_display }}</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 4px 0; color: #7E4326; font-size: 13px; font-weight: bold; font-family: Roboto, Arial, sans-serif; width: 120px; vertical-align: top;">Forma de pago:</td>
+                                    <td style="padding: 4px 0; color: #000000; font-size: 14px; font-family: Roboto, Arial, sans-serif;">{{ venta.get_metodo_pago_display }}</td>
+                                </tr>
+                            </table>
+
+                            <!-- Items -->
+                            <h3 style="margin: 0 0 12px; color: #A25630; font-size: 16px; font-family: Roboto, Arial, sans-serif;">Detalle del pedido</h3>
+                            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 24px; border-collapse: collapse;">
+                                <tr>
+                                    <th style="padding: 8px; background-color: #7E4326; color: #ffffff; font-size: 12px; font-family: Roboto, Arial, sans-serif; text-align: left;">Producto</th>
+                                    <th style="padding: 8px; background-color: #7E4326; color: #ffffff; font-size: 12px; font-family: Roboto, Arial, sans-serif; text-align: right;">Cantidad</th>
+                                    <th style="padding: 8px; background-color: #7E4326; color: #ffffff; font-size: 12px; font-family: Roboto, Arial, sans-serif; text-align: right;">Precio</th>
+                                    <th style="padding: 8px; background-color: #7E4326; color: #ffffff; font-size: 12px; font-family: Roboto, Arial, sans-serif; text-align: right;">Subtotal</th>
+                                </tr>
+                                {% for item in venta.items.select_related.all %}
+                                    <tr>
+                                        <td style="padding: 8px; border-bottom: 1px solid #E0E0E0; color: #000000; font-size: 13px; font-family: Roboto, Arial, sans-serif;">
+                                            {{ item.producto.nombre }}
+                                            {% if item.color_nombre or item.medida_nombre %}
+                                                <br><span style="color: #7E4326; font-size: 12px;">
+                                                    {% if item.color_nombre %}{{ item.color_nombre }}{% endif %}
+                                                    {% if item.color_nombre and item.medida_nombre %} &middot; {% endif %}
+                                                    {% if item.medida_nombre %}{{ item.medida_nombre }}{% endif %}
+                                                </span>
+                                            {% endif %}
+                                        </td>
+                                        <td style="padding: 8px; border-bottom: 1px solid #E0E0E0; color: #000000; font-size: 13px; font-family: Roboto, Arial, sans-serif; text-align: right;">{{ item.cantidad }}</td>
+                                        <td style="padding: 8px; border-bottom: 1px solid #E0E0E0; color: #000000; font-size: 13px; font-family: Roboto, Arial, sans-serif; text-align: right;">${{ item.precio_unitario|format_price }}</td>
+                                        <td style="padding: 8px; border-bottom: 1px solid #E0E0E0; color: #000000; font-size: 13px; font-family: Roboto, Arial, sans-serif; text-align: right;">${{ item.subtotal|format_price }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </table>
+
+                            <!-- Totales -->
+                            <table role="presentation" cellpadding="0" cellspacing="0" style="width: 100%; margin-bottom: 24px;">
+                                <tr>
+                                    <td style="padding: 4px 0; color: #000000; font-size: 14px; font-family: Roboto, Arial, sans-serif;">Subtotal</td>
+                                    <td style="padding: 4px 0; color: #000000; font-size: 14px; font-family: Roboto, Arial, sans-serif; text-align: right;">${{ venta.subtotal|format_price }}</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 4px 0; color: #000000; font-size: 14px; font-family: Roboto, Arial, sans-serif;">Costo de envío</td>
+                                    <td style="padding: 4px 0; color: #000000; font-size: 14px; font-family: Roboto, Arial, sans-serif; text-align: right;">${{ venta.costo_envio|format_price }}</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 8px 0 0; color: #A25630; font-size: 16px; font-weight: bold; font-family: Roboto, Arial, sans-serif;">Total</td>
+                                    <td style="padding: 8px 0 0; color: #A25630; font-size: 16px; font-weight: bold; font-family: Roboto, Arial, sans-serif; text-align: right;">${{ venta.total|format_price }}</td>
+                                </tr>
+                            </table>
+
+                            <p style="margin: 0 0 4px; color: #000000; font-size: 14px; line-height: 1.6; font-family: Roboto, Arial, sans-serif;">
+                                Saludos cordiales,
+                            </p>
+                            <p style="margin: 0; color: #A25630; font-size: 15px; font-weight: bold; font-family: Roboto, Arial, sans-serif;">
+                                El equipo de Practicasa
+                            </p>
+                        </td>
+                    </tr>
+
+                    <!-- Footer -->
+                    <tr>
+                        <td style="background-color: #F2F2F2; padding: 24px 40px; text-align: center; border-top: 1px solid #C4C4C4;">
+                            <p style="margin: 0; color: #ADADAD; font-size: 12px; font-family: Roboto, Arial, sans-serif;">
+                                &copy; {% now "Y" %} Practicasa &mdash; Todos los derechos reservados.
+                            </p>
+                            <p style="margin: 4px 0 0; color: #ADADAD; font-size: 12px; font-family: Roboto, Arial, sans-serif;">
+                                Este mensaje fue generado automáticamente, por favor no respondas a este correo.
+                            </p>
+                        </td>
+                    </tr>
+
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>

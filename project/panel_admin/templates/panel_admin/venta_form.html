@@ -1,0 +1,45 @@
+{% extends 'panel_admin/base.html' %}
+
+{% load static %}
+
+{% block title %}{{ titulo }} | Practicasa{% endblock %}
+{% block titulo_pagina %}{{ titulo }}{% endblock %}
+
+{% block content %}
+<a class="btn btn-secondary d-flex justify-content-center align-items-center gap-2 mb-3" href="{% url 'panel_venta_detalle' venta.id %}">
+    <span class="material-symbols-outlined">arrow_back</span> Volver
+</a>
+
+<div class="panel-card p-3">
+    <dl class="row mb-0">
+        <dt class="col-sm-3 text-secondary">Cliente</dt>
+        <dd class="col-sm-9">{{ venta.nombre }} ({{ venta.email }})</dd>
+        <dt class="col-sm-3 text-secondary">Método de envío</dt>
+        <dd class="col-sm-9">{{ venta.get_metodo_envio_display }}</dd>
+        <dt class="col-sm-3 text-secondary">Forma de pago</dt>
+        <dd class="col-sm-9">{{ venta.get_metodo_pago_display }}</dd>
+        <dt class="col-sm-3 text-secondary">Total</dt>
+        <dd class="col-sm-9">${{ venta.total }}</dd>
+        <dt class="col-sm-3 text-secondary">Fecha</dt>
+        <dd class="col-sm-9">{{ venta.created_at|date:'d/m/Y H:i' }}</dd>
+    </dl>
+</div>
+
+<form method="post" id="form" novalidate action="{% url 'panel_venta_modificar' venta.id %}">
+    {% csrf_token %}
+    <div class="panel-card p-3 mt-3">
+        <h5 class="fw-bold mb-3">Estado</h5>
+        {% for field in form %}
+            {{ field }}
+        {% endfor %}
+    </div>
+    <button type="submit" id="btn-submit" class="btn btn-primary gap-2 d-flex justify-content-center align-items-center">
+        <span id="btn-text">Guardar</span>
+        <span class="spinner-border spinner-border-sm d-none" role="status" id="btn-spinner"></span>
+    </button>
+</form>
+{% endblock %}
+
+{% block extra_js %}
+    <script type="module" src="{% static 'panel_admin/js/ventaUpdateForm.js' %}"></script>
+{% endblock %}

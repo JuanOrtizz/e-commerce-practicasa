@@ -6,6 +6,7 @@ from django.test import Client
 from base.models import ConsultaModel
 from productos.models import CategoriaModel, ColorModel, MedidaModel, SubcategoriaModel, ProductoModel
 from usuarios.models import UsuarioModel
+from ventas.models import VentaModel
 
 
 @pytest.fixture
@@ -94,6 +95,22 @@ def consulta(db):
         email='juan@example.com',
         telefono='1122334455',
         mensaje='Mensaje de prueba válido.',
+    )
+
+
+@pytest.fixture
+def venta(db, cliente_user):
+    return VentaModel.objects.create(
+        usuario=cliente_user,
+        estado=VentaModel.EstadoChoices.PENDIENTE,
+        metodo_envio=VentaModel.MetodoEnvioChoices.RETIRO_LOCAL,
+        metodo_pago=VentaModel.MetodoPagoChoices.EFECTIVO,
+        nombre='Cliente Test',
+        email='cliente@example.com',
+        telefono='1122334455',
+        subtotal=Decimal('30000'),
+        costo_envio=Decimal('0'),
+        total=Decimal('30000'),
     )
 
 

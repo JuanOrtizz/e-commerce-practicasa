@@ -5,6 +5,9 @@ from django.views.decorators.http import require_POST
 
 from base.forms import ConsultaAdminForm
 from base.models import ConsultaModel
+from ventas.forms import VentaAdminForm
+from ventas.models import VentaModel
+from ventas.services import revertir_stock_venta_service
 from productos.forms import (
     MAX_IMAGENES_PRODUCTO,
     CategoriaForm,
@@ -319,3 +322,53 @@ def subcategoria_eliminar(request, id):
 @requiere_admin
 def pagos(request):
     return render(request, 'panel_admin/pagos.html')
+
+
+@requiere_admin
+def lista_ventas(request):
+    ventas = VentaModel.objects.prefetch_related('items').all()
+    return render(request, 'panel_admin/ventas_lista.html', {'ventas': ventas})
+
+
+@requiere_admin
+def venta_detalle(request, id):
+    venta = get_object_or_404(VentaModel.objects.prefetch_related('items__producto'), id=id)
+    return render(request, 'panel_admin/venta_detalle.html', {'venta': venta})
+
+
+@requiere_admin
+def venta_modificar(request, id):
+    venta = get_object_or_404(VentaModel, id=id)
+    if request.method == 'POST':
+        form = VentaAdminForm(request.POST, instance=venta)
+        if form.is_valid():
+            if not form.changed_data:
+                return JsonResponse({"success": False, "message": "No realizaste modificaciones."})
+            form.save()
+            return JsonResponse({
+                "success": True,
+                "message": "Venta modificada correctamente.",
+                "redirect": reverse('panel_venta_detalle', args=[venta.id]),
+            })
+    else:
+        form = VentaAdminForm(instance=venta)
+
+    return render(request, 'panel_admin/venta_form.html', {
+        'form': form,
+        'titulo': f'Modificar venta #{venta.id}',
+        'venta': venta,
+    })
+
+
+@require_POST
+@requiere_admin
+def venta_eliminar(request, id):
+    venta = get_object_or_404(VentaModel, id=id)
+    venta_id = venta.id
+    if venta.estado != VentaModel.EstadoChoices.CANCELADA:
+        revertir_stock_venta_service(venta)
+    venta.delete()
+    return JsonResponse({
+        "success": True,
+        "message": f"Venta #{venta_id} eliminada."
+    })

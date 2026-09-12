@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+
+{% load static precio_tags %}
+
+{% block title %}Pedido pendiente | Practicasa{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'ventas/css/ventas.css' %}">
+{% endblock %}
+
+{% block content %}
+{% include 'ventas/_breadcrumb.html' with breadcrumb_paso='pago' %}
+<div class="container my-4 animacion-aparicion-abajo-fade">
+    <div class="text-center mb-4">
+        <span class="material-symbols-outlined ventas-exito-icon">check_circle</span>
+        <h2 class="fw-bold mt-2">¡Pedido realizado!</h2>
+        <p class="text-muted mb-1">Tu pedido quedó <strong>pendiente</strong>. Pasá por nuestro local para retirar y pagar en efectivo. <br> En breve nos comunicaremos para <strong>coordinar</strong> horarios </p>
+        <p class="mb-0">Nº de pedido: <strong>#{{ venta.id }}</strong></p>
+    </div>
+
+    <div class="row g-4 justify-content-center">
+        <div class="col-lg-6">
+            <div class="ventas-paso">
+                <h5 class="fw-bold mb-3">Nuestro local</h5>
+                <ul class="list-unstyled mb-0 d-flex flex-column gap-2">
+                    <li class="d-flex align-items-center gap-2">
+                        <span class="material-symbols-outlined ventas-pago-icon">storefront</span>
+                        <span>{{ datos_local.nombre }}{% if datos_local.ciudad %} — {{ datos_local.ciudad }}{% endif %}</span>
+                    </li>
+                    {% if datos_local.direccion %}
+                        <li class="d-flex align-items-center gap-2">
+                            <span class="material-symbols-outlined ventas-pago-icon">location_on</span>
+                            <span>{{ datos_local.direccion }}</span>
+                        </li>
+                    {% endif %}
+                    {% if datos_local.horario %}
+                        <li class="d-flex align-items-center gap-2">
+                            <span class="material-symbols-outlined ventas-pago-icon">schedule</span>
+                            <span>{{ datos_local.horario }}</span>
+                        </li>
+                    {% endif %}
+                    </ul>
+                <a class="btn ventas-btn-wsp text-white fw-bold w-100 d-flex align-items-center justify-content-center gap-2" href="https://wa.me/543435468162?text=Hola%2C%20quiero%20coordinar%20el%20pedido%20N%C2%B0%3A%20%23{{ venta.id }}" target="_blank" rel="noopener noreferrer">
+                    <img src="{% static 'img/logo_whatsapp.png' %}" alt="WhatsApp">
+                    Coordinar horarios
+                </a>
+                <div class="ventas-resumen-mapa-wrap">
+                    <iframe src="{{ datos_local.mapa_url }}" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade" title="Mapa de Practicasa"></iframe>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="ventas-paso">
+                <h5 class="fw-bold mb-3">Detalle del pedido</h5>
+                <div class="d-flex flex-column gap-2 mb-3">
+                    {% for item in venta.items.select_related.all %}
+                        <div class="d-flex justify-content-between gap-2">
+                            <span>{{ item.cantidad }} x {{ item.producto.nombre }}</span>
+                            <span class="fw-semibold flex-shrink-0">${{ item.subtotal|format_price }}</span>
+                        </div>
+                    {% endfor %}
+                </div>
+                <hr class="my-3">
+                <div class="d-flex justify-content-between mb-2">
+                    <span>Subtotal</span>
+                    <span>${{ venta.subtotal|format_price }}</span>
+                </div>
+                <div class="d-flex justify-content-between mb-2">
+                    <span>Envío</span>
+                    <span>Gratis</span>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <span class="ventas-total-label">Total</span>
+                    <span class="ventas-total-valor">${{ venta.total|format_price }}</span>
+                </div>
+                <a class="btn btn-enviar text-white fw-bold w-100 py-2 mt-4" href="{% url 'productos' %}">Seguir comprando</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
