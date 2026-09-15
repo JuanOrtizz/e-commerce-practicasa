@@ -1,7 +1,7 @@
 from decimal import Decimal
 
 import pytest
-from django.test import Client
+from django.test import Client, override_settings
 
 from carrito.models import CarritoItemModel
 from productos.models import (
@@ -87,3 +87,9 @@ def datos_checkout():
         'provincia': 'Entre Ríos',
         'codigo_postal': '3150',
     }
+
+
+@pytest.fixture(autouse=True)
+def _deshabilitar_ratelimit():
+    with override_settings(RATELIMIT_ENABLE=False):
+        yield
