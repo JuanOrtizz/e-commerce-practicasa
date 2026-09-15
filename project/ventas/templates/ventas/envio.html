@@ -9,7 +9,7 @@
 {% endblock %}
 
 {% block content %}
-{% include 'ventas/_breadcrumb.html' with breadcrumb_paso='envio' %}
+{% include 'partials/_breadcrumb.html' with breadcrumb_paso='envio' %}
 <div class="container my-4 animacion-aparicion-abajo-fade">
     <h2 class="fw-bold mb-4">Método de envío</h2>
     <div class="row g-4">
@@ -31,7 +31,7 @@
                             </div>
                         </label>
 
-                        {% if datos.codigo_postal == '3150' %}
+                        {% if permite_envio_domicilio %}
                             <label class="ventas-opcion d-flex align-items-center gap-3 p-3 {% if form.metodo_envio.value == 'envio_domicilio' %}selected{% endif %}" data-metodo="envio_domicilio">
                                 <input class="form-check-input" type="radio" name="metodo_envio" value="envio_domicilio"
                                        {% if form.metodo_envio.value == 'envio_domicilio' %}checked{% endif %}>
@@ -90,5 +90,5 @@
 {% endblock %}
 
 {% block extra_js %}
-    <script type="module" src="{% static 'ventas/js/checkout.js' %}"></script>
+    <script type="module" src="{% static 'ventas/js/envio.js' %}"></script>
 {% endblock %}

@@ -1,6 +1,7 @@
 import pytest
 
 from django.test import override_settings
+from django.urls import reverse
 
 from ventas.models import VentaModel
 
@@ -23,9 +24,11 @@ def test_checkout_get(client_logueado):
     assert b'Datos de facturaci' in response.content
 
 
-def test_checkout_carrito_vacio_redirige(client_logueado, carrito):
-    response = client_logueado.get('/ventas/checkout/')
-    assert response.status_code == 200
+def test_checkout_carrito_vacio_redirige(client, usuario):
+    client.force_login(usuario)
+    response = client.get('/ventas/checkout/')
+    assert response.status_code == 302
+    assert response.url == reverse('ver_carrito')
 
 
 def test_checkout_post_valido_redirige_envio(client_logueado, datos_checkout):
@@ -67,6 +70,32 @@ def test_checkout_post_ciudad_invalida_muestra_error(client_logueado, datos_chec
     datos_checkout = {**datos_checkout, 'ciudad': 'Nogoy 123'}
     response = client_logueado.post('/ventas/checkout/', datos_checkout)
     assert response.status_code == 200
+
+
+def test_checkout_post_ajax_valido_devuelve_json_redirect(client_logueado, datos_checkout):
+    response = client_logueado.post(
+        '/ventas/checkout/', datos_checkout, HTTP_X_REQUESTED_WITH="XMLHttpRequest"
+    )
+    assert response.status_code == 200
+    data = response.json()
+    assert data['success'] is True
+    assert data['redirect'] == reverse('envio')
+
+
+def test_checkout_post_ajax_invalido_devuelve_errores_json(client_logueado):
+    response = client_logueado.post(
+        '/ventas/checkout/', {
+            'nombre': 'X',
+            'email': 'mal',
+            'telefono': '123',
+        },
+        HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+    )
+    assert response.status_code == 200
+    data = response.json()
+    assert data['success'] is False
+    assert 'nombre' in data['errors']
+    assert 'email' in data['errors']
 
 
 def test_envio_requiere_datos_previos(client_logueado):
@@ -123,29 +152,30 @@ def test_envio_get_no_muestra_coordinar_entrega_con_cp_3150(client_logueado):
     assert b'coordinar_entrega' not in response.content
 
 
-def test_confirmacion_get_coordinar_entrega_solo_mercado_pago(client_logueado):
+def test_confirmacion_get_coordinar_entrega_muestra_efectivo(client_logueado):
     _set_session_datos(client_logueado, codigo_postal='3164', ciudad='Nogoyá', metodo_envio='coordinar_entrega')
     response = client_logueado.get('/ventas/confirmacion/')
     assert response.status_code == 200
     assert b'entrega (Ram' in response.content
-    assert b'Efectivo (local)' not in response.content
-    assert b'Mercado Pago' in response.content
+    assert b'Efectivo' in response.content
+    assert b'Mercado Pago' not in response.content
 
 
 def test_confirmacion_get_retiro_local_muestra_efectivo(client_logueado):
     _set_session_datos(client_logueado, metodo_envio='retiro_local')
     response = client_logueado.get('/ventas/confirmacion/')
     assert response.status_code == 200
-    assert b'Efectivo (local)' in response.content
+    assert b'Efectivo' in response.content
     assert b'Forma de pago' in response.content
+    assert b'Mercado Pago' not in response.content
 
 
-def test_confirmacion_get_domicilio_no_muestra_efectivo(client_logueado):
+def test_confirmacion_get_domicilio_muestra_efectivo(client_logueado):
     _set_session_datos(client_logueado, metodo_envio='envio_domicilio')
     response = client_logueado.get('/ventas/confirmacion/')
     assert response.status_code == 200
-    assert b'Efectivo (local)' not in response.content
-    assert b'Mercado Pago' in response.content
+    assert b'Efectivo' in response.content
+    assert b'Mercado Pago' not in response.content
 
 
 def test_flujo_completo_efectivo(client_logueado, datos_checkout):
@@ -163,15 +193,13 @@ def test_flujo_completo_efectivo(client_logueado, datos_checkout):
     assert venta.estado == VentaModel.EstadoChoices.PENDIENTE
 
 
-def test_flujo_completo_mercado_pago(client_logueado, datos_checkout):
+def test_post_mercado_pago_bloqueado_no_crea_venta(client_logueado, datos_checkout):
     client_logueado.post('/ventas/checkout/', datos_checkout)
     client_logueado.post('/ventas/envio/', {'metodo_envio': 'envio_domicilio'})
     response = client_logueado.post('/ventas/confirmacion/', {'metodo_pago': 'mercado_pago'})
-    assert response.status_code == 302
-    assert response.url.startswith('/ventas/pago/')
-
-    venta = VentaModel.objects.get()
-    assert venta.metodo_pago == 'mercado_pago'
+    assert response.status_code == 200
+    assert b'forma de pago' in response.content
+    assert VentaModel.objects.count() == 0
 
 
 @override_settings(EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend')
@@ -202,14 +230,14 @@ def test_flujo_completo_efectivo_envia_factura(client_logueado, datos_checkout):
 
 
 @override_settings(EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend')
-def test_flujo_completo_mercado_pago_no_envia_factura(client_logueado, datos_checkout):
+def test_post_mercado_pago_bloqueado_no_envia_factura(client_logueado, datos_checkout):
     from django.core import mail
 
     mail.outbox.clear()
     client_logueado.post('/ventas/checkout/', datos_checkout)
     client_logueado.post('/ventas/envio/', {'metodo_envio': 'envio_domicilio'})
     response = client_logueado.post('/ventas/confirmacion/', {'metodo_pago': 'mercado_pago'})
-    assert response.status_code == 302
+    assert response.status_code == 200
     assert len(mail.outbox) == 0
 
 
@@ -235,11 +263,11 @@ def test_pago_local_muestra_datos(client_logueado, usuario, datos_checkout):
     assert b'Coordinar horarios' in response.content
 
 
-def test_pago_placeholder(client_logueado, usuario, datos_checkout):
+def test_pago_local_retiro_no_muestra_mercado_pago(client_logueado, usuario, datos_checkout):
     from ventas.services import crear_venta_confirmada_service
     venta = crear_venta_confirmada_service(
-        usuario, datos_checkout, 'retiro_local', 'mercado_pago'
+        usuario, datos_checkout, 'retiro_local', 'efectivo'
     )
-    response = client_logueado.get(f'/ventas/pago/{venta.id}/')
+    response = client_logueado.get(f'/ventas/pago-local/{venta.id}/')
     assert response.status_code == 200
-    assert b'Mercado Pago' in response.content
+    assert b'Mercado Pago' not in response.content

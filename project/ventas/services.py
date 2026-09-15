@@ -1,3 +1,4 @@
+import re
 from decimal import Decimal
 
 from django.db import transaction
@@ -15,6 +16,7 @@ from .models import VentaModel, VentaItemModel
 SESSION_DATOS_CLAVE = 'datos_venta'
 
 CODIGOS_POSTALES_COORDINAR = {'3156', '3158', '3164', '3100'}
+CODIGOS_POSTALES_DOMICILIO = {'3150'}
 
 LOCALIDADES_POR_CP = {
     '3150': 'Nogoyá',
@@ -71,6 +73,17 @@ def localidad_para_coordinar_entrega_service(codigo_postal):
     return LOCALIDADES_POR_CP.get(codigo_postal.strip())
 
 
+def permite_envio_domicilio_service(codigo_postal):
+    if not codigo_postal:
+        return False
+    return codigo_postal.strip() in CODIGOS_POSTALES_DOMICILIO
+
+
+def whatsapp_link_service():
+    numero = re.sub(r'\D', '', DATOS_LOCAL['whatsapp'])
+    return f'https://wa.me/{numero}'
+
+
 def _validar_stock_service(carrito, carrito_context):
     for data in carrito_context['items']:
         item = data['item']
@@ -80,6 +93,9 @@ def _validar_stock_service(carrito, carrito_context):
 
 @transaction.atomic
 def crear_venta_confirmada_service(usuario, datos, metodo_envio, metodo_pago):
+    if metodo_pago != VentaModel.MetodoPagoChoices.EFECTIVO:
+        raise ValueError('Ese método de pago no está disponible.')
+
     carrito = get_o_crear_carrito_service(usuario)
     carrito_context = get_carrito_context_service(carrito)
 
@@ -116,6 +132,8 @@ def crear_venta_confirmada_service(usuario, datos, metodo_envio, metodo_pago):
         VentaItemModel.objects.create(
             venta=venta,
             producto=item.producto,
+            nombre_producto=data['producto'].nombre,
+            promocion=data['promocion'],
             cantidad=item.cantidad,
             precio_unitario=data['precio_unitario'],
             precio_transferencia_unitario=data['precio_transferencia_unitario'],
@@ -123,11 +141,16 @@ def crear_venta_confirmada_service(usuario, datos, metodo_envio, metodo_pago):
             color_hex=item.color_hex,
             medida_nombre=item.medida_nombre,
         )
-        item.producto.stock -= item.cantidad
-        item.producto.save(update_fields=['stock'])
 
+    _descontar_stock_venta_service(venta)
     vaciar_carrito_service(carrito)
     return venta
+
+
+def _descontar_stock_venta_service(venta):
+    for item in venta.items.select_related('producto'):
+        item.producto.stock -= item.cantidad
+        item.producto.save(update_fields=['stock'])
 
 
 @transaction.atomic
@@ -135,6 +158,20 @@ def revertir_stock_venta_service(venta):
     for item in venta.items.select_related('producto'):
         item.producto.stock += item.cantidad
         item.producto.save(update_fields=['stock'])
+
+
+def sincronizar_stock_venta_service(venta, anterior):
+    cancelada = VentaModel.EstadoChoices.CANCELADA
+    if anterior == cancelada and venta.estado != cancelada:
+        _descontar_stock_venta_service(venta)
+    elif anterior != cancelada and venta.estado == cancelada:
+        revertir_stock_venta_service(venta)
+
+
+def eliminar_venta_service(venta):
+    if venta.estado != VentaModel.EstadoChoices.CANCELADA:
+        revertir_stock_venta_service(venta)
+    venta.delete()
 
 
 def _render_factura_venta(venta, request, titulo):
@@ -157,20 +194,5 @@ def enviar_factura_venta_service(venta, request):
         asunto=f'Nuevo pedido #{venta.id} | Practicasa',
         mensaje_texto=f'Nuevo pedido #{venta.id} de {venta.nombre} ({venta.email}).',
         mensaje_html=_render_factura_venta(venta, request, 'Nuevo pedido recibido'),
-        destinatarios=[EMAIL_COMERCIO],
-    )
-
-
-def enviar_factura_venta_pagada_service(venta, request):
-    enviar_email(
-        asunto=f'Tu pago fue acreditado #{venta.id} | Practicasa',
-        mensaje_texto=f'Tu pago del pedido #{venta.id} fue acreditado. Total: ${venta.total}.',
-        mensaje_html=_render_factura_venta(venta, request, '¡Tu pago fue acreditado!'),
-        destinatarios=[venta.email],
-    )
-    enviar_email(
-        asunto=f'Pago recibido #{venta.id} | Practicasa',
-        mensaje_texto=f'Pago del pedido #{venta.id} de {venta.nombre} ({venta.email}) acreditado.',
-        mensaje_html=_render_factura_venta(venta, request, 'Pago recibido'),
         destinatarios=[EMAIL_COMERCIO],
     )
