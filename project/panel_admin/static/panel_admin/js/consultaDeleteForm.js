@@ -46,11 +46,8 @@ async function deleteForm(consultaId, csrfToken, form) {
                 }
                 successAlert(data.message, "La consulta fue eliminada correctamente.")
             }
-        } else {
-            const errors = data.errors
-            if (typeof errors === "string") {
-                errorAlert(data.errors)
-            }
+        } else if (data.message) {
+            errorAlert(data.message)
         }
     } catch(error) {
         errorAlert("Ocurrió un error inesperado. Intentá más tarde.")

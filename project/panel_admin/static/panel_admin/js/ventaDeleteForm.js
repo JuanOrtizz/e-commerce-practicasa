@@ -28,6 +28,17 @@ async function deleteForm(ventaId, csrfToken, form) {
             const ventaTr = document.getElementById(`venta-${ventaId}`)
             if (ventaTr) {
                 ventaTr.remove()
+                const contador = document.getElementById('ventas-count')
+                if (contador) {
+                    contador.textContent = parseInt(contador.textContent) - 1
+                }
+                const elementos = document.querySelectorAll('.venta-item')
+                if (elementos.length === 0) {
+                    const empty = document.getElementById('no-ventas-message')
+                    if (empty) {
+                        empty.classList.remove('d-none')
+                    }
+                }
                 successAlert(data.message, 'La venta fue eliminada correctamente.')
             }
         } else {

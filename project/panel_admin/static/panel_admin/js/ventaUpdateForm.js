@@ -1,4 +1,4 @@
-import {successAlertRedirectOnClose, errorAlert} from '/static/js/alertas.js'
+import {successAlertRedirectOnClose, confirmAlert, errorAlert} from '/static/js/alertas.js'
 
 document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('form')
@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
     form.addEventListener('submit', (e) => {
         e.preventDefault()
         const formData = new FormData(form)
-        postForm(formData, csrfToken, form)
+        confirmAlert('¿Estás seguro que querés modificar esta venta?', 'Modificar', () => postForm(formData, csrfToken, form))
     })
 })
 

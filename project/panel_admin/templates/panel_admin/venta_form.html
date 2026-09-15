@@ -1,14 +1,16 @@
 {% extends 'panel_admin/base.html' %}
 
-{% load static %}
+{% load static precio_tags %}
 
 {% block title %}{{ titulo }} | Practicasa{% endblock %}
 {% block titulo_pagina %}{{ titulo }}{% endblock %}
 
 {% block content %}
-<a class="btn btn-secondary d-flex justify-content-center align-items-center gap-2 mb-3" href="{% url 'panel_venta_detalle' venta.id %}">
-    <span class="material-symbols-outlined">arrow_back</span> Volver
-</a>
+<div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+    <a class="btn btn-secondary d-flex justify-content-center align-items-center gap-2" href="{% url 'panel_venta_detalle' venta.id %}">
+        <span class="material-symbols-outlined">arrow_back</span> Volver
+    </a>
+</div>
 
 <div class="panel-card p-3">
     <dl class="row mb-0">
@@ -19,7 +21,7 @@
         <dt class="col-sm-3 text-secondary">Forma de pago</dt>
         <dd class="col-sm-9">{{ venta.get_metodo_pago_display }}</dd>
         <dt class="col-sm-3 text-secondary">Total</dt>
-        <dd class="col-sm-9">${{ venta.total }}</dd>
+        <dd class="col-sm-9">${{ venta.total|format_price }}</dd>
         <dt class="col-sm-3 text-secondary">Fecha</dt>
         <dd class="col-sm-9">{{ venta.created_at|date:'d/m/Y H:i' }}</dd>
     </dl>
@@ -29,14 +31,24 @@
     {% csrf_token %}
     <div class="panel-card p-3 mt-3">
         <h5 class="fw-bold mb-3">Estado</h5>
-        {% for field in form %}
-            {{ field }}
-        {% endfor %}
+        <div class="row g-0">
+            {% for field in form %}
+                <div class="col-12">
+                    <div class="form-floating mb-1 w-100">
+                        {{ field }}
+                        <label for="{{ field.widget.attrs.id }}">{{ field.label }}</label>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
     </div>
-    <button type="submit" id="btn-submit" class="btn btn-primary gap-2 d-flex justify-content-center align-items-center">
-        <span id="btn-text">Guardar</span>
-        <span class="spinner-border spinner-border-sm d-none" role="status" id="btn-spinner"></span>
-    </button>
+
+    <div class="d-flex justify-content-end gap-2 mt-3">
+        <button class="btn btn-enviar text-white fw-bold w-100" type="submit" id="btn-submit">
+            <span class="btn-text" id="btn-text">Guardar</span>
+            <span class="spinner-border spinner-border-sm d-none text-black" role="status" id="btn-spinner"></span>
+        </button>
+    </div>
 </form>
 {% endblock %}
 

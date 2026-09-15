@@ -5,6 +5,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const mensaje = document.getElementById('no-ventas-message')
     const filas = Array.from(document.querySelectorAll('.venta-item'))
 
+    if (!filtro || !orden) return
+
     function cumpleFiltro(fila) {
         return filtro.value === 'todas' || fila.dataset.estado === filtro.value
     }
