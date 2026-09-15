@@ -7,6 +7,7 @@ from .models import VentaModel
 
 class CheckoutForm(forms.Form):
     email = forms.EmailField(
+        label='Email',
         widget=forms.EmailInput(attrs={
             'class': 'form-control',
             'id': 'id_email',
@@ -14,6 +15,7 @@ class CheckoutForm(forms.Form):
         }),
     )
     nombre = forms.CharField(
+        label='Nombre completo',
         max_length=150,
         widget=forms.TextInput(attrs={
             'class': 'form-control',
@@ -22,6 +24,7 @@ class CheckoutForm(forms.Form):
         }),
     )
     telefono = forms.CharField(
+        label='Teléfono',
         max_length=25,
         widget=forms.TextInput(attrs={
             'class': 'form-control',
@@ -30,6 +33,7 @@ class CheckoutForm(forms.Form):
         }),
     )
     provincia = forms.CharField(
+        label='Provincia',
         max_length=100,
         widget=forms.TextInput(attrs={
             'class': 'form-control',
@@ -38,6 +42,7 @@ class CheckoutForm(forms.Form):
         }),
     )
     ciudad = forms.CharField(
+        label='Ciudad',
         max_length=100,
         widget=forms.TextInput(attrs={
             'class': 'form-control',
@@ -46,7 +51,8 @@ class CheckoutForm(forms.Form):
         }),
     )
     direccion = forms.CharField(
-        max_length=255,
+        label='Dirección',
+        max_length=100,
         widget=forms.TextInput(attrs={
             'class': 'form-control',
             'id': 'id_direccion',
@@ -54,7 +60,8 @@ class CheckoutForm(forms.Form):
         }),
     )
     numero = forms.CharField(
-        max_length=10,
+        label='Número',
+        max_length=6,
         widget=forms.TextInput(attrs={
             'class': 'form-control',
             'id': 'id_numero',
@@ -62,7 +69,8 @@ class CheckoutForm(forms.Form):
         }),
     )
     codigo_postal = forms.CharField(
-        max_length=10,
+        label='CP',
+        max_length=4,
         widget=forms.TextInput(attrs={
             'class': 'form-control',
             'id': 'id_codigo_postal',
@@ -70,6 +78,7 @@ class CheckoutForm(forms.Form):
         }),
     )
     notas = forms.CharField(
+        label='Notas o referencias (opcional)',
         required=False,
         widget=forms.Textarea(attrs={
             'class': 'form-control',
