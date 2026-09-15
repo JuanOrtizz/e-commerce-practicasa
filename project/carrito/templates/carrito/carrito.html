@@ -5,11 +5,10 @@
 
 {% block extra_css %}
     <link rel="stylesheet" href="{% static 'carrito/css/carrito.css' %}">
-    <link rel="stylesheet" href="{% static 'ventas/css/ventas.css' %}">
 {% endblock %}
 
 {% block content %}
-{% include 'ventas/_breadcrumb.html' with breadcrumb_paso='carrito' %}
+{% include 'partials/_breadcrumb.html' with breadcrumb_paso='carrito' %}
 <div class="container my-4 animacion-aparicion-abajo-fade">
     {% if not items %}
         <h2 class="fw-bold mb-4">Carrito de Compras</h2>
