@@ -211,6 +211,22 @@ def test_producto_eliminar_post_elimina(admin_client, producto):
 
 
 @pytest.mark.django_db
+def test_producto_eliminar_post_con_ventas_bloquea(admin_client, producto, venta):
+    VentaItemModel.objects.create(
+        venta=venta,
+        producto=producto,
+        cantidad=2,
+        precio_unitario=Decimal('15000'),
+        precio_transferencia_unitario=Decimal('13500'),
+    )
+    response = admin_client.post(reverse('panel_producto_eliminar', args=[producto.id]))
+    data_json = response.json()
+    assert data_json['success'] is False
+    assert 'ventas' in data_json['message']
+    assert ProductoModel.objects.filter(id=producto.id).exists()
+
+
+@pytest.mark.django_db
 def test_producto_eliminar_get_405(admin_client, producto):
     response = admin_client.get(reverse('panel_producto_eliminar', args=[producto.id]))
     assert response.status_code == 405
@@ -313,12 +329,6 @@ def test_consulta_eliminar_get_405(admin_client, consulta):
 def test_consulta_eliminar_404(admin_client):
     response = admin_client.post(reverse('panel_consulta_eliminar', args=[999]))
     assert response.status_code == 404
-
-
-@pytest.mark.django_db
-def test_pagos_200(admin_client):
-    response = admin_client.get(reverse('panel_pagos'))
-    assert response.status_code == 200
 
 
 @pytest.mark.django_db

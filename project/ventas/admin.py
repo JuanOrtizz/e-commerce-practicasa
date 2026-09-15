@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 from .models import VentaItemModel, VentaModel
-from .services import revertir_stock_venta_service
+from .services import eliminar_venta_service
 
 
 class VentaItemInline(admin.TabularInline):
@@ -25,12 +25,10 @@ class VentaAdmin(admin.ModelAdmin):
     inlines = [VentaItemInline]
 
     def delete_model(self, request, obj):
-        if obj.estado != VentaModel.EstadoChoices.CANCELADA:
-            revertir_stock_venta_service(obj)
+        eliminar_venta_service(obj)
         super().delete_model(request, obj)
 
     def delete_queryset(self, request, queryset):
         for venta in queryset:
-            if venta.estado != VentaModel.EstadoChoices.CANCELADA:
-                revertir_stock_venta_service(venta)
+            eliminar_venta_service(venta)
         super().delete_queryset(request, queryset)

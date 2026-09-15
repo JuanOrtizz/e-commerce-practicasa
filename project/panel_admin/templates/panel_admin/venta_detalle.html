@@ -59,7 +59,12 @@
             <tbody>
                 {% for item in venta.items.select_related.all %}
                 <tr>
-                    <td>{{ item.producto.nombre }}</td>
+                    <td>
+                        {{ item.nombre_producto }}
+                        {% if item.etiqueta_promocion %}
+                            <span class="badge rounded-pill text-bg-warning">{{ item.etiqueta_promocion }}</span>
+                        {% endif %}
+                    </td>
                     <td>
                         {% if item.color_nombre or item.medida_nombre %}
                             {% if item.color_nombre %}{{ item.color_nombre }}{% endif %}
@@ -69,7 +74,7 @@
                             —
                         {% endif %}
                     </td>
-                    <td>{{ item.cantidad }}</td>
+                    <td>{{ item.cantidad }}{% if item.cantidad_paga != item.cantidad %} (paga {{ item.cantidad_paga }}){% endif %}</td>
                     <td>${{ item.precio_unitario|format_price }}</td>
                     <td class="text-end">${{ item.subtotal|format_price }}</td>
                 </tr>

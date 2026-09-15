@@ -34,7 +34,7 @@ def test_cancelar_dos_veces_no_duplica_stock(carrito, producto, item, usuario, d
 
 
 @pytest.mark.django_db
-def test_reapertura_de_cancelada_no_redescuenta_stock(carrito, producto, item, usuario, datos_checkout):
+def test_reapertura_de_cancelada_redescuenta_stock(carrito, producto, item, usuario, datos_checkout):
     stock_inicial = producto.stock
     venta = crear_venta_confirmada_service(
         usuario, datos_checkout, 'retiro_local', 'efectivo'
@@ -44,6 +44,26 @@ def test_reapertura_de_cancelada_no_redescuenta_stock(carrito, producto, item, u
     producto.refresh_from_db()
     assert producto.stock == stock_inicial
     venta.estado = VentaModel.EstadoChoices.CONFIRMADA
+    venta.save(update_fields=['estado'])
+    producto.refresh_from_db()
+    assert producto.stock == stock_inicial - 2
+
+
+@pytest.mark.django_db
+def test_reapertura_y_nueva_cancelacion_no_infla_stock(carrito, producto, item, usuario, datos_checkout):
+    stock_inicial = producto.stock
+    venta = crear_venta_confirmada_service(
+        usuario, datos_checkout, 'retiro_local', 'efectivo'
+    )
+    venta.estado = VentaModel.EstadoChoices.CANCELADA
+    venta.save(update_fields=['estado'])
+    producto.refresh_from_db()
+    assert producto.stock == stock_inicial
+    venta.estado = VentaModel.EstadoChoices.CONFIRMADA
+    venta.save(update_fields=['estado'])
+    producto.refresh_from_db()
+    assert producto.stock == stock_inicial - 2
+    venta.estado = VentaModel.EstadoChoices.CANCELADA
     venta.save(update_fields=['estado'])
     producto.refresh_from_db()
     assert producto.stock == stock_inicial

@@ -41,7 +41,7 @@ class VentaModel(models.Model):
     subtotal = models.DecimalField(max_digits=10, decimal_places=2)
     costo_envio = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     total = models.DecimalField(max_digits=10, decimal_places=2)
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
@@ -59,8 +59,10 @@ class VentaItemModel(models.Model):
         VentaModel, on_delete=models.CASCADE, related_name='items'
     )
     producto = models.ForeignKey(
-        'productos.ProductoModel', on_delete=models.CASCADE
+        'productos.ProductoModel', on_delete=models.PROTECT
     )
+    nombre_producto = models.CharField(max_length=150, null=True, blank=True)
+    promocion = models.CharField(max_length=20, null=True, blank=True)
     cantidad = models.PositiveIntegerField(default=1)
     precio_unitario = models.DecimalField(max_digits=10, decimal_places=2)
     precio_transferencia_unitario = models.DecimalField(max_digits=10, decimal_places=2)
@@ -79,5 +81,25 @@ class VentaItemModel(models.Model):
         return f'{self.cantidad} x {self.producto.nombre}'
 
     @property
+    def cantidad_paga(self):
+        if self.promocion == '2x1':
+            return (self.cantidad // 2) + (self.cantidad % 2)
+        if self.promocion == '3x2':
+            return ((self.cantidad // 3) * 2) + (self.cantidad % 3)
+        return self.cantidad
+
+    @property
     def subtotal(self):
-        return self.precio_unitario * self.cantidad
+        return self.precio_unitario * self.cantidad_paga
+
+    @property
+    def tiene_promocion_porcentaje(self):
+        return bool(self.promocion) and self.promocion in ('5%', '10%', '20%', '25%', '30%')
+
+    @property
+    def etiqueta_promocion(self):
+        if not self.promocion:
+            return None
+        if self.tiene_promocion_porcentaje:
+            return f'{self.promocion} OFF'
+        return self.promocion

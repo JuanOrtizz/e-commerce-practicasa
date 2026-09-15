@@ -93,7 +93,10 @@
                                 {% for item in venta.items.select_related.all %}
                                     <tr>
                                         <td style="padding: 8px; border-bottom: 1px solid #E0E0E0; color: #000000; font-size: 13px; font-family: Roboto, Arial, sans-serif;">
-                                            {{ item.producto.nombre }}
+                                            {{ item.nombre_producto }}
+                                            {% if item.etiqueta_promocion %}
+                                                <br><span style="display: inline-block; background-color: #A25630; color: #ffffff; font-size: 10px; font-weight: bold; padding: 2px 6px; border-radius: 10px;">{{ item.etiqueta_promocion }}</span>
+                                            {% endif %}
                                             {% if item.color_nombre or item.medida_nombre %}
                                                 <br><span style="color: #7E4326; font-size: 12px;">
                                                     {% if item.color_nombre %}{{ item.color_nombre }}{% endif %}
@@ -102,7 +105,7 @@
                                                 </span>
                                             {% endif %}
                                         </td>
-                                        <td style="padding: 8px; border-bottom: 1px solid #E0E0E0; color: #000000; font-size: 13px; font-family: Roboto, Arial, sans-serif; text-align: right;">{{ item.cantidad }}</td>
+                                        <td style="padding: 8px; border-bottom: 1px solid #E0E0E0; color: #000000; font-size: 13px; font-family: Roboto, Arial, sans-serif; text-align: right;">{{ item.cantidad }}{% if item.cantidad_paga != item.cantidad %} (pagás {{ item.cantidad_paga }}){% endif %}</td>
                                         <td style="padding: 8px; border-bottom: 1px solid #E0E0E0; color: #000000; font-size: 13px; font-family: Roboto, Arial, sans-serif; text-align: right;">${{ item.precio_unitario|format_price }}</td>
                                         <td style="padding: 8px; border-bottom: 1px solid #E0E0E0; color: #000000; font-size: 13px; font-family: Roboto, Arial, sans-serif; text-align: right;">${{ item.subtotal|format_price }}</td>
                                     </tr>
