@@ -17,7 +17,6 @@ urlpatterns = [
     path('consultas/modificar/<int:id>/', views.consulta_modificar, name='panel_consulta_modificar'),
     path('consultas/eliminar/<int:id>/', views.consulta_eliminar, name='panel_consulta_eliminar'),
     path('consultas/<int:id>/', views.consulta_detalle, name='panel_consulta_detalle'),
-    path('pagos/', views.pagos, name='panel_pagos'),
     path('referencias/', views.referencias, name='panel_referencias'),
     path('colores/nuevo/', views.color_nuevo, name='panel_color_nuevo'),
     path('colores/eliminar/<int:id>/', views.color_eliminar, name='panel_color_eliminar'),
