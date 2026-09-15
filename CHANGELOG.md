@@ -1,5 +1,41 @@
 # Changelog
 ---
+## [v0.17.0] - 2026-09-15
+### Rama: feature/proceso-compra
+#### Features
+- Valido el stock al confirmar la compra (raise si el stock no alcanza) y descuento el stock dentro de la misma transacción que crea la venta
+- Hago snapshot del nombre del producto en cada ítem de la venta (migración 0004)
+- Agrego ratelimit 5/m (por IP, POST, block) a checkout, envío y confirmación, igual que en contacto
+- Agrego db_index a VentaModel.created_at (migración 0005)
+- Muestro todos los ítems del resumen del pedido con scroll interno en checkout, envío y confirmación (sin el límite de 3 ni el "+ N más")
+#### Fixes
+- Reescribo el checkout con el patrón global de formularios (grid responsive, invalid-feedback, módulo ES) y validación AJAX con respuestas JSON, en reemplazo del checkout.js
+- Alineo los max_length de dirección (100), número (6) y código postal (4) con sus validators
+- Integro el radio de pago dentro del form de confirmación (fuente única, sin hidden) y unifico el contexto que se repetía en 3 ramas
+- Corrijo el test engañoso de carrito vacío en checkout: ahora valida el redirect real a ver_carrito
+- Quito el CP de Nogoyá y el número de WhatsApp hardcodeados en las templates (servicios permite_envio_domicilio_service y whatsapp_link_service)
+- Alineo los JS del panel de ventas al patrón de alertas: confirm al modificar, contador y mensaje de vacío al eliminar, y guard defensivo en el filtro
+- Elimino el CSS duplicado de los fields del checkout
+#### Refactor
+- Saco Mercado Pago del flujo de compra: solo efectivo para las 3 modalidades de envío (bloqueo server-side)
+- Elimino el módulo "Pagos" placeholder del panel admin (view, url, template, link y test)
+- Elimino el servicio muerto enviar_factura_venta_pagada_service
+- Cambio la FK a producto a on_delete=PROTECT y hago que eliminar_venta_service revierta el stock (descargo la decisión al admin)
+- Muevo la lógica de CP/WhatsApp a services y fuerzo módulos ES en los JS
+#### Docs
+- Actualizo README (módulo Checkout y Ventas sin Mercado Pago) y docs/manejo-de-stock-futuro.md (stock descontado al confirmar y revertido al cancelar; PENDIENTE como reserva sin expiración)
+- Actualizo CHANGELOG.md
+---
+## [v0.16.0] - 2026-09-05
+### Rama: feature/proceso-compra
+#### Features
+- Agrego campo "Número" a los datos de facturación del checkout, lo muestro en confirmación, detalle de venta y comprobante, y lo persisto con la migración 0002
+- Agrego validaciones al checkout: número (solo dígitos, 1-6), código postal (4 dígitos), dirección (letras/dígitos/símbolos, 2-100), ciudad y provincia (solo letras y espacios, 2-100)
+- Agrego el método de envío "Coordinar entrega" solo para CPs cercanos al local (3156, 3158, 3164 y 3100): en envío y confirmación muestra la localidad del CP y solo se puede combinar con Mercado Pago
+- Agrego botón de WhatsApp en la página de pago en efectivo para coordinar horarios de retiro (reemplaza el número de teléfono por un botón verde con logo)
+- Agrego ayuda desplegable "¿Para qué pedimos estos datos?" junto al título del checkout, que explica el uso de cada campo (email, teléfono, dirección, ciudad/CP y notas)
+- Agrego envío de comprobante del pedido por email al cliente y a practicasaok@gmail.com al confirmar la compra (template email_factura.html, reutilizando enviar_email), dejando preparado el envío para cuando se integre la API de Mercado Pago
+---
 ## [v0.15.0] - 2026-09-04
 ### Rama: feature/proceso-compra
 #### Features
@@ -34,16 +70,6 @@
 #### Docs
 - Actualizo el email de contacto del footer a practicasaok@gmail.com
 - Actualizo CHANGELOG.md
----
-## [v0.16.0] - 2026-09-05
-### Rama: feature/proceso-compra
-#### Features
-- Agrego campo "Número" a los datos de facturación del checkout, lo muestro en confirmación, detalle de venta y comprobante, y lo persisto con la migración 0002
-- Agrego validaciones al checkout: número (solo dígitos, 1-6), código postal (4 dígitos), dirección (letras/dígitos/símbolos, 2-100), ciudad y provincia (solo letras y espacios, 2-100)
-- Agrego el método de envío "Coordinar entrega" solo para CPs cercanos al local (3156, 3158, 3164 y 3100): en envío y confirmación muestra la localidad del CP y solo se puede combinar con Mercado Pago
-- Agrego botón de WhatsApp en la página de pago en efectivo para coordinar horarios de retiro (reemplaza el número de teléfono por un botón verde con logo)
-- Agrego ayuda desplegable "¿Para qué pedimos estos datos?" junto al título del checkout, que explica el uso de cada campo (email, teléfono, dirección, ciudad/CP y notas)
-- Agrego envío de comprobante del pedido por email al cliente y a practicasaok@gmail.com al confirmar la compra (template email_factura.html, reutilizando enviar_email), dejando preparado el envío para cuando se integre la API de Mercado Pago
 ---
 ## [v0.14.0] - 2026-08-13
 ### Rama: feature/panel-admin
