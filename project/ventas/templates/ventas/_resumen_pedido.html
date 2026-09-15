@@ -4,8 +4,7 @@
     <h5 class="fw-bold mb-4">Resumen</h5>
     <div class="ventas-resumen-items">
         {% for data in order_context.items %}
-            {% if forloop.counter <= 3 %}
-            <div class="ventas-resumen-item d-flex gap-2{% if order_context.cantidad_items <= 3 and forloop.last %} ventas-resumen-item-last{% endif %}">
+            <div class="ventas-resumen-item d-flex gap-2{% if forloop.last %} ventas-resumen-item-last{% endif %}">
                 <div class="ventas-resumen-item-img-wrap flex-shrink-0">
                     {% with primera=data.producto.primera_imagen_valida %}
                         {% if primera %}
@@ -28,12 +27,6 @@
                 </div>
                 <span class="ventas-resumen-item-precio flex-shrink-0">${{ data.subtotal|format_price }}</span>
             </div>
-            {% endif %}
-            {% if forloop.counter == 4 %}
-            <div class="ventas-resumen-extra">
-                y {{ order_context.cantidad_items|add:"-3" }} producto{{ order_context.cantidad_items|add:"-3"|pluralize }} más
-            </div>
-            {% endif %}
         {% endfor %}
     </div>
     <hr class="my-3">
