@@ -16,9 +16,7 @@
                     <span class="ventas-resumen-item-cant">{{ data.cantidad }}</span>
                 </div>
                 <div class="flex-grow-1 min-w-0">
-                    <p class="ventas-resumen-item-nombre mb-0">
-                        <span class="ventas-resumen-item-nombre-track"><span class="ventas-resumen-item-nombre-copy">{{ data.producto.nombre }}</span></span>
-                    </p>
+                    <p class="ventas-resumen-item-nombre mb-0">{{ data.producto.nombre }}</p>
                     {% if data.item.color_nombre or data.item.medida_nombre %}
                         <p class="ventas-resumen-item-variante mb-0">
                             {% if data.item.color_nombre %}{{ data.item.color_nombre }}{% endif %}
