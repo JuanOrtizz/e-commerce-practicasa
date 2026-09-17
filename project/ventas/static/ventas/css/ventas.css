@@ -119,6 +119,31 @@
     word-break: break-word;
 }
 
+.ventas-resumen-item-nombre--marquee {
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+.ventas-resumen-item-nombre--marquee .ventas-resumen-item-nombre-track {
+    display: inline-flex;
+    animation: ventas-resumen-nombre-scroll 12s linear infinite;
+}
+
+@keyframes ventas-resumen-nombre-scroll {
+    from {
+        transform: translateX(0);
+    }
+    to {
+        transform: translateX(-50%);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .ventas-resumen-item-nombre--marquee .ventas-resumen-item-nombre-track {
+        animation: none;
+    }
+}
+
 .ventas-resumen-item-variante {
     font-size: 0.75rem;
     color: var(--secondary-color-hover);
