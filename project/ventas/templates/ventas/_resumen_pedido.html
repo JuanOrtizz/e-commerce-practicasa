@@ -25,7 +25,18 @@
                         </p>
                     {% endif %}
                 </div>
-                <span class="ventas-resumen-item-precio flex-shrink-0">${{ data.subtotal|format_price }}</span>
+                <div class="text-end flex-shrink-0">
+                    {% if data.promocion %}
+                        <span class="ventas-resumen-item-badge">
+                            {% if data.tiene_promocion_porcentaje %}{{ data.promocion }} OFF{% else %}{{ data.promocion }}{% endif %}
+                        </span>
+                    {% endif %}
+                    {% if data.tiene_promocion_porcentaje %}
+                        <p class="ventas-resumen-item-precio-original mb-0">${{ data.precio_original|format_price }}</p>
+                    {% endif %}
+                    <p class="ventas-resumen-item-precio-transf mb-0">${{ data.subtotal_transferencia|format_price }} con transferencia</p>
+                    <p class="ventas-resumen-item-precio-normal mb-0{% if data.ahorro or data.tiene_promocion_porcentaje %} ventas-resumen-item-precio-tachado{% endif %}">${{ data.subtotal|format_price }}</p>
+                </div>
             </div>
         {% endfor %}
     </div>
@@ -38,6 +49,12 @@
         <span>Envío</span>
         <span class="fw-semibold ventas-envio-label">Gratis</span>
     </div>
+    {% if order_context.total_ahorro > 0 %}
+        <div class="d-flex justify-content-between mb-2 ventas-resumen-ahorro">
+            <span>Ahorrás</span>
+            <span class="fw-semibold">${{ order_context.total_ahorro|format_price }}</span>
+        </div>
+    {% endif %}
     <hr class="my-3">
     <div class="d-flex justify-content-between mb-1">
         <span class="ventas-total-label">Total</span>

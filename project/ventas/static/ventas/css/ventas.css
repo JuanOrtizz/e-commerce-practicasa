@@ -123,9 +123,45 @@
     color: var(--secondary-color-hover);
 }
 
-.ventas-resumen-item-precio {
-    font-size: 0.85rem;
+.ventas-resumen-item-badge {
+    display: inline-block;
+    background: var(--tertiary-color);
+    color: var(--white);
+    font-size: 0.7rem;
     font-weight: 600;
+    letter-spacing: 0.3px;
+    padding: 0.25em 0.6em;
+    border-radius: 50px;
+    margin-bottom: 0.25rem;
+}
+
+.ventas-resumen-item-precio-original {
+    text-decoration: line-through;
+    color: var(--secondary-color-hover);
+    font-size: 0.72rem;
+}
+
+.ventas-resumen-item-precio-transf {
+    color: var(--tertiary-color);
+    font-weight: 700;
+    font-size: 1rem;
+}
+
+.ventas-resumen-item-precio-normal {
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.ventas-resumen-item-precio-tachado {
+    text-decoration: line-through;
+    color: var(--secondary-color-hover);
+    font-weight: 400;
+}
+
+.ventas-resumen-ahorro {
+    color: var(--tertiary-color);
+    font-weight: 600;
+    font-size: 0.85rem;
 }
 
 .ventas-resumen-bloque {
