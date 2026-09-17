@@ -1,10 +1,18 @@
+const nombreDesborda = (nombre, track) => {
+    const previo = nombre.style.whiteSpace
+    nombre.style.whiteSpace = 'nowrap'
+    const anchoTexto = track.getBoundingClientRect().width
+    const anchoVisible = nombre.getBoundingClientRect().width
+    nombre.style.whiteSpace = previo
+    return anchoTexto > anchoVisible + 1
+}
+
 const activarMarquee = (nombre) => {
     const track = nombre.querySelector('.ventas-resumen-item-nombre-track')
     if (!track) {
         return
     }
-    const desborda = track.scrollWidth > nombre.clientWidth
-    if (desborda) {
+    if (nombreDesborda(nombre, track)) {
         nombre.classList.add('ventas-resumen-item-nombre--marquee')
         if (!track.dataset.clonado) {
             const clon = track.children[0].cloneNode(true)
@@ -24,4 +32,5 @@ const inicializarMarquee = () => {
 }
 
 document.addEventListener('DOMContentLoaded', inicializarMarquee)
+window.addEventListener('load', inicializarMarquee)
 window.addEventListener('resize', inicializarMarquee)
