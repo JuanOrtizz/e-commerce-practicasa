@@ -72,12 +72,13 @@
 .ventas-resumen-items {
     max-height: 220px;
     overflow-y: auto;
+    overflow-x: hidden;
 }
 
 .ventas-resumen-item {
     padding: 0.5rem 0;
     border-bottom: 1px dashed var(--secondary-color);
-    align-items: center;
+    align-items: flex-start;
 }
 
 .ventas-resumen-item-last {
@@ -109,18 +110,6 @@
     display: flex;
     align-items: center;
     justify-content: center;
-}
-
-.ventas-resumen-item-nombre {
-    font-size: 0.85rem;
-    font-weight: 600;
-    overflow-wrap: break-word;
-    word-break: break-word;
-}
-
-.ventas-resumen-item-variante {
-    font-size: 0.75rem;
-    color: var(--secondary-color-hover);
 }
 
 .ventas-resumen-item-badge {
