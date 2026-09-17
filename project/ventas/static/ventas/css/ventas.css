@@ -112,6 +112,18 @@
     justify-content: center;
 }
 
+.ventas-resumen-item-nombre {
+    font-size: 0.85rem;
+    font-weight: 600;
+    overflow-wrap: break-word;
+    word-break: break-word;
+}
+
+.ventas-resumen-item-variante {
+    font-size: 0.75rem;
+    color: var(--secondary-color-hover);
+}
+
 .ventas-resumen-item-badge {
     display: inline-block;
     background: var(--tertiary-color);

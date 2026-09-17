@@ -15,7 +15,17 @@
                     {% endwith %}
                     <span class="ventas-resumen-item-cant">{{ data.cantidad }}</span>
                 </div>
-                <div class="text-end flex-grow-1 min-w-0">
+                <div class="flex-grow-1 min-w-0">
+                    <p class="ventas-resumen-item-nombre mb-0">{{ data.producto.nombre }}</p>
+                    {% if data.item.color_nombre or data.item.medida_nombre %}
+                        <p class="ventas-resumen-item-variante mb-0">
+                            {% if data.item.color_nombre %}{{ data.item.color_nombre }}{% endif %}
+                            {% if data.item.color_nombre and data.item.medida_nombre %} · {% endif %}
+                            {% if data.item.medida_nombre %}{{ data.item.medida_nombre }}{% endif %}
+                        </p>
+                    {% endif %}
+                </div>
+                <div class="text-end flex-shrink-0">
                     {% if data.promocion %}
                         <span class="ventas-resumen-item-badge">
                             {% if data.tiene_promocion_porcentaje %}{{ data.promocion }} OFF{% else %}{{ data.promocion }}{% endif %}
