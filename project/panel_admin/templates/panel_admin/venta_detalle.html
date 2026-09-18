@@ -52,6 +52,7 @@
                     <th class="text-nowrap">Producto</th>
                     <th class="text-nowrap">Variante</th>
                     <th class="text-nowrap">Cantidad</th>
+                    <th class="text-nowrap">Promoción</th>
                     <th class="text-nowrap">Precio unitario</th>
                     <th class="text-end text-nowrap">Subtotal</th>
                 </tr>
@@ -61,9 +62,6 @@
                 <tr>
                     <td>
                         {{ item.nombre_producto }}
-                        {% if item.etiqueta_promocion %}
-                            <span class="badge rounded-pill text-bg-warning">{{ item.etiqueta_promocion }}</span>
-                        {% endif %}
                     </td>
                     <td>
                         {% if item.color_nombre or item.medida_nombre %}
@@ -75,6 +73,13 @@
                         {% endif %}
                     </td>
                     <td>{{ item.cantidad }}{% if item.cantidad_paga != item.cantidad %} (paga {{ item.cantidad_paga }}){% endif %}</td>
+                    <td>
+                        {% if item.etiqueta_promocion %}
+                            <span class="badge rounded-pill text-bg-warning">{{ item.etiqueta_promocion }}</span>
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
                     <td>${{ item.precio_unitario|format_price }}</td>
                     <td class="text-end">${{ item.subtotal|format_price }}</td>
                 </tr>
