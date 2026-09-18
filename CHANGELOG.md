@@ -1,5 +1,16 @@
 # Changelog
 ---
+## [v0.18.0] - 2026-09-17
+### Rama: feature/proceso-compra
+#### Features
+- Agrego la página "Método de pago" entre envío y confirmación (Efectivo seleccionable, Mercado Pago visible pero deshabilitado) y muevo la selección de pago fuera de confirmación
+- Muestro los precios según la forma de pago (precio de transferencia para efectivo) en el resumen final, el comprobante y el email de factura
+- Agrego la columna "Promoción" en el detalle de venta del panel admin
+- Reescribo el breadcrumb con estados actual/pasado/futuro y agrego el paso "Método de pago" (6 pasos)
+#### Fixes
+- Permito el ajuste de línea del nombre del producto en el resumen del pedido (quito el nowrap)
+- Ajusto el ancho y abrevio el encabezado de la columna de precio de transferencia en el listado de productos del panel
+---
 ## [v0.17.0] - 2026-09-15
 ### Rama: feature/proceso-compra
 #### Features
