@@ -115,7 +115,6 @@
 .ventas-resumen-item-nombre {
     font-size: 0.85rem;
     font-weight: 600;
-    white-space: nowrap;
     overflow-wrap: break-word;
     word-break: break-word;
 }
