@@ -38,6 +38,10 @@ a.ventas-breadcrumb-circle:hover {
     background-color: var(--tertiary-color);
 }
 
+.ventas-breadcrumb-circle.is-completado {
+    background-color: var(--tertiary-color-apagado);
+}
+
 .ventas-breadcrumb-circle .material-symbols-outlined {
     font-size: 1.35rem;
     line-height: 1;
@@ -59,6 +63,10 @@ a.ventas-breadcrumb-circle:hover {
 
 .ventas-breadcrumb-dots.is-activo i {
     background-color: var(--tertiary-color);
+}
+
+.ventas-breadcrumb-dots.is-completado i {
+    background-color: var(--tertiary-color-apagado);
 }
 
 @media (max-width: 991.98px) {

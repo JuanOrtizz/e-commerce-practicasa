@@ -4,7 +4,7 @@ from django.shortcuts import redirect, render
 from django.urls import reverse
 from django_ratelimit.decorators import ratelimit
 
-from .forms import CheckoutForm, EnvioForm
+from .forms import CheckoutForm, EnvioForm, MetodoPagoForm
 from .models import VentaModel
 from .services import (
     DATOS_LOCAL,
@@ -80,7 +80,7 @@ def envio(request):
         if form.is_valid():
             datos.update({'metodo_envio': form.cleaned_data['metodo_envio']})
             set_datos_venta_session(request, datos)
-            return redirect('confirmacion')
+            return redirect('metodo_pago')
 
     return render(request, 'ventas/envio.html', {
         'form': form,
@@ -88,6 +88,40 @@ def envio(request):
         'datos': datos,
         'permite_coordinar_entrega': permite_coordinar_entrega_service(datos.get('codigo_postal')),
         'permite_envio_domicilio': permite_envio_domicilio_service(datos.get('codigo_postal')),
+        'localidad_coordinar_entrega': localidad_para_coordinar_entrega_service(datos.get('codigo_postal')),
+    })
+
+
+@login_required
+@ratelimit(key='ip', rate='5/m', method='POST', block=True)
+def metodo_pago(request):
+    order_context = get_order_context_service(request.user)
+    if not order_context['items']:
+        return redirect('ver_carrito')
+
+    datos = get_datos_venta_session(request)
+    if not datos or 'metodo_envio' not in datos:
+        return redirect('envio')
+
+    form = MetodoPagoForm(initial={
+        'metodo_pago': datos.get('metodo_pago', VentaModel.MetodoPagoChoices.EFECTIVO),
+    })
+
+    if request.method == 'POST':
+        form = MetodoPagoForm(request.POST)
+        if form.is_valid():
+            seleccionado = form.cleaned_data['metodo_pago']
+            if seleccionado != VentaModel.MetodoPagoChoices.EFECTIVO:
+                form.add_error('metodo_pago', 'Seleccioná una forma de pago.')
+            else:
+                datos.update({'metodo_pago': seleccionado})
+                set_datos_venta_session(request, datos)
+                return redirect('confirmacion')
+
+    return render(request, 'ventas/metodo_pago.html', {
+        'form': form,
+        'order_context': order_context,
+        'datos': datos,
         'localidad_coordinar_entrega': localidad_para_coordinar_entrega_service(datos.get('codigo_postal')),
     })
 
@@ -102,6 +136,8 @@ def confirmacion(request):
     datos = get_datos_venta_session(request)
     if not datos or 'metodo_envio' not in datos:
         return redirect('checkout')
+    if 'metodo_pago' not in datos:
+        return redirect('metodo_pago')
 
     context = {
         'order_context': order_context,
@@ -110,14 +146,9 @@ def confirmacion(request):
     }
 
     if request.method == 'POST':
-        metodo_pago = request.POST.get('metodo_pago')
-        if metodo_pago != VentaModel.MetodoPagoChoices.EFECTIVO:
-            context['error'] = 'Seleccioná una forma de pago.'
-            return render(request, 'ventas/confirmacion.html', context)
-
         try:
             venta = crear_venta_confirmada_service(
-                request.user, datos, datos['metodo_envio'], metodo_pago
+                request.user, datos, datos['metodo_envio'], datos['metodo_pago']
             )
             limpiar_datos_venta_session(request)
         except ValueError as e:

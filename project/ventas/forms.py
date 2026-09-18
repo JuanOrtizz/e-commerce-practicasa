@@ -165,6 +165,13 @@ class EnvioForm(forms.Form):
     )
 
 
+class MetodoPagoForm(forms.Form):
+    metodo_pago = forms.ChoiceField(
+        choices=VentaModel.MetodoPagoChoices.choices,
+        widget=forms.RadioSelect(attrs={'class': 'form-check-input', 'id': 'id_metodo_pago'}),
+    )
+
+
 class VentaAdminForm(forms.ModelForm):
     class Meta:
         model = VentaModel

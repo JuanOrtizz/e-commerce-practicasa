@@ -116,6 +116,7 @@ def _set_session_datos(client, **kwargs):
         'provincia': 'Entre Ríos',
         'codigo_postal': '3150',
         'notas': '',
+        'metodo_pago': 'efectivo',
     }
     session['datos_venta'].update(kwargs)
     session.save()
@@ -182,9 +183,13 @@ def test_flujo_completo_efectivo(client_logueado, datos_checkout):
     client_logueado.post('/ventas/checkout/', datos_checkout)
     response = client_logueado.post('/ventas/envio/', {'metodo_envio': 'retiro_local'})
     assert response.status_code == 302
+    assert response.url == '/ventas/metodo-pago/'
+
+    response = client_logueado.post('/ventas/metodo-pago/', {'metodo_pago': 'efectivo'})
+    assert response.status_code == 302
     assert response.url == '/ventas/confirmacion/'
 
-    response = client_logueado.post('/ventas/confirmacion/', {'metodo_pago': 'efectivo'})
+    response = client_logueado.post('/ventas/confirmacion/', {})
     assert response.status_code == 302
     assert response.url.startswith('/ventas/pago-local/')
 
@@ -196,7 +201,7 @@ def test_flujo_completo_efectivo(client_logueado, datos_checkout):
 def test_post_mercado_pago_bloqueado_no_crea_venta(client_logueado, datos_checkout):
     client_logueado.post('/ventas/checkout/', datos_checkout)
     client_logueado.post('/ventas/envio/', {'metodo_envio': 'envio_domicilio'})
-    response = client_logueado.post('/ventas/confirmacion/', {'metodo_pago': 'mercado_pago'})
+    response = client_logueado.post('/ventas/metodo-pago/', {'metodo_pago': 'mercado_pago'})
     assert response.status_code == 200
     assert b'forma de pago' in response.content
     assert VentaModel.objects.count() == 0
@@ -211,7 +216,8 @@ def test_flujo_completo_efectivo_envia_factura(client_logueado, datos_checkout):
     mail.outbox.clear()
     client_logueado.post('/ventas/checkout/', datos_checkout)
     client_logueado.post('/ventas/envio/', {'metodo_envio': 'retiro_local'})
-    response = client_logueado.post('/ventas/confirmacion/', {'metodo_pago': 'efectivo'})
+    client_logueado.post('/ventas/metodo-pago/', {'metodo_pago': 'efectivo'})
+    response = client_logueado.post('/ventas/confirmacion/', {})
     assert response.status_code == 302
 
     venta = VentaModel.objects.get()
@@ -236,18 +242,37 @@ def test_post_mercado_pago_bloqueado_no_envia_factura(client_logueado, datos_che
     mail.outbox.clear()
     client_logueado.post('/ventas/checkout/', datos_checkout)
     client_logueado.post('/ventas/envio/', {'metodo_envio': 'envio_domicilio'})
-    response = client_logueado.post('/ventas/confirmacion/', {'metodo_pago': 'mercado_pago'})
+    response = client_logueado.post('/ventas/metodo-pago/', {'metodo_pago': 'mercado_pago'})
     assert response.status_code == 200
     assert len(mail.outbox) == 0
 
 
-def test_confirmacion_sin_metodo_pago_muestra_error(client_logueado, datos_checkout):
+def test_confirmacion_sin_metodo_pago_redirige_metodo_pago(client_logueado, datos_checkout):
     client_logueado.post('/ventas/checkout/', datos_checkout)
     client_logueado.post('/ventas/envio/', {'metodo_envio': 'retiro_local'})
-    response = client_logueado.post('/ventas/confirmacion/', {})
-    assert response.status_code == 200
-    assert b'forma de pago' in response.content
+    session = client_logueado.session
+    session['datos_venta'].pop('metodo_pago', None)
+    session.save()
+    response = client_logueado.get('/ventas/confirmacion/')
+    assert response.status_code == 302
+    assert response.url == '/ventas/metodo-pago/'
     assert VentaModel.objects.count() == 0
+
+
+def test_metodo_pago_requiere_datos_previos(client_logueado):
+    response = client_logueado.get('/ventas/metodo-pago/')
+    assert response.status_code == 302
+    assert response.url == '/ventas/envio/'
+
+
+def test_metodo_pago_get_muestra_efectivo_y_mercado_pago_deshabilitado(client_logueado):
+    _set_session_datos(client_logueado, metodo_envio='retiro_local')
+    response = client_logueado.get('/ventas/metodo-pago/')
+    assert response.status_code == 200
+    assert b'Forma de pago' not in response.content
+    assert b'Efectivo' in response.content
+    assert b'Mercado Pago' in response.content
+    assert b'No disponible por el momento' in response.content
 
 
 def test_pago_local_muestra_datos(client_logueado, usuario, datos_checkout):
