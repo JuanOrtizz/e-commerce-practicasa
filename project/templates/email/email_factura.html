@@ -106,8 +106,12 @@
                                             {% endif %}
                                         </td>
                                         <td style="padding: 8px; border-bottom: 1px solid #E0E0E0; color: #000000; font-size: 13px; font-family: Roboto, Arial, sans-serif; text-align: right;">{{ item.cantidad }}{% if item.cantidad_paga != item.cantidad %} (pagás {{ item.cantidad_paga }}){% endif %}</td>
-                                        <td style="padding: 8px; border-bottom: 1px solid #E0E0E0; color: #000000; font-size: 13px; font-family: Roboto, Arial, sans-serif; text-align: right;">${{ item.precio_unitario|format_price }}</td>
-                                        <td style="padding: 8px; border-bottom: 1px solid #E0E0E0; color: #000000; font-size: 13px; font-family: Roboto, Arial, sans-serif; text-align: right;">${{ item.subtotal|format_price }}</td>
+                                        <td style="padding: 8px; border-bottom: 1px solid #E0E0E0; color: #000000; font-size: 13px; font-family: Roboto, Arial, sans-serif; text-align: right;">
+                                            {% if venta.metodo_pago == 'efectivo' %}${{ item.precio_transferencia_unitario|format_price }}{% else %}${{ item.precio_unitario|format_price }}{% endif %}
+                                        </td>
+                                        <td style="padding: 8px; border-bottom: 1px solid #E0E0E0; color: #000000; font-size: 13px; font-family: Roboto, Arial, sans-serif; text-align: right;">
+                                            {% if venta.metodo_pago == 'efectivo' %}${{ item.subtotal_transferencia|format_price }}{% else %}${{ item.subtotal|format_price }}{% endif %}
+                                        </td>
                                     </tr>
                                 {% endfor %}
                             </table>
@@ -116,7 +120,7 @@
                             <table role="presentation" cellpadding="0" cellspacing="0" style="width: 100%; margin-bottom: 24px;">
                                 <tr>
                                     <td style="padding: 4px 0; color: #000000; font-size: 14px; font-family: Roboto, Arial, sans-serif;">Subtotal</td>
-                                    <td style="padding: 4px 0; color: #000000; font-size: 14px; font-family: Roboto, Arial, sans-serif; text-align: right;">${{ venta.subtotal|format_price }}</td>
+                                    <td style="padding: 4px 0; color: #000000; font-size: 14px; font-family: Roboto, Arial, sans-serif; text-align: right;">{% if venta.metodo_pago == 'efectivo' %}${{ venta.subtotal_transferencia|format_price }}{% else %}${{ venta.subtotal|format_price }}{% endif %}</td>
                                 </tr>
                                 <tr>
                                     <td style="padding: 4px 0; color: #000000; font-size: 14px; font-family: Roboto, Arial, sans-serif;">Costo de envío</td>
@@ -124,7 +128,7 @@
                                 </tr>
                                 <tr>
                                     <td style="padding: 8px 0 0; color: #A25630; font-size: 16px; font-weight: bold; font-family: Roboto, Arial, sans-serif;">Total</td>
-                                    <td style="padding: 8px 0 0; color: #A25630; font-size: 16px; font-weight: bold; font-family: Roboto, Arial, sans-serif; text-align: right;">${{ venta.total|format_price }}</td>
+                                    <td style="padding: 8px 0 0; color: #A25630; font-size: 16px; font-weight: bold; font-family: Roboto, Arial, sans-serif; text-align: right;">{% if venta.metodo_pago == 'efectivo' %}${{ venta.total_transferencia|format_price }}{% else %}${{ venta.total|format_price }}{% endif %}</td>
                                 </tr>
                             </table>
 

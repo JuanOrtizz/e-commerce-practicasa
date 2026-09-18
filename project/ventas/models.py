@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from django.conf import settings
 from django.db import models
 
@@ -53,6 +55,14 @@ class VentaModel(models.Model):
     def __str__(self):
         return f'Venta {self.id} de {self.nombre}'
 
+    @property
+    def subtotal_transferencia(self):
+        return sum((item.subtotal_transferencia for item in self.items.all()), Decimal('0'))
+
+    @property
+    def total_transferencia(self):
+        return self.subtotal_transferencia + self.costo_envio
+
 
 class VentaItemModel(models.Model):
     venta = models.ForeignKey(
@@ -91,6 +101,10 @@ class VentaItemModel(models.Model):
     @property
     def subtotal(self):
         return self.precio_unitario * self.cantidad_paga
+
+    @property
+    def subtotal_transferencia(self):
+        return self.precio_transferencia_unitario * self.cantidad_paga
 
     @property
     def tiene_promocion_porcentaje(self):
