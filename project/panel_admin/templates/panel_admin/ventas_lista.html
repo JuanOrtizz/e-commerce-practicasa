@@ -1,6 +1,7 @@
 {% extends 'panel_admin/base.html' %}
 
 {% load static %}
+{% load precio_tags %}
 
 {% block title %}Ventas | Practicasa{% endblock %}
 
@@ -45,7 +46,7 @@
                     <td>{{ venta.created_at|date:'d/m/Y H:i' }}</td>
                     <td>{{ venta.get_metodo_pago_display }}</td>
                     <td>{{ venta.get_metodo_envio_display }}</td>
-                    <td>${{ venta.total }}</td>
+                    <td>${{ venta.total|format_price }}</td>
                     <td>
                         <span class="badge {% if venta.estado == 'pendiente' %}text-bg-warning{% elif venta.estado == 'confirmada' %}text-bg-success{% else %}text-bg-danger{% endif %}">{{ venta.get_estado_display }}</span>
                     </td>
