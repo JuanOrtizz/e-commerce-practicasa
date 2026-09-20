@@ -114,6 +114,62 @@
     color: var(--tertiary-color);
 }
 
+@property --angle-seo {
+    syntax: '<angle>';
+    initial-value: 0deg;
+    inherits: false;
+}
+
+@keyframes girar-borde {
+    to { --angle-seo: 360deg; }
+}
+
+.card-seo-home {
+    position: relative;
+    z-index: 1;
+    background: #FFFFFF;
+    border-radius: 12px;
+}
+
+.card-seo-home::before {
+    content: '';
+    position: absolute;
+    inset: -3px;
+    border-radius: inherit;
+    background: conic-gradient(from var(--angle-seo, 0deg), #FDEDE0, #F5C6A0, #DE8A5E, #A25630, #DE8A5E, #F5C6A0, #FDEDE0);
+    z-index: -2;
+    animation: girar-borde 5s linear infinite;
+}
+
+.card-seo-home::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: #FFFFFF;
+    z-index: -1;
+}
+
+.card-seo-home h1 {
+    color: var(--tertiary-color);
+    font-size: calc(1.25rem + 0.6vw);
+    letter-spacing: -0.01em;
+}
+
+.card-seo-home p {
+    color: #6B625B;
+    line-height: 1.75;
+    max-width: 46rem;
+}
+
+.kicker-seo-home {
+    color: var(--tertiary-color-apagado);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+}
+
 @media (min-width: 768px) {
     .trust-bar-item + .trust-bar-item {
         border-left: 1px solid var(--primary-color-hover);

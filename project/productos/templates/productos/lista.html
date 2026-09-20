@@ -4,13 +4,43 @@
 
 {% block title %}{{ titulo }} | Practicasa{% endblock %}
 
+{% block meta_description %}Comprá {{ titulo }} online en Practicasa. Envíos a todo el país y retiro local sin cargo en Nogoyá, Entre Ríos. Pagá con Mercado Pago, transferencia o efectivo.{% endblock %}
+
+{% block og_title %}{{ titulo }} | Practicasa{% endblock %}
+{% block og_description %}Comprá {{ titulo }} online en Practicasa. Envíos a todo el país y retiro local sin cargo en Nogoyá, Entre Ríos.{% endblock %}
+{% block twitter_title %}{{ titulo }} | Practicasa{% endblock %}
+{% block twitter_description %}Comprá {{ titulo }} online en Practicasa. Envíos a todo el país y retiro local sin cargo en Nogoyá, Entre Ríos.{% endblock %}
+
+{% block json_ld %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  "name": "{{ titulo|escapejs }}",
+  "url": "{{ canonical_url }}",
+  "mainEntity": {
+    "@type": "ItemList",
+    "itemListElement": [
+      {% for producto in productos %}{
+        "@type": "ListItem",
+        "position": {{ forloop.counter }},
+        "url": "{{ SITE_URL }}{% url 'detalle_producto' producto.subcategoria.categoria.slug producto.subcategoria.slug producto.slug %}",
+        "name": "{{ producto.nombre|escapejs }}"
+      }{% if not forloop.last %},{% endif %}
+      {% endfor %}
+    ]
+  }
+}
+</script>
+{% endblock %}
+
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'productos/css/productos.css' %}">
 {% endblock %}
 
 {% block content %}
 <div class="container-lg my-4 p-lg-1">
-    <h2 class="mb-4">{{ titulo }}</h2>
+    <h1 class="mb-4 lista-titulo">{{ titulo }}</h1>
 
     <button class="btn btn-enviar btn-filtros collapsed d-lg-none mb-3 w-100 d-flex align-items-center justify-content-between fw-bold text-white" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFiltros" aria-expanded="false">
         <span><span class="material-symbols-outlined align-middle me-1">filter_list</span>Filtros</span>

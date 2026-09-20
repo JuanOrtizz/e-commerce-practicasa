@@ -3,6 +3,72 @@
 
 {% block title %}{{ producto.nombre }} | Practicasa{% endblock %}
 
+{% block meta_description %}{{ producto.descripcion|truncatechars:155 }}{% endblock %}
+
+{% block og_title %}{{ producto.nombre }} | Practicasa{% endblock %}
+{% block og_description %}{{ producto.descripcion|truncatechars:155 }}{% endblock %}
+{% block twitter_title %}{{ producto.nombre }} | Practicasa{% endblock %}
+{% block twitter_description %}{{ producto.descripcion|truncatechars:155 }}{% endblock %}
+
+{% block json_ld %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Product",
+  "name": "{{ producto.nombre|escapejs }}",
+  "description": "{{ producto.descripcion|truncatechars:170|escapejs }}",
+  "sku": "{{ producto.sku|escapejs }}",
+  "image": [
+    {% for imagen in producto.imagenes.all %}"{{ SITE_URL }}{{ imagen.imagen.url }}"{% if not forloop.last %},{% endif %}{% endfor %}
+  ],
+  "brand": {
+    "@type": "Brand",
+    "name": "Practicasa"
+  },
+  "offers": {
+    "@type": "Offer",
+    "url": "{{ SITE_URL }}{% url 'detalle_producto' producto.subcategoria.categoria.slug producto.subcategoria.slug producto.slug %}",
+    "priceCurrency": "ARS",
+    "price": "{{ producto.precio_final }}",
+    "availability": "{% if producto.stock_restante > 0 %}https://schema.org/InStock{% else %}https://schema.org/OutOfStock{% endif %}",
+    "itemCondition": "https://schema.org/NewCondition"
+  }
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Productos",
+      "item": "{{ SITE_URL }}{% url 'productos' %}"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "{{ producto.subcategoria.categoria.nombre|escapejs }}",
+      "item": "{{ SITE_URL }}{% url 'productos_por_categoria' producto.subcategoria.categoria.slug %}"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "{{ producto.subcategoria.nombre|escapejs }}",
+      "item": "{{ SITE_URL }}{% url 'productos_por_subcategoria' producto.subcategoria.categoria.slug producto.subcategoria.slug %}"
+    },
+    {
+      "@type": "ListItem",
+      "position": 4,
+      "name": "{{ producto.nombre|escapejs }}",
+      "item": "{{ SITE_URL }}{% url 'detalle_producto' producto.subcategoria.categoria.slug producto.subcategoria.slug producto.slug %}"
+    }
+  ]
+}
+</script>
+{% endblock %}
+
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'productos/css/productos.css' %}">
 {% endblock %}
@@ -42,7 +108,7 @@
         <hr class="d-block d-lg-none">
 
         <div class="col-md-6">
-            <h2 class="titulo-producto-detalle">{{ producto.nombre }}</h2>
+            <h1 class="titulo-producto-detalle">{{ producto.nombre }}</h1>
 
             {% if producto.tiene_promocion_porcentaje %}
                 <h3 class="card-text text-secondary fs-4">

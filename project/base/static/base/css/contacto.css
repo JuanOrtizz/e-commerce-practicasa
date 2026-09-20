@@ -1,3 +1,7 @@
 .card-contacto {
     background: linear-gradient(135deg, #FDE3D4 0%, #F5C6A0 50%, #EAA57C 100%);
 }
+
+.titulo-contacto {
+    font-size: calc(1.325rem + 0.9vw);
+}

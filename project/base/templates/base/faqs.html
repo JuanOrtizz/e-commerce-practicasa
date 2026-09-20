@@ -4,12 +4,119 @@
 
 {% block title %}FAQs | Practicasa{% endblock %}
 
+{% block meta_description %}Preguntas frecuentes de Practicasa sobre envíos a todo el país, medios de pago, promociones, cambios y devoluciones. Resolvé tus dudas antes de comprar.{% endblock %}
+
+{% block og_title %}FAQs | Practicasa{% endblock %}
+{% block og_description %}Preguntas frecuentes de Practicasa sobre envíos a todo el país, medios de pago, promociones, cambios y devoluciones.{% endblock %}
+{% block twitter_title %}FAQs | Practicasa{% endblock %}
+{% block twitter_description %}Preguntas frecuentes de Practicasa sobre envíos a todo el país, medios de pago, promociones, cambios y devoluciones.{% endblock %}
+
+{% block extra_json_ld %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "¿Realizan envíos a todo el país?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Sí, realizamos envíos a cada rincón del país para que puedas recibir tus productos estés donde estés."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "¿Cuáles son las localidades con envío gratuito?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Contamos con envío sin cargo exclusivo para las localidades de Paraná, Ramírez, Lucas González y Nogoyá."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "¿Qué métodos de envío y opciones de retiro ofrecen?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Trabajamos con Correo Argentino con envíos a todo el país, directo a tu domicilio o a sucursal. También podés retirar en persona por nuestro local sin cargo."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "¿Cuál es el costo del envío de mi pedido?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "El valor exacto del envío se calcula de forma automática en la web y lo vas a poder visualizar justo antes de realizar el pago, ingresando tu ubicación y según el tamaño total de tu compra."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "¿Cuánto demora en llegar mi compra?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Despachamos tu pedido dentro de las 24 horas una vez confirmada la compra. El tiempo estimado de entrega del correo es de 3 a 5 días hábiles."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "¿Cómo puedo realizar el seguimiento de mi envío?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Una vez que despachamos el paquete, te enviamos un mail con el código de seguimiento de Correo Argentino y el enlace para ver dónde está tu pedido en tiempo real."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "¿Qué medios de pago aceptan?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Procesamos todos nuestros pagos a través de Mercado Pago: tarjetas de crédito, débito, dinero en cuenta o redes de cobranza como Rapipago o Pago Fácil. También aceptamos transferencias directas y efectivo si retirás en el local."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "¿Ofrecen cuotas sin interés?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Las cuotas sin interés y las promociones bancarias dependen de los convenios vigentes de Mercado Pago al momento de tu compra. Vas a poder visualizar las opciones disponibles para tu tarjeta justo antes de finalizar el pago."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "¿Hay algún descuento por pagar en efectivo o transferencia?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Sí. Si elegís abonar mediante transferencia bancaria o en efectivo al retirar en el local, te regalamos un porcentaje de descuento especial sobre el total de tu compra."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "¿Puedo modificar o cancelar un pedido que ya pagué?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Como los despachos los realizamos prácticamente en el momento, te pedimos que te comuniques con nosotros lo antes posible a nuestro canal de atención (WhatsApp o Instagram) si necesitás hacer algún cambio urgente."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "¿Cuál es la política de cambios y devoluciones?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Aceptamos devoluciones si el producto presenta fallas de fábrica o si no es lo que esperabas. Todo el detalle de plazos y cómo gestionar un reembolso o vales de compra está explicado en nuestra sección de Cambios y Devoluciones."
+      }
+    }
+  ]
+}
+</script>
+{% endblock %}
+
 {% block extra_css %}
     <link rel="stylesheet" href="{% static 'base/css/faqs.css' %}">
 {% endblock %}
 
 {% block content %}
 <section class="container-fluid container-xl">
+   <h1 class="fw-bold mb-4">Preguntas frecuentes</h1>
    <div class="accordion accordion-flush" id="accordionFlushFaq">
        <!-- Pregunta #1 / Envios -->
        <div class="accordion-item  mb-3">
