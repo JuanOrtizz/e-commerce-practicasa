@@ -18,7 +18,7 @@
 #### Style
 - Rediseño la card de presentación de la home con borde de colores animado (mismo patrón que la card de login), padding compacto y tamaño de título contenido
 #### Docs
-- Actualizo .env.example con la variable SITE_URL y agrego el plan SEO/GEO al repositorio
+- Actualizo .env.example con la variable SITE_URL
 - Actualizo CHANGELOG.md
 ---
 ## [v0.18.0] - 2026-09-17

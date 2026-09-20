@@ -8,8 +8,8 @@ def seo_info(request):
         'SITE_URL': settings.SITE_URL,
         'SITE_NOMBRE': 'Practicasa',
         'SITE_EMPRESA': (
-            'Tienda online de artículos para el hogar con envíos a todo el país '
-            'y retiro local en Nogoyá, Entre Ríos.'
+            'Practicasa, tienda online de artículos para el hogar en Nogoyá, '
+            'Entre Ríos. Envíos a todo el país y retiro local.'
         ),
         'SITE_LOGO': f'{base_url}{settings.STATIC_URL}img/logo_practicasa.png',
         'SITE_TELEFONO': '+54 3543 468162',
