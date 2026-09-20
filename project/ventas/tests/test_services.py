@@ -1,9 +1,10 @@
 from decimal import Decimal
 
 import pytest
+from django.test import override_settings
 
 from carrito.services import agregar_item_service, get_o_crear_carrito_service
-from ventas.models import VentaItemModel, VentaModel
+from ventas.models import PagoModel, VentaItemModel, VentaModel
 from ventas.services import (
     crear_venta_confirmada_service,
     get_order_context_service,
@@ -63,10 +64,24 @@ def test_crear_venta_carrito_vacio_lanza_error(carrito, usuario, datos_checkout)
         )
 
 
+@override_settings(MP_ACCESS_TOKEN='TEST-123', MP_PEDIDO_TTL_HORAS=4)
 @pytest.mark.django_db
-def test_crear_venta_rechaza_mercado_pago(carrito, producto, item, usuario, datos_checkout):
+def test_crear_venta_acepta_mercado_pago(carrito, producto, item, usuario, datos_checkout):
+    venta = crear_venta_confirmada_service(
+        usuario, datos_checkout, 'retiro_local', 'mercado_pago'
+    )
+    assert VentaModel.objects.count() == 1
+    assert venta.metodo_pago == 'mercado_pago'
+    assert venta.estado == VentaModel.EstadoChoices.PENDIENTE
+    assert venta.total == Decimal('30000')
+    assert carrito.items.count() == 0
+
+
+@override_settings(MP_ACCESS_TOKEN='')
+@pytest.mark.django_db
+def test_crear_venta_mercado_pago_sin_token_lo_rechaza(carrito, producto, item, usuario, datos_checkout):
     stock_inicial = producto.stock
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match='Mercado Pago'):
         crear_venta_confirmada_service(
             usuario, datos_checkout, 'retiro_local', 'mercado_pago'
         )
@@ -154,3 +169,99 @@ def test_permite_envio_domicilio_service_otros_codigos():
 
 def test_whatsapp_link_service_construye_link_desde_datos_local():
     assert whatsapp_link_service() == 'https://wa.me/543435468162'
+
+
+@override_settings(MP_ACCESS_TOKEN='TEST-123', MP_PEDIDO_TTL_HORAS=4)
+@pytest.mark.django_db
+def test_expirar_pagos_vencidos_cancela_venta_y_reponer_stock(carrito, producto, item, usuario, datos_checkout):
+    from datetime import timedelta
+
+    from django.utils import timezone
+
+    from ventas.services import expirar_pagos_vencidos_service
+
+    stock_inicial = producto.stock
+    venta = crear_venta_confirmada_service(
+        usuario, datos_checkout, 'retiro_local', 'mercado_pago'
+    )
+    pago = PagoModel.objects.create(
+        venta=venta, estado=PagoModel.EstadoChoices.PENDIENTE,
+        mp_preference_id='pref-1', monto=venta.total, external_reference=str(venta.id),
+    )
+    PagoModel.objects.filter(pk=pago.pk).update(
+        created_at=timezone.now() - timedelta(hours=5)
+    )
+    producto.refresh_from_db()
+    assert producto.stock == stock_inicial - 2
+
+    assert expirar_pagos_vencidos_service() is True
+
+    pago.refresh_from_db()
+    venta.refresh_from_db()
+    producto.refresh_from_db()
+    assert pago.estado == PagoModel.EstadoChoices.VENCIDO
+    assert venta.estado == VentaModel.EstadoChoices.CANCELADA
+    assert producto.stock == stock_inicial
+
+
+@override_settings(MP_ACCESS_TOKEN='TEST-123', MP_PEDIDO_TTL_HORAS=4)
+@pytest.mark.django_db
+def test_expirar_no_cancela_venta_con_pago_aprobado(carrito, item, usuario, datos_checkout):
+    from datetime import timedelta
+
+    from django.utils import timezone
+
+    from ventas.services import expirar_pagos_vencidos_service
+
+    venta = crear_venta_confirmada_service(
+        usuario, datos_checkout, 'retiro_local', 'mercado_pago'
+    )
+    venta.estado = VentaModel.EstadoChoices.CONFIRMADA
+    venta.save()
+    aprobado = PagoModel.objects.create(
+        venta=venta, estado=PagoModel.EstadoChoices.APROBADO,
+        payment_id='1001', monto=venta.total, external_reference=str(venta.id),
+    )
+    pendiente = PagoModel.objects.create(
+        venta=venta, estado=PagoModel.EstadoChoices.PENDIENTE,
+        mp_preference_id='pref-2', monto=venta.total, external_reference=str(venta.id),
+    )
+    PagoModel.objects.filter(pk=pendiente.pk).update(
+        created_at=timezone.now() - timedelta(hours=5)
+    )
+
+    assert expirar_pagos_vencidos_service() is False
+
+    aprobado.refresh_from_db()
+    pendiente.refresh_from_db()
+    venta.refresh_from_db()
+    assert aprobado.estado == PagoModel.EstadoChoices.APROBADO
+    assert pendiente.estado == PagoModel.EstadoChoices.PENDIENTE
+    assert venta.estado == VentaModel.EstadoChoices.CONFIRMADA
+
+
+@override_settings(MP_ACCESS_TOKEN='TEST-123', MP_PEDIDO_TTL_HORAS=4)
+@pytest.mark.django_db
+def test_expirar_pagos_vencidos_no_toca_venta_ya_cancelada(carrito, item, usuario, datos_checkout):
+    from datetime import timedelta
+
+    from django.utils import timezone
+
+    from ventas.services import expirar_pagos_vencidos_service
+
+    venta = crear_venta_confirmada_service(
+        usuario, datos_checkout, 'retiro_local', 'mercado_pago'
+    )
+    venta.estado = VentaModel.EstadoChoices.CANCELADA
+    venta.save()
+    pago = PagoModel.objects.create(
+        venta=venta, estado=PagoModel.EstadoChoices.PENDIENTE,
+        mp_preference_id='pref-3', monto=venta.total, external_reference=str(venta.id),
+    )
+    PagoModel.objects.filter(pk=pago.pk).update(
+        created_at=timezone.now() - timedelta(hours=5)
+    )
+
+    assert expirar_pagos_vencidos_service() is False
+    pago.refresh_from_db()
+    assert pago.estado == PagoModel.EstadoChoices.PENDIENTE
