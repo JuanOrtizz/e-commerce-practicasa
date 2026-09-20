@@ -1,5 +1,22 @@
 # Changelog
 ---
+## [v0.19.0] - 2026-09-20
+### Rama: feature/mercado-pago
+#### Features
+- Agrego el modelo PagoModel con su migración (0006) y su registro en el admin Django (1 venta -> N pagos, sin duplicar el detalle de la venta)
+- Habilito Mercado Pago en la página de método de pago y al confirmar creo la venta + el pago pendiente + la preferencia en MP, redirigiendo al init_point (sin emails todavía)
+- Agrego la página "Pago" con el estado del pago, "Volver a pagar" (límite de reintentos configurable) y expiración por TTL que cancela la venta y repone el stock automáticamente (lazy-check al cargar la página)
+- Agrego el webhook /ventas/mp-webhook/ idempotente: verificación de firma HMAC, consulta del estado real del pago a la API y validación del monto; al aprobarse confirma la venta y envía las facturas al cliente y al comercio
+- Parametrizo el secreto de firma del webhook (MP_WEBHOOK_SECRET, con fallback al access token) y agrego el badge "Pago duplicado" en el detalle de venta del panel cuando hay más de un pago aprobado
+- Corrijo el parseo del header X-Signature (formato ts;v1 separado por ';' que envía Mercado Pago, parse_qs no lo dividía)
+- Agrego la sección "Pagos" (id MP, estado con badge, monto y fecha) en el detalle de venta del panel admin
+- Completo los gráficos pendientes del dashboard con las ventas confirmadas: mínimo KPI "Total recaudado (último mes)" con sparkline y variación, "Productos más vendidos" por unidades y "Ventas histórico" por monto mensual
+- Trunco el nombre del producto en el resumen del pedido del flujo de compra (una línea con elipsis)
+#### Docs
+- Agrego las variables de Mercado Pago a .env.example y documento el pago online y el webhook en el README
+- Actualizo docs/manejo-de-stock-futuro.md (las ventas con Mercado Pago ahora expiran por TTL y liberan stock)
+- Actualizo CHANGELOG.md
+---
 ## [v0.18.0] - 2026-09-17
 ### Rama: feature/proceso-compra
 #### Features
