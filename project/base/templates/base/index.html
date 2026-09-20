@@ -3,7 +3,41 @@
 {% load static %}
 {% load precio_tags %}
 
-{% block title %}Home | Practicasa{% endblock %}
+{% block title %}Practicasa | Artículos para el hogar en Nogoyá, Entre Ríos{% endblock %}
+
+{% block meta_description %}Practicasa, tienda online de artículos para el hogar en Nogoyá, Entre Ríos. Envíos a todo el país y retiro local sin cargo. Pagá online con Mercado Pago, transferencia o efectivo.{% endblock %}
+
+{% block og_title %}Practicasa | Artículos para el hogar en Nogoyá, Entre Ríos{% endblock %}
+{% block og_description %}Practicasa, tienda online de artículos para el hogar en Nogoyá, Entre Ríos. Envíos a todo el país y retiro local sin cargo. Pagá online con Mercado Pago, transferencia o efectivo.{% endblock %}
+{% block twitter_title %}Practicasa | Artículos para el hogar en Nogoyá, Entre Ríos{% endblock %}
+{% block twitter_description %}Practicasa, tienda online de artículos para el hogar en Nogoyá, Entre Ríos. Envíos a todo el país y retiro local sin cargo. Pagá online con Mercado Pago, transferencia o efectivo.{% endblock %}
+
+{% block extra_json_ld %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Store",
+  "@id": "{{ SITE_URL }}/#store",
+  "name": "Practicasa",
+  "image": "{{ SITE_LOGO }}",
+  "url": "{{ SITE_URL }}/",
+  "telephone": "{{ SITE_TELEFONO_INTL }}",
+  "priceRange": "$$",
+  "address": {
+    "@type": "PostalAddress",
+    "addressLocality": "Nogoyá",
+    "addressRegion": "Entre Ríos",
+    "addressCountry": "AR"
+  },
+  "hasMap": "https://maps.app.goo.gl/qnbGySEidAAfJNB78",
+  "sameAs": [
+    "{{ SITE_REDES.tiktok }}",
+    "{{ SITE_REDES.facebook }}",
+    "{{ SITE_REDES.instagram }}"
+  ]
+}
+</script>
+{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'base/css/index.css' %}">
@@ -14,21 +48,21 @@
     <div id="carouselHero" class="carousel slide shadow-sm rounded overflow-hidden" data-bs-ride="carousel">
         <div class="carousel-inner">
             <div class="carousel-item active position-relative">
-                <img src="{% static 'base/img/hero_1.webp' %}" class="d-block w-100 object-fit-cover hero-slide" alt="Banner principal 1">
+                <img src="{% static 'base/img/hero_1.webp' %}" class="d-block w-100 object-fit-cover hero-slide" alt="Ofertas de artículos para el hogar - Practicasa">
                 <div class="slogan-ofertas position-absolute top-0 start-0 bottom-0 end-0 d-flex flex-column justify-content-center align-items-center text-center p-3">
                     <h2 class="fw-bold text-white">Tu hogar, nuestra misión</h2>
                     <p class="text-white">Encontralo en Practicasa</p>
                 </div>
             </div>
             <div class="carousel-item position-relative">
-                <img src="{% static 'base/img/hero_2.webp' %}" class="d-block w-100 object-fit-cover hero-slide" alt="Banner principal 2">
+                <img src="{% static 'base/img/hero_2.webp' %}" class="d-block w-100 object-fit-cover hero-slide" alt="Nuevos ingresos de artículos para el hogar - Practicasa">
                 <div class="slogan-ofertas position-absolute top-0 start-0 bottom-0 end-0 d-flex flex-column justify-content-center align-items-center text-center p-3">
                     <h2 class="fw-bold text-white">Tu hogar, nuestra misión</h2>
                     <p class="text-white">Encontralo en Practicasa</p>
                 </div>
             </div>
             <div class="carousel-item position-relative">
-                <img src="{% static 'base/img/hero_3.webp' %}" class="d-block w-100 object-fit-cover hero-slide" alt="Banner principal 3">
+                <img src="{% static 'base/img/hero_3.webp' %}" class="d-block w-100 object-fit-cover hero-slide" alt="Articulos para el hogar con envíos a todo el país - Practicasa">
                 <div class="slogan-ofertas position-absolute top-0 start-0 bottom-0 end-0 d-flex flex-column justify-content-center align-items-center text-center p-3">
                     <h2 class="fw-bold text-white">Tu hogar, nuestra misión</h2>
                     <p class="text-white">Encontralo en Practicasa</p>
@@ -41,6 +75,16 @@
             <button type="button" data-bs-target="#carouselHero" data-bs-slide-to="2" aria-label="Slide 3"></button>
         </div>
     </div>
+
+    <section class="mt-5 mb-3 animacion-aparicion-abajo-fade">
+        <div class="card-seo-home p-3 p-lg-4">
+            <p class="kicker-seo-home mb-2">Practicasa · Nogoyá, Entre Ríos</p>
+            <h1 class="fw-bold mb-3">Artículos para el hogar en Nogoyá, Entre Ríos</h1>
+            <p class="mb-3">Practicasa, tienda online de artículos para el hogar en Nogoyá, Entre Ríos. Encontrá en nuestra web desde lo esencial hasta los detalles que hacen la diferencia, con nuevas ofertas e ingresos cada semana.</p>
+            <p class="mb-3">Hacemos envíos a todo el país con Correo Argentino y despachamos tu pedido dentro de las 24 horas hábiles. Si preferís, retirás sin cargo por nuestro local o abonás por transferencia para obtener un descuento especial.</p>
+            <p class="mb-0">Pagos 100% seguros a través de Mercado Pago, transferencia bancaria o efectivo. Seguinos en Instagram, TikTok y Facebook para enterarte de las promociones antes que nadie.</p>
+        </div>
+    </section>
 
     <section class="my-5">
         <h3 class="fw-bold mb-3 titulo-apartado animacion-titulo text-center">Destacados</h3>

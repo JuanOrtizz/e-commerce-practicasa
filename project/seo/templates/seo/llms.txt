@@ -1,0 +1,37 @@
+# Practicasa — Artículos para el hogar en Nogoyá, Entre Ríos
+
+> Practicasa, tienda online de artículos para el hogar radicada en Nogoyá, Entre Ríos, Argentina.
+> Enviamos a todo el país (Correo Argentino) y ofrecemos retiro local sin cargo. Pago con Mercado Pago,
+> transferencia bancaria o efectivo. Despachos dentro de las 24 horas hábiles.
+
+## Productos
+
+- [Todos los productos]({{ SITE_URL }}/productos/) — Catálogo completo de artículos para el hogar.
+{% for categoria in categorias %}
+- [{{ categoria.nombre }}]({{ SITE_URL }}/productos/{{ categoria.slug }}/) — Comprá {{ categoria.nombre|lower }} online en Practicasa.
+{% endfor %}
+{% for categoria in categorias %}
+{% if categoria.subcategorias.all %}
+## {{ categoria.nombre }}
+
+{% for subcategoria in categoria.subcategorias.all %}
+- [{{ subcategoria.nombre }}]({{ SITE_URL }}/productos/{{ categoria.slug }}/{{ subcategoria.slug }}/) — Comprá {{ subcategoria.nombre|lower }}.
+{% endfor %}
+{% endif %}
+{% endfor %}
+
+## Institucional
+
+- [Contacto]({{ SITE_URL }}/contacto/) — Formulario de consultas y atención al cliente.
+- [FAQs]({{ SITE_URL }}/faqs/) — Preguntas frecuentes sobre envíos, pagos y devoluciones.
+- [Cambios y devoluciones]({{ SITE_URL }}/cambios_y_devoluciones/) — Política de cambios y devoluciones.
+- [Nuestra historia]({{ SITE_URL }}/nuestra_historia/) — Conocé la historia de Practicasa.
+- [Términos y condiciones]({{ SITE_URL }}/terminos_y_condiciones/) — Términos y condiciones de uso.
+- [Políticas de privacidad]({{ SITE_URL }}/politicas_de_privacidad/) — Política de privacidad.
+
+## Información de contacto
+
+- WhatsApp: {{ SITE_TELEFONO }}
+- Instagram: @practicasa.nogoya
+- TikTok: @practicasa.arg
+- Facebook: @practicasa.nogoya

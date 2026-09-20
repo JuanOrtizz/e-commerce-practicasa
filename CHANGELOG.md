@@ -1,5 +1,26 @@
 # Changelog
 ---
+## [v0.20.0] - 2026-09-20
+### Rama: feature/seo-geo
+#### Features
+- Agrego la app seo con /robots.txt (Disallow de rutas internas), /llms.txt para buscadores basados en IA (GEO) y /sitemap.xml con las URL estáticas, categorías, subcategorías y productos
+- Agrego middleware de noindex que aplica X-Robots-Tag: noindex a admin, panel admin, carrito, ventas, usuarios y resultados de búsqueda
+- Agrego metadatos reutilizables en base.html para todas las páginas: meta description, robots, canonical (sin query string), Open Graph y Twitter Card con defaults y blocks por página
+- Agrego JSON-LD global (WebSite con SearchAction y Organization con las redes sociales) y por página: Store en la home, Product con BreadcrumbList en el detalle, CollectionPage/ItemList en el listado y FAQPage en las FAQs
+- Agrego la card de presentación "Artículos para el hogar en Nogoyá, Entre Ríos" bajo el hero con H1 único y keywords, animación GSAP (animacion-aparicion-abajo-fade) y borde cónico giratorio igual al del login
+- Dejo un solo H1 por página: quito el H1 del logo del header (texto-logo), convierto el título del detalle de producto a H1 y agrego H1 al listado de productos, FAQs y contacto
+- Agrego alt descriptivos a las imágenes del hero
+- Agrego tests del app seo (robots, llms, sitemap, noindex de páginas internas y JSON-LD de la home)
+#### Fixes
+- Agrego SITE_URL a settings y corrijo el AttributeError del context processor de SEO que rompía el render de todas las páginas
+- Corrijo el TypeError del sitemap estático (items() devolvía dict_keys)
+- Quito los blocks anidados duplicados de título y descripción en los metadatos de Open Graph y Twitter
+#### Style
+- Rediseño la card de presentación de la home con borde de colores animado (mismo patrón que la card de login), padding compacto y tamaño de título contenido
+#### Docs
+- Actualizo .env.example con la variable SITE_URL
+- Actualizo CHANGELOG.md
+---
 ## [v0.18.0] - 2026-09-17
 ### Rama: feature/proceso-compra
 #### Features
