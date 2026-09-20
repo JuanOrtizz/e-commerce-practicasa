@@ -1,0 +1,141 @@
+{% extends 'base.html' %}
+
+{% load static precio_tags %}
+
+{% block title %}Pago | Practicasa{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'ventas/css/ventas.css' %}">
+{% endblock %}
+
+{% block content %}
+{% include 'partials/_breadcrumb.html' with breadcrumb_paso='pago' %}
+<div class="container my-4 animacion-aparicion-abajo-fade">
+    <div class="text-center mb-4">
+        {% if pago_aprobado %}
+            <span class="material-symbols-outlined ventas-exito-icon">check_circle</span>
+            <h2 class="fw-bold mt-2">¡Pago acreditado!</h2>
+            <p class="text-muted mb-1">Tu pedido <strong>#{{ venta.id }}</strong> fue <strong>confirmado</strong> y ya está en proceso.</p>
+        {% elif venta.estado == 'cancelada' or pagos.first.estado == 'vencido' %}
+            <span class="material-symbols-outlined ventas-exito-icon text-danger">cancel</span>
+            <h2 class="fw-bold mt-2">El pago venció</h2>
+            <p class="text-muted mb-1">Se venció el tiempo para pagar el pedido <strong>#{{ venta.id }}</strong> y fue <strong>cancelado</strong>.</p>
+            <p class="text-muted mb-0">Si querés, volvé a armar tu pedido cuando quieras.</p>
+        {% else %}
+            <span class="material-symbols-outlined ventas-exito-icon">payments</span>
+            <h2 class="fw-bold mt-2">Completá tu pago</h2>
+            <p class="text-muted mb-1">Tu pedido <strong>#{{ venta.id }}</strong> quedó <strong>pendiente</strong> hasta completar el pago online.</p>
+        {% endif %}
+    </div>
+
+    <div class="row g-4 justify-content-center">
+        <div class="col-lg-6">
+            <div class="ventas-paso">
+                <h5 class="fw-bold mb-3">Detalle del pedido</h5>
+                <div class="d-flex flex-column gap-2 mb-3">
+                    {% for item in venta.items.select_related.all %}
+                        <div class="d-flex justify-content-between gap-2">
+                            <span>
+                                {{ item.cantidad }} x {{ item.nombre_producto }}
+                                {% if item.etiqueta_promocion %}
+                                    <span class="badge rounded-pill text-bg-warning">{{ item.etiqueta_promocion }}</span>
+                                {% endif %}
+                                {% if item.promocion == '2x1' or item.promocion == '3x2' %}
+                                    <span class="text-muted small">(pagás {{ item.cantidad_paga }})</span>
+                                {% endif %}
+                            </span>
+                            <span class="fw-semibold flex-shrink-0">${{ item.subtotal|format_price }}</span>
+                        </div>
+                    {% endfor %}
+                </div>
+                <hr class="my-3">
+                <div class="d-flex justify-content-between mb-2">
+                    <span>Subtotal</span>
+                    <span>${{ venta.subtotal|format_price }}</span>
+                </div>
+                <div class="d-flex justify-content-between mb-2">
+                    <span>Envío</span>
+                    <span>Gratis</span>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <span class="ventas-total-label">Total a pagar</span>
+                    <span class="ventas-total-valor">${{ venta.total|format_price }}</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="ventas-paso">
+                <h5 class="fw-bold mb-3">Estado del pago</h5>
+                {% if error %}
+                    <div class="alert alert-danger py-2">{{ error }}</div>
+                {% endif %}
+                {% if pago_aprobado %}
+                    <p class="mb-2">Nº de pedido: <strong>#{{ venta.id }}</strong></p>
+                    <p class="text-muted mb-3">Te enviamos la factura por email.</p>
+                    <a class="btn btn-enviar text-white fw-bold w-100 py-2" href="{% url 'productos' %}">Seguir comprando</a>
+                {% elif venta.estado == 'cancelada' or pagos.first.estado == 'vencido' %}
+                    <p class="text-muted mb-3">El pedido se canceló automáticamente al vencer el tiempo de pago.</p>
+                    <a class="btn btn-enviar text-white fw-bold w-100 py-2" href="{% url 'productos' %}">Seguir comprando</a>
+                {% else %}
+                    <div class="d-flex flex-column gap-2">
+                        <ul class="list-unstyled mb-2 d-flex flex-column gap-1 small text-muted">
+                            <li>Te redirigimos a Mercado Pago para completar el pago de forma segura.</li>
+                            <li>Tenés <strong>{{ max_reintentos|add:"-1" }}</strong> reintento{{ max_reintentos|add:"-1"|pluralize }} más antes de que el pedido se cancele.</li>
+                        </ul>
+                        {% if puede_pagar %}
+                            <form method="post">
+                                {% csrf_token %}
+                                <button class="btn btn-enviar text-white fw-bold w-100 py-2" type="submit">
+                                    {% if reintentos %}Volver a pagar{% else %}Ir a pagar ahora{% endif %}
+                                </button>
+                            </form>
+                        {% else %}
+                            <div class="alert alert-warning py-2 mb-0">
+                                Se alcanzó el máximo de reintentos. Contactanos si querés continuar con el pedido.
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    {% if pagos %}
+        <div class="row g-4 justify-content-center mt-1">
+            <div class="col-lg-8">
+                <div class="ventas-paso">
+                    <h5 class="fw-bold mb-3">Intentos de pago</h5>
+                    <div class="table-responsive">
+                        <table class="table table-sm align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Estado</th>
+                                    <th>Monto</th>
+                                    <th>Fecha</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for pago in pagos %}
+                                    <tr>
+                                        <td>
+                                            <span class="badge rounded-pill
+                                                {% if pago.estado == 'aprobado' %}text-bg-success
+                                                {% elif pago.estado == 'pendiente' %}text-bg-warning
+                                                {% elif pago.estado == 'vencido' or pago.estado == 'cancelado' %}text-bg-secondary
+                                                {% else %}text-bg-danger{% endif %}">
+                                                {{ pago.get_estado_display }}
+                                            </span>
+                                        </td>
+                                        <td>${{ pago.monto|format_price }}</td>
+                                        <td>{{ pago.created_at|date:'d/m/Y H:i' }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

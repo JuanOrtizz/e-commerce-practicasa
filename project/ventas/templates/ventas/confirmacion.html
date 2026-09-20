@@ -58,8 +58,8 @@
                     <p class="mb-0">
                         {% if datos.metodo_pago == 'efectivo' %}
                             Efectivo
-                        {% else %}
-                            {{ datos.metodo_pago }}
+                        {% elif datos.metodo_pago == 'mercado_pago' %}
+                            Mercado Pago (online)
                         {% endif %}
                     </p>
                 </div>

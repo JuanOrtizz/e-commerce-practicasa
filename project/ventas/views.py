@@ -1,22 +1,33 @@
+import json
+
+from django.conf import settings
 from django.contrib.auth.decorators import login_required
-from django.http import JsonResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import redirect, render
 from django.urls import reverse
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
 from django_ratelimit.decorators import ratelimit
 
 from .forms import CheckoutForm, EnvioForm, MetodoPagoForm
-from .models import VentaModel
+from . import mp
+from .models import PagoModel, VentaModel
 from .services import (
     DATOS_LOCAL,
+    crear_pago_mercado_pago_service,
     crear_venta_confirmada_service,
+    eliminar_venta_service,
     enviar_factura_venta_service,
+    expirar_pagos_vencidos_service,
     get_datos_venta_session,
     get_order_context_service,
     limpiar_datos_venta_session,
     localidad_para_coordinar_entrega_service,
     permite_coordinar_entrega_service,
     permite_envio_domicilio_service,
+    procesar_notificacion_pago_service,
     set_datos_venta_session,
+    sincronizar_estado_pago_service,
     whatsapp_link_service,
 )
 
@@ -110,13 +121,9 @@ def metodo_pago(request):
     if request.method == 'POST':
         form = MetodoPagoForm(request.POST)
         if form.is_valid():
-            seleccionado = form.cleaned_data['metodo_pago']
-            if seleccionado != VentaModel.MetodoPagoChoices.EFECTIVO:
-                form.add_error('metodo_pago', 'Seleccioná una forma de pago.')
-            else:
-                datos.update({'metodo_pago': seleccionado})
-                set_datos_venta_session(request, datos)
-                return redirect('confirmacion')
+            datos.update({'metodo_pago': form.cleaned_data['metodo_pago']})
+            set_datos_venta_session(request, datos)
+            return redirect('confirmacion')
 
     return render(request, 'ventas/metodo_pago.html', {
         'form': form,
@@ -155,6 +162,23 @@ def confirmacion(request):
             context['error'] = str(e)
             return render(request, 'ventas/confirmacion.html', context)
 
+        if venta.metodo_pago == VentaModel.MetodoPagoChoices.MERCADO_PAGO:
+            try:
+                init_point = crear_pago_mercado_pago_service(venta, request)
+            except mp.MercadoPagoError as e:
+                eliminar_venta_service(venta)
+                context['error'] = f'No pudimos iniciar el pago: {e}'
+                return render(request, 'ventas/confirmacion.html', context)
+            except mp.MercadoPagoNoConfigurado as e:
+                eliminar_venta_service(venta)
+                context['error'] = str(e)
+                return render(request, 'ventas/confirmacion.html', context)
+            except Exception:
+                eliminar_venta_service(venta)
+                context['error'] = 'No pudimos iniciar el pago. Intentalo de nuevo.'
+                return render(request, 'ventas/confirmacion.html', context)
+            return redirect(init_point)
+
         enviar_factura_venta_service(venta, request)
         return redirect('pago_local', venta_id=venta.id)
 
@@ -171,3 +195,68 @@ def pago_local(request, venta_id):
         'datos_local': DATOS_LOCAL,
         'whatsapp_link': whatsapp_link_service(),
     })
+
+
+@login_required
+def pago(request, venta_id):
+    venta = VentaModel.objects.filter(id=venta_id, usuario=request.user).first()
+    if not venta:
+        return redirect('ver_carrito')
+    if venta.metodo_pago != VentaModel.MetodoPagoChoices.MERCADO_PAGO:
+        return redirect('pago_local', venta_id=venta.id)
+
+    expirar_pagos_vencidos_service()
+    sincronizar_estado_pago_service(venta, request)
+
+    pagos = venta.pagos.all()
+    pago_aprobado = venta.pagos.filter(estado=PagoModel.EstadoChoices.APROBADO).exists()
+    reintentos = venta.pagos.count()
+    puede_pagar = (
+        venta.estado == VentaModel.EstadoChoices.PENDIENTE
+        and not pago_aprobado
+        and reintentos < settings.MP_MAX_REINTENTOS
+    )
+
+    error = None
+    if request.method == 'POST' and puede_pagar:
+        try:
+            init_point = crear_pago_mercado_pago_service(venta, request)
+            return redirect(init_point)
+        except mp.MercadoPagoError as e:
+            error = f'No pudimos iniciar el pago: {e}'
+        except mp.MercadoPagoNoConfigurado as e:
+            error = str(e)
+        except Exception:
+            error = 'No pudimos iniciar el pago. Intentalo de nuevo.'
+
+    return render(request, 'ventas/pago.html', {
+        'venta': venta,
+        'pagos': pagos,
+        'pago_aprobado': pago_aprobado,
+        'reintentos': reintentos,
+        'max_reintentos': settings.MP_MAX_REINTENTOS,
+        'puede_pagar': puede_pagar,
+        'error': error,
+    })
+
+
+@csrf_exempt
+@require_POST
+def mp_webhook(request):
+    try:
+        payload = json.loads(request.body.decode('utf-8')) if request.body else {}
+    except (ValueError, UnicodeDecodeError):
+        payload = {}
+
+    data = payload.get('data') if isinstance(payload.get('data'), dict) else {}
+    data_id = data.get('id') or payload.get('data_id')
+    if not data_id and request.GET.get('type') == 'payment':
+        data_id = request.GET.get('data_id')
+
+    if data_id:
+        try:
+            procesar_notificacion_pago_service(str(data_id), request)
+        except Exception:
+            pass
+
+    return HttpResponse('ok')

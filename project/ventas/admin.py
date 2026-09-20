@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import VentaItemModel, VentaModel
+from .models import PagoModel, VentaItemModel, VentaModel
 from .services import eliminar_venta_service
 
 
@@ -32,3 +32,13 @@ class VentaAdmin(admin.ModelAdmin):
         for venta in queryset:
             eliminar_venta_service(venta)
         super().delete_queryset(request, queryset)
+
+
+@admin.register(PagoModel)
+class PagoAdmin(admin.ModelAdmin):
+    list_display = ['id', 'venta', 'estado', 'monto', 'payment_id', 'created_at']
+    list_filter = ['estado']
+    readonly_fields = [
+        'venta', 'estado', 'payment_id', 'mp_preference_id', 'monto',
+        'external_reference', 'created_at', 'updated_at',
+    ]

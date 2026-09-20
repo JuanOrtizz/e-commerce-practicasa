@@ -63,6 +63,45 @@ class VentaModel(models.Model):
     def total_transferencia(self):
         return self.subtotal_transferencia + self.costo_envio
 
+    @property
+    def tiene_pagos_duplicados(self):
+        return (
+            self.pagos.filter(estado=PagoModel.EstadoChoices.APROBADO).count() > 1
+        )
+
+
+class PagoModel(models.Model):
+    class EstadoChoices(models.TextChoices):
+        PENDIENTE = 'pendiente', 'Pendiente'
+        APROBADO = 'aprobado', 'Aprobado'
+        RECHAZADO = 'rechazado', 'Rechazado'
+        VENCIDO = 'vencido', 'Vencido'
+        CANCELADO = 'cancelado', 'Cancelado'
+
+    venta = models.ForeignKey(
+        VentaModel, on_delete=models.PROTECT, related_name='pagos'
+    )
+    estado = models.CharField(
+        max_length=20, choices=EstadoChoices.choices, default=EstadoChoices.PENDIENTE
+    )
+    payment_id = models.CharField(
+        max_length=40, unique=True, null=True, blank=True
+    )
+    mp_preference_id = models.CharField(max_length=40, null=True, blank=True)
+    monto = models.DecimalField(max_digits=10, decimal_places=2)
+    external_reference = models.CharField(max_length=20, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = 'ventas_pagos'
+        verbose_name = 'Pago'
+        verbose_name_plural = 'Pagos'
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f'Pago {self.payment_id or self.id} de la venta {self.venta_id}'
+
 
 class VentaItemModel(models.Model):
     venta = models.ForeignKey(

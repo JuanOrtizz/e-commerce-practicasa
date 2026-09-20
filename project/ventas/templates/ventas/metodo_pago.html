@@ -38,16 +38,17 @@
                             </div>
                         </label>
 
-                        <div class="ventas-opcion ventas-opcion-disabled d-flex align-items-center gap-3 p-3">
-                            <input class="form-check-input" type="radio" disabled>
+                        <label class="ventas-opcion d-flex align-items-center gap-3 p-3 {% if form.metodo_pago.value == 'mercado_pago' %}selected{% endif %}" data-metodo="mercado_pago">
+                            <input class="form-check-input" type="radio" name="metodo_pago" value="mercado_pago"
+                                   {% if form.metodo_pago.value == 'mercado_pago' %}checked{% endif %}>
                             <span class="material-symbols-outlined ventas-pago-icon">credit_card</span>
                             <div>
                                 <div class="fw-semibold">Mercado Pago</div>
                                 <div class="ventas-opcion-desc text-muted small">
-                                    No disponible por el momento.
+                                    Pagás online al instante con tarjeta o dinero en cuenta.
                                 </div>
                             </div>
-                        </div>
+                        </label>
                     </div>
                 </form>
             </div>

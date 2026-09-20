@@ -104,4 +104,41 @@
         <span class="fw-bold">${{ venta.total|format_price }}</span>
     </div>
 </div>
+
+{% if venta.pagos.all %}
+<div class="panel-card p-3 mt-3">
+    <h5 class="fw-bold mb-3">
+        Pagos
+        {% if venta.tiene_pagos_duplicados %}
+            <span class="badge rounded-pill text-bg-danger ms-2">Pago duplicado</span>
+        {% endif %}
+    </h5>
+    <div class="table-responsive">
+        <table class="table panel-table align-middle mb-0">
+            <thead>
+                <tr>
+                    <th class="text-nowrap">ID pago (MP)</th>
+                    <th class="text-nowrap">Estado</th>
+                    <th class="text-nowrap">Monto</th>
+                    <th class="text-nowrap">Fecha</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for pago in venta.pagos.all %}
+                <tr>
+                    <td>{{ pago.payment_id|default:'—' }}</td>
+                    <td>
+                        <span class="badge {% if pago.estado == 'aprobado' %}text-bg-success{% elif pago.estado == 'pendiente' %}text-bg-warning{% elif pago.estado == 'vencido' or pago.estado == 'cancelado' %}text-bg-secondary{% else %}text-bg-danger{% endif %}">
+                            {{ pago.get_estado_display }}
+                        </span>
+                    </td>
+                    <td>${{ pago.monto|format_price }}</td>
+                    <td>{{ pago.created_at|date:'d/m/Y H:i' }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
 {% endblock %}

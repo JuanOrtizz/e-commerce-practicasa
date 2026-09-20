@@ -128,6 +128,13 @@ EMAIL_HOST_USER = config("EMAIL_HOST_USER", default="")
 EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD", default="")
 DEFAULT_FROM_EMAIL = config("DEFAULT_FROM_EMAIL", default="webmaster@localhost")
 
+#Mercado Pago
+MP_ACCESS_TOKEN = config("MP_ACCESS_TOKEN", default="")
+MP_PEDIDO_TTL_HORAS = config("MP_PEDIDO_TTL_HORAS", default=4, cast=int)
+MP_WEBHOOK_URL = config("MP_WEBHOOK_URL", default="")
+MP_WEBHOOK_SECRET = config("MP_WEBHOOK_SECRET", default="")
+MP_MAX_REINTENTOS = config("MP_MAX_REINTENTOS", default=5, cast=int)
+
 # Internationalization
 # https://docs.djangoproject.com/en/6.0/topics/i18n/
 

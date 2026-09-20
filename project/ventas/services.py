@@ -1,8 +1,11 @@
 import re
+from datetime import timedelta
 from decimal import Decimal
 
+from django.conf import settings
 from django.db import transaction
 from django.template.loader import render_to_string
+from django.utils import timezone
 
 from project.services import enviar_email
 
@@ -11,7 +14,9 @@ from carrito.services import (
     get_carrito_context_service,
     vaciar_carrito_service,
 )
-from .models import VentaModel, VentaItemModel
+
+from . import mp
+from .models import PagoModel, VentaModel, VentaItemModel
 
 SESSION_DATOS_CLAVE = 'datos_venta'
 
@@ -93,8 +98,8 @@ def _validar_stock_service(carrito, carrito_context):
 
 @transaction.atomic
 def crear_venta_confirmada_service(usuario, datos, metodo_envio, metodo_pago):
-    if metodo_pago != VentaModel.MetodoPagoChoices.EFECTIVO:
-        raise ValueError('Ese método de pago no está disponible.')
+    if metodo_pago == VentaModel.MetodoPagoChoices.MERCADO_PAGO and not settings.MP_ACCESS_TOKEN:
+        raise ValueError('El pago con Mercado Pago no está disponible por el momento.')
 
     carrito = get_o_crear_carrito_service(usuario)
     carrito_context = get_carrito_context_service(carrito)
@@ -196,3 +201,155 @@ def enviar_factura_venta_service(venta, request):
         mensaje_html=_render_factura_venta(venta, request, 'Nuevo pedido recibido'),
         destinatarios=[EMAIL_COMERCIO],
     )
+
+
+@transaction.atomic
+def crear_pago_mercado_pago_service(venta, request):
+    from django.urls import reverse
+
+    sdk = mp.get_sdk()
+    back_url = request.build_absolute_uri(reverse('pago', args=[venta.id]))
+    preferencia = mp.crear_preferencia_service(
+        sdk, venta, settings.MP_PEDIDO_TTL_HORAS, settings.MP_WEBHOOK_URL, back_url
+    )
+    PagoModel.objects.create(
+        venta=venta,
+        estado=PagoModel.EstadoChoices.PENDIENTE,
+        mp_preference_id=preferencia['id'],
+        monto=venta.total,
+        external_reference=str(venta.id),
+    )
+    return preferencia['init_point']
+
+
+def expirar_pagos_vencidos_service():
+    limite = timezone.now() - timedelta(hours=settings.MP_PEDIDO_TTL_HORAS)
+    vencidos = PagoModel.objects.filter(
+        estado=PagoModel.EstadoChoices.PENDIENTE, created_at__lt=limite
+    ).select_related('venta')
+    cancelada = VentaModel.EstadoChoices.CANCELADA
+    pendiente = VentaModel.EstadoChoices.PENDIENTE
+    procesados = False
+    with transaction.atomic():
+        for pago in vencidos:
+            venta = pago.venta
+            if venta.estado != pendiente:
+                continue
+            if venta.pagos.filter(estado=PagoModel.EstadoChoices.APROBADO).exists():
+                continue
+            pago.estado = PagoModel.EstadoChoices.VENCIDO
+            pago.save(update_fields=['estado'])
+            venta.estado = cancelada
+            venta.save(update_fields=['estado'])
+            procesados = True
+    return procesados
+
+
+def _monto_coincide(monto_mp, esperado):
+    try:
+        monto_decimal = Decimal(str(monto_mp))
+    except (TypeError, ValueError):
+        return False
+    return abs(monto_decimal - esperado) < Decimal('0.01')
+
+
+def _venta_desde_referencia(pago_data):
+    try:
+        venta_id = int(pago_data.get('external_reference', ''))
+    except (TypeError, ValueError):
+        return None
+    return VentaModel.objects.filter(id=venta_id).first()
+
+
+def sincronizar_pago_service(pago_data, venta, request):
+    payment_id = str(pago_data.get('id'))
+    estado_mp = pago_data.get('status', '')
+
+    pago = PagoModel.objects.filter(payment_id=payment_id).first()
+    if pago:
+        if pago.venta_id != venta.id:
+            return None
+    else:
+        pago = venta.pagos.filter(
+            estado=PagoModel.EstadoChoices.PENDIENTE, payment_id__isnull=True
+        ).order_by('-created_at').first()
+        if pago:
+            pago.payment_id = payment_id
+            pago.save(update_fields=['payment_id'])
+        else:
+            pago = PagoModel.objects.create(
+                venta=venta,
+                estado=PagoModel.EstadoChoices.PENDIENTE,
+                payment_id=payment_id,
+                mp_preference_id=pago_data.get('preference_id', '') or '',
+                monto=venta.total,
+                external_reference=str(venta.id),
+            )
+
+    aprobado = PagoModel.EstadoChoices.APROBADO
+    pendiente = VentaModel.EstadoChoices.PENDIENTE
+    confirmada = VentaModel.EstadoChoices.CONFIRMADA
+    ya_aprobado = pago.estado == aprobado
+    hay_otro_aprobado = venta.pagos.filter(estado=aprobado).exclude(pk=pago.pk).exists()
+
+    if estado_mp in ('approved', 'authorized'):
+        if not ya_aprobado and not hay_otro_aprobado and venta.estado == pendiente:
+            pago.estado = aprobado
+            pago.save(update_fields=['estado', 'mp_preference_id', 'monto', 'external_reference'])
+            venta.estado = confirmada
+            venta.save(update_fields=['estado'])
+            enviar_factura_venta_service(venta, request)
+        elif not ya_aprobado:
+            pago.estado = aprobado
+            pago.save(update_fields=['estado', 'mp_preference_id', 'monto', 'external_reference'])
+    elif estado_mp in ('rejected', 'chargedback', 'cancelled'):
+        nuevo = (
+            PagoModel.EstadoChoices.RECHAZADO
+            if estado_mp in ('rejected', 'chargedback')
+            else PagoModel.EstadoChoices.CANCELADO
+        )
+        if pago.estado != nuevo:
+            pago.estado = nuevo
+            pago.save(update_fields=['estado', 'mp_preference_id', 'monto', 'external_reference'])
+    return pago
+
+
+def procesar_notificacion_pago_service(payment_id, request):
+    try:
+        sdk = mp.get_sdk()
+    except mp.MercadoPagoNoConfigurado:
+        return False
+    if not mp.verificar_firma_webhook(request, payment_id):
+        return False
+    pago_data = mp.consultar_pago_service(sdk, payment_id)
+    if not pago_data:
+        return False
+    venta = _venta_desde_referencia(pago_data)
+    if not venta:
+        return False
+    if not _monto_coincide(pago_data.get('transaction_amount'), venta.total):
+        return False
+    sincronizar_pago_service(pago_data, venta, request)
+    return True
+
+
+def sincronizar_estado_pago_service(venta, request):
+    pago = venta.pagos.filter(
+        estado=PagoModel.EstadoChoices.PENDIENTE
+    ).order_by('-created_at').first()
+    if not pago or not pago.payment_id:
+        return
+    if venta.pagos.filter(estado=PagoModel.EstadoChoices.APROBADO).exists():
+        return
+    try:
+        sdk = mp.get_sdk()
+        pago_data = mp.consultar_pago_service(sdk, pago.payment_id)
+    except Exception:
+        return
+    if not pago_data:
+        return
+    if str(pago_data.get('external_reference', '')) != str(venta.id):
+        return
+    if not _monto_coincide(pago_data.get('transaction_amount'), venta.total):
+        return
+    sincronizar_pago_service(pago_data, venta, request)
