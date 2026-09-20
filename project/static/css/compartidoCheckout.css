@@ -1,0 +1,127 @@
+.ventas-breadcrumb {
+    background-color: var(--white);
+    padding: 0.9rem 0;
+    border-bottom: 1px solid var(--primary-color);
+}
+
+.ventas-breadcrumb-steps {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+}
+
+.ventas-breadcrumb-paso {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.ventas-breadcrumb-circle {
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    background-color: var(--secondary-color);
+    color: var(--white);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+a.ventas-breadcrumb-circle:hover {
+    transform: scale(1.06);
+}
+
+.ventas-breadcrumb-circle.is-activo {
+    background-color: var(--tertiary-color);
+}
+
+.ventas-breadcrumb-circle.is-completado {
+    background-color: var(--tertiary-color-apagado);
+}
+
+.ventas-breadcrumb-circle .material-symbols-outlined {
+    font-size: 1.35rem;
+    line-height: 1;
+}
+
+.ventas-breadcrumb-dots {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.ventas-breadcrumb-dots i {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background-color: var(--secondary-color);
+    display: block;
+}
+
+.ventas-breadcrumb-dots.is-activo i {
+    background-color: var(--tertiary-color);
+}
+
+.ventas-breadcrumb-dots.is-completado i {
+    background-color: var(--tertiary-color-apagado);
+}
+
+@media (max-width: 991.98px) {
+    .ventas-breadcrumb-dots i:nth-child(3) {
+        display: none;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .ventas-breadcrumb-dots {
+        display: none;
+    }
+
+    .ventas-breadcrumb-steps {
+        gap: 0.4rem;
+    }
+
+    .ventas-breadcrumb-circle {
+        width: 36px;
+        height: 36px;
+    }
+
+    .ventas-breadcrumb-circle .material-symbols-outlined {
+        font-size: 1.05rem;
+    }
+}
+
+.ventas-sidebar {
+    position: sticky;
+    top: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    align-self: start;
+    z-index: 3;
+}
+
+.ventas-total-label {
+    font-size: 1rem;
+    font-weight: 700;
+}
+
+.ventas-total-valor {
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: var(--tertiary-color);
+}
+
+.ventas-total-transf-label {
+    font-size: 0.8rem;
+    color: var(--tertiary-color);
+}
+
+.ventas-total-transf-valor {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--tertiary-color);
+}

@@ -1,3 +1,4 @@
+from django.db.models.deletion import ProtectedError
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
@@ -5,6 +6,9 @@ from django.views.decorators.http import require_POST
 
 from base.forms import ConsultaAdminForm
 from base.models import ConsultaModel
+from ventas.forms import VentaAdminForm
+from ventas.models import VentaItemModel, VentaModel
+from ventas.services import eliminar_venta_service
 from productos.forms import (
     MAX_IMAGENES_PRODUCTO,
     CategoriaForm,
@@ -114,7 +118,18 @@ def producto_modificar(request, id):
 @requiere_admin
 def producto_eliminar(request, id):
     producto = get_object_or_404(ProductoModel, id=id)
-    producto.delete()
+    if VentaItemModel.objects.filter(producto=producto).exists():
+        return JsonResponse({
+            "success": False,
+            "message": f"No se puede eliminar el producto '{producto.nombre}'. Tiene ventas asociadas.",
+        })
+    try:
+        producto.delete()
+    except ProtectedError:
+        return JsonResponse({
+            "success": False,
+            "message": f"No se puede eliminar el producto '{producto.nombre}'. Tiene ventas asociadas.",
+        })
     return JsonResponse({
         "success": True,
         "message": f"Producto {producto.nombre} eliminado."
@@ -317,5 +332,48 @@ def subcategoria_eliminar(request, id):
 
 
 @requiere_admin
-def pagos(request):
-    return render(request, 'panel_admin/pagos.html')
+def lista_ventas(request):
+    ventas = VentaModel.objects.prefetch_related('items').all()
+    return render(request, 'panel_admin/ventas_lista.html', {'ventas': ventas})
+
+
+@requiere_admin
+def venta_detalle(request, id):
+    venta = get_object_or_404(VentaModel.objects.prefetch_related('items__producto'), id=id)
+    return render(request, 'panel_admin/venta_detalle.html', {'venta': venta})
+
+
+@requiere_admin
+def venta_modificar(request, id):
+    venta = get_object_or_404(VentaModel, id=id)
+    if request.method == 'POST':
+        form = VentaAdminForm(request.POST, instance=venta)
+        if form.is_valid():
+            if not form.changed_data:
+                return JsonResponse({"success": False, "message": "No realizaste modificaciones."})
+            form.save()
+            return JsonResponse({
+                "success": True,
+                "message": "Venta modificada correctamente.",
+                "redirect": reverse('panel_venta_detalle', args=[venta.id]),
+            })
+    else:
+        form = VentaAdminForm(instance=venta)
+
+    return render(request, 'panel_admin/venta_form.html', {
+        'form': form,
+        'titulo': f'Modificar venta #{venta.id}',
+        'venta': venta,
+    })
+
+
+@require_POST
+@requiere_admin
+def venta_eliminar(request, id):
+    venta = get_object_or_404(VentaModel, id=id)
+    venta_id = venta.id
+    eliminar_venta_service(venta)
+    return JsonResponse({
+        "success": True,
+        "message": f"Venta #{venta_id} eliminada."
+    })

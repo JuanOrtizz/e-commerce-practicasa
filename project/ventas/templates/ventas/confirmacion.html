@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+
+{% load static precio_tags %}
+
+{% block title %}Confirmación | Practicasa{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'ventas/css/ventas.css' %}">
+{% endblock %}
+
+{% block content %}
+{% include 'partials/_breadcrumb.html' with breadcrumb_paso='confirmacion' %}
+<div class="container my-4 animacion-aparicion-abajo-fade">
+    <h2 class="fw-bold mb-4">Confirmá tu compra</h2>
+
+    {% if error %}
+        <div class="alert alert-danger py-2">{{ error }}</div>
+    {% endif %}
+
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="d-flex flex-column gap-4">
+                <div class="ventas-paso">
+                    <h5 class="fw-bold mb-3">Datos de facturación</h5>
+                    <dl class="row mb-0">
+                        <dt class="col-sm-4 text-secondary">Nombre</dt>
+                        <dd class="col-sm-8">{{ datos.nombre }}</dd>
+                        <dt class="col-sm-4 text-secondary">Email</dt>
+                        <dd class="col-sm-8">{{ datos.email }}</dd>
+                        <dt class="col-sm-4 text-secondary">Teléfono</dt>
+                        <dd class="col-sm-8">{{ datos.telefono }}</dd>
+                        {% if datos.direccion %}
+                            <dt class="col-sm-4 text-secondary">Dirección</dt>
+                            <dd class="col-sm-8">{{ datos.direccion }}{% if datos.numero %} {{ datos.numero }}{% endif %}, {{ datos.ciudad }}, {{ datos.provincia }} ({{ datos.codigo_postal }})</dd>
+                        {% endif %}
+                        {% if datos.notas %}
+                            <dt class="col-sm-4 text-secondary">Notas</dt>
+                            <dd class="col-sm-8">{{ datos.notas }}</dd>
+                        {% endif %}
+                    </dl>
+                </div>
+
+                <div class="ventas-paso">
+                    <h5 class="fw-bold mb-3">Método de envío</h5>
+                    <p class="mb-0">
+                        {% if datos.metodo_envio == 'retiro_local' %}
+                            Retiro en el local (Nogoyá)
+                        {% elif datos.metodo_envio == 'coordinar_entrega' %}
+                            Coordinar entrega{% if localidad_coordinar_entrega %} ({{ localidad_coordinar_entrega }}){% endif %} — Gratis
+                        {% else %}
+                            Envío a domicilio (Nogoyá) — Gratis
+                        {% endif %}
+                    </p>
+                </div>
+
+                <div class="ventas-paso">
+                    <h5 class="fw-bold mb-3">Forma de pago</h5>
+                    <p class="mb-0">
+                        {% if datos.metodo_pago == 'efectivo' %}
+                            Efectivo
+                        {% else %}
+                            {{ datos.metodo_pago }}
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="ventas-sidebar">
+                {% include 'ventas/_resumen_pedido.html' %}
+                <form method="post" id="form-confirmacion">
+                    {% csrf_token %}
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-enviar text-white fw-bold py-2" type="submit" id="btn-submit">
+                            <span id="btn-text">Confirmar compra</span>
+                            <span class="spinner-border spinner-border-sm d-none" role="status" id="btn-spinner"></span>
+                        </button>
+                        <a class="btn btn-outline-secondary fw-bold py-2" href="{% url 'metodo_pago' %}">Volver</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

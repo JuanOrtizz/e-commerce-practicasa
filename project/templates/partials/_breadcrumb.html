@@ -1,0 +1,105 @@
+{% load static %}
+
+<nav class="ventas-breadcrumb" aria-label="breadcrumb">
+    <div class="container">
+        <div class="ventas-breadcrumb-steps">
+            <span class="ventas-breadcrumb-paso">
+                {% if breadcrumb_paso == 'carrito' %}
+                    <a class="ventas-breadcrumb-circle is-activo" href="{% url 'ver_carrito' %}" title="Carrito">
+                        <span class="material-symbols-outlined">shopping_cart</span>
+                    </a>
+                {% else %}
+                    <a class="ventas-breadcrumb-circle is-completado" href="{% url 'ver_carrito' %}" title="Carrito">
+                        <span class="material-symbols-outlined">shopping_cart</span>
+                    </a>
+                {% endif %}
+            </span>
+            <span class="ventas-breadcrumb-dots {% if breadcrumb_paso != 'carrito' %}is-completado{% endif %}">
+                <i></i><i></i><i></i>
+            </span>
+            <span class="ventas-breadcrumb-paso">
+                {% if breadcrumb_paso == 'checkout' %}
+                    <a class="ventas-breadcrumb-circle is-activo" href="{% url 'checkout' %}" title="Checkout">
+                        <span class="material-symbols-outlined">shopping_bag</span>
+                    </a>
+                {% elif breadcrumb_paso == 'envio' or breadcrumb_paso == 'metodo_pago' or breadcrumb_paso == 'confirmacion' or breadcrumb_paso == 'pago' %}
+                    <a class="ventas-breadcrumb-circle is-completado" href="{% url 'checkout' %}" title="Checkout">
+                        <span class="material-symbols-outlined">shopping_bag</span>
+                    </a>
+                {% else %}
+                    <span class="ventas-breadcrumb-circle" title="Checkout">
+                        <span class="material-symbols-outlined">shopping_bag</span>
+                    </span>
+                {% endif %}
+            </span>
+            <span class="ventas-breadcrumb-dots {% if breadcrumb_paso == 'envio' or breadcrumb_paso == 'metodo_pago' or breadcrumb_paso == 'confirmacion' or breadcrumb_paso == 'pago' %}is-completado{% endif %}">
+                <i></i><i></i><i></i>
+            </span>
+            <span class="ventas-breadcrumb-paso">
+                {% if breadcrumb_paso == 'envio' %}
+                    <a class="ventas-breadcrumb-circle is-activo" href="{% url 'envio' %}" title="Envío">
+                        <span class="material-symbols-outlined">local_shipping</span>
+                    </a>
+                {% elif breadcrumb_paso == 'metodo_pago' or breadcrumb_paso == 'confirmacion' or breadcrumb_paso == 'pago' %}
+                    <a class="ventas-breadcrumb-circle is-completado" href="{% url 'envio' %}" title="Envío">
+                        <span class="material-symbols-outlined">local_shipping</span>
+                    </a>
+                {% else %}
+                    <span class="ventas-breadcrumb-circle" title="Envío">
+                        <span class="material-symbols-outlined">local_shipping</span>
+                    </span>
+                {% endif %}
+            </span>
+            <span class="ventas-breadcrumb-dots {% if breadcrumb_paso == 'metodo_pago' or breadcrumb_paso == 'confirmacion' or breadcrumb_paso == 'pago' %}is-completado{% endif %}">
+                <i></i><i></i><i></i>
+            </span>
+            <span class="ventas-breadcrumb-paso">
+                {% if breadcrumb_paso == 'metodo_pago' %}
+                    <a class="ventas-breadcrumb-circle is-activo" href="{% url 'metodo_pago' %}" title="Método de pago">
+                        <span class="material-symbols-outlined">credit_card</span>
+                    </a>
+                {% elif breadcrumb_paso == 'confirmacion' or breadcrumb_paso == 'pago' %}
+                    <a class="ventas-breadcrumb-circle is-completado" href="{% url 'metodo_pago' %}" title="Método de pago">
+                        <span class="material-symbols-outlined">credit_card</span>
+                    </a>
+                {% else %}
+                    <span class="ventas-breadcrumb-circle" title="Método de pago">
+                        <span class="material-symbols-outlined">credit_card</span>
+                    </span>
+                {% endif %}
+            </span>
+            <span class="ventas-breadcrumb-dots {% if breadcrumb_paso == 'confirmacion' or breadcrumb_paso == 'pago' %}is-completado{% endif %}">
+                <i></i><i></i><i></i>
+            </span>
+            <span class="ventas-breadcrumb-paso">
+                {% if breadcrumb_paso == 'confirmacion' %}
+                    <a class="ventas-breadcrumb-circle is-activo" href="{% url 'confirmacion' %}" title="Confirmación">
+                        <span class="material-symbols-outlined">verified</span>
+                    </a>
+                {% elif breadcrumb_paso == 'pago' %}
+                    <a class="ventas-breadcrumb-circle is-completado" href="{% url 'confirmacion' %}" title="Confirmación">
+                        <span class="material-symbols-outlined">verified</span>
+                    </a>
+                {% else %}
+                    <span class="ventas-breadcrumb-circle" title="Confirmación">
+                        <span class="material-symbols-outlined">verified</span>
+                    </span>
+                {% endif %}
+            </span>
+            <span class="ventas-breadcrumb-dots {% if breadcrumb_paso == 'pago' %}is-completado{% endif %}">
+                <i></i><i></i><i></i>
+            </span>
+            <span class="ventas-breadcrumb-paso">
+                {% if breadcrumb_paso == 'pago' %}
+                    <span class="ventas-breadcrumb-circle is-activo" title="Pago">
+                        <span class="material-symbols-outlined">payments</span>
+                    </span>
+                {% else %}
+                    <span class="ventas-breadcrumb-circle" title="Pago">
+                        <span class="material-symbols-outlined">payments</span>
+                    </span>
+                {% endif %}
+            </span>
+        </div>
+    </div>
+</nav>

@@ -1,8 +1,8 @@
 # Manejo de stock: estado actual y diseño a futuro
 
 Documento de referencia para el manejo de stock del e-commerce PractiCasa.
-Describe cómo funciona hoy y qué modelo se debería adoptar cuando se desarrolle
-el checkout (app `ventas`).
+Describe cómo funciona hoy (incluido el flujo de compra de la app `ventas`) y
+el modelo que quedaría por adoptar a futuro.
 
 ## Estado actual
 
@@ -20,14 +20,22 @@ el checkout (app `ventas`).
 - `get_cantidades_en_carrito(usuario, producto_ids)` en
   `carrito/services.py` devuelve cuántas unidades de cada producto tiene el
   usuario en su carrito (sumando variantes).
+- **Al confirmar la compra** el stock se descuenta dentro de la misma
+  transacción que crea la venta (`crear_venta_confirmada_service` en
+  `ventas/services.py`): valida que el stock alcance y resta las cantidades.
+- Al cancelar o eliminar una venta el stock se **revierte**: `post_save` en
+  `VentaModel` repone al pasar a `cancelada` y `revertir_stock_venta_service`
+  / `eliminar_venta_service` hacen lo propio.
 
 ### Limitaciones conocidas
 
 - **El carrito no reserva stock.** Agregar un producto al carrito no descuenta
   `ProductoModel.stock`. Dos usuarios podrían tener 4 + 4 = 8 unidades en sus
   carritos con un stock de 4.
-- Como todavía no existe el checkout, el stock real solo se controla al
-  agregar/actualizar el carrito. No hay sobreventa porque no hay venta.
+- **Una venta `PENDIENTE` descuenta stock y no expira.** Funciona como una
+  reserva: un pedido abandonado en estado pendiente bloquea stock hasta que el
+  admin lo cancele o elimine desde el panel (futuro opcional: TTL o alerta al
+  admin).
 - Si un usuario llena el carrito con todo el stock y nunca compra, no bloquea
   a otros (el restante es por usuario), pero tampoco hay expiración de
   carritos abandonados.
@@ -48,6 +56,10 @@ Al **confirmar la orden** (no antes), dentro de una transacción atómica:
 - Bloquear la fila del producto con `select_for_update()`.
 - Verificar `stock >= cantidad`.
 - Descontar: `stock -= cantidad`.
+
+**Ya implementado** en `ventas/services.py` con `crear_venta_confirmada_service`
+(valida stock y descuenta en la misma transacción que crea la venta) y
+reversión al cancelar/eliminar. Pendiente de aplicar: `select_for_update()`.
 
 ```python
 from django.db import transaction
@@ -84,13 +96,14 @@ sino las **reservas activas** (órdenes creadas e impagas):
 
 El `stock_restante` actual de las páginas de producto descuenta solo el
 carrito del usuario autenticado. Es un límite blando (evita acaparar en un
-carrito), no una reserva global. Cuando exista checkout, el límite duro será
-el "disponible" del punto 3.
+carrito), no una reserva global. El límite duro a futuro será el "disponible"
+del punto 3.
 
-## Orden de implementación sugerido (cuando se desarrolle `ventas`)
+## Próximos pasos para el manejo de stock
 
-1. Modelos `Orden` y `OrdenItem` con estados.
-2. `confirmar_venta` transaccional con `select_for_update()` (punto 2).
+1. ~~Modelos `Venta` y `VentaItem` con estados~~ **Hecho** (app `ventas`).
+2. ~~`confirmar_venta` transaccional con descuento de stock~~ **Hecho**;
+   falta `select_for_update()` para compras simultáneas.
 3. Cálculo de "disponible" con reservas activas (punto 3).
-4. Expiración de órdenes impagas (punto 4).
+4. Expiración de ventas impagas (punto 4).
 5. Tests de concurrencia simulando 2 compradores simultáneos.

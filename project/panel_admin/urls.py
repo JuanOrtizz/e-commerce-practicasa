@@ -4,6 +4,10 @@ from . import views
 
 urlpatterns = [
     path('', views.dashboard, name='panel_inicio'),
+    path('ventas/', views.lista_ventas, name='panel_ventas'),
+    path('ventas/modificar/<int:id>/', views.venta_modificar, name='panel_venta_modificar'),
+    path('ventas/eliminar/<int:id>/', views.venta_eliminar, name='panel_venta_eliminar'),
+    path('ventas/<int:id>/', views.venta_detalle, name='panel_venta_detalle'),
     path('productos/', views.lista_productos, name='panel_productos'),
     path('productos/nuevo/', views.producto_nuevo, name='panel_producto_nuevo'),
     path('productos/modificar/<int:id>/', views.producto_modificar, name='panel_producto_modificar'),
@@ -13,7 +17,6 @@ urlpatterns = [
     path('consultas/modificar/<int:id>/', views.consulta_modificar, name='panel_consulta_modificar'),
     path('consultas/eliminar/<int:id>/', views.consulta_eliminar, name='panel_consulta_eliminar'),
     path('consultas/<int:id>/', views.consulta_detalle, name='panel_consulta_detalle'),
-    path('pagos/', views.pagos, name='panel_pagos'),
     path('referencias/', views.referencias, name='panel_referencias'),
     path('colores/nuevo/', views.color_nuevo, name='panel_color_nuevo'),
     path('colores/eliminar/<int:id>/', views.color_eliminar, name='panel_color_eliminar'),

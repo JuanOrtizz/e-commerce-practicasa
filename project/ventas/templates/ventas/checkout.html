@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block title %}Checkout | Practicasa{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'ventas/css/ventas.css' %}">
+{% endblock %}
+
+{% block content %}
+{% include 'partials/_breadcrumb.html' with breadcrumb_paso='checkout' %}
+<div class="container my-4 animacion-aparicion-abajo-fade">
+    <h2 class="fw-bold mb-4">Checkout</h2>
+    <div class="row g-4">
+        <div class="col-lg-8">
+                <div class="ventas-paso">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <h5 class="fw-bold mb-0">Datos de facturación</h5>
+                        <button class="btn btn-link btn-sm text-muted text-decoration-none p-0 d-inline-flex align-items-center gap-1" type="button" data-bs-toggle="collapse" data-bs-target="#datos-info" aria-expanded="false" aria-controls="datos-info">
+                            ¿Para qué pedimos estos datos?
+                            <span class="material-symbols-outlined ventas-info-chevron">keyboard_arrow_down</span>
+                        </button>
+                    </div>
+                    <div class="collapse" id="datos-info">
+                        <ul class="small text-muted mb-3 ps-3">
+                            <li><strong>Email</strong>: Te enviamos la confirmación y el seguimiento de tu pedido.</li>
+                            <li><strong>Teléfono</strong>: Para coordinar el retiro o la entrega.</li>
+                            <li><strong>Dirección, ciudad y CP</strong>: Los usamos para saber donde dejar tu pedido.</li>
+                            <li><strong>Notas</strong>: Para aclarar datos de la ubicación.</li>
+                        </ul>
+                        <p class="small text-muted mb-3">Tus datos se usan solo para procesar este pedido; no los compartimos ni los usamos para spam.</p>
+                    </div>
+                <form method="post" id="form" novalidate>
+                    {% csrf_token %}
+                    <div class="row g-3">
+                        {% for field in form %}
+                            <div class="col-12 {% if field.name == 'provincia' or field.name == 'ciudad' or field.name == 'direccion' %}col-md-6{% elif field.name == 'numero' or field.name == 'codigo_postal' %}col-md-3{% endif %}">
+                                <div class="input-group has-validation mb-3 border-0">
+                                    <div class="form-floating mb-1 w-100">
+                                        {{ field }}
+                                        <label for="{{ field.widget.attrs.id }}">{{ field.label }}{% if field.field.required %} <span class="ventas-requerido">*</span>{% endif %}</label>
+                                    </div>
+                                    <div class="invalid-feedback" id="{{ field.name }}-error">{% if field.errors %}{{ field.errors.0 }}{% endif %}</div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <div class="alert alert-danger py-2 text-center d-none" id="non-field-errors"></div>
+                </form>
+                </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="ventas-sidebar">
+                {% include 'ventas/_resumen_pedido.html' %}
+                <div class="d-grid gap-2">
+                    <button class="btn btn-enviar text-white fw-bold py-2" type="submit" form="form" id="btn-submit">
+                        <span id="btn-text">Continuar</span>
+                        <span class="spinner-border spinner-border-sm d-none" role="status" id="btn-spinner"></span>
+                    </button>
+                    <a class="btn btn-outline-secondary fw-bold py-2" href="{% url 'ver_carrito' %}">Volver</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+    <script type="module" src="{% static 'ventas/js/checkoutForm.js' %}"></script>
+{% endblock %}
+
+

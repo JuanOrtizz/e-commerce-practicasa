@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block title %}Método de pago | Practicasa{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'ventas/css/ventas.css' %}">
+{% endblock %}
+
+{% block content %}
+{% include 'partials/_breadcrumb.html' with breadcrumb_paso='metodo_pago' %}
+<div class="container my-4 animacion-aparicion-abajo-fade">
+    <h2 class="fw-bold mb-4">Método de pago</h2>
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="ventas-paso">
+                <h5 class="fw-bold mb-3">¿Cómo querés pagar?</h5>
+                {% if form.metodo_pago.errors %}
+                    <div class="alert alert-danger py-2">{{ form.metodo_pago.errors.0 }}</div>
+                {% endif %}
+                <form method="post" id="form-metodo-pago">
+                    {% csrf_token %}
+                    <div class="d-flex flex-column gap-3">
+                        <label class="ventas-opcion d-flex align-items-center gap-3 p-3 {% if form.metodo_pago.value == 'efectivo' %}selected{% endif %}" data-metodo="efectivo">
+                            <input class="form-check-input" type="radio" name="metodo_pago" value="efectivo"
+                                   {% if form.metodo_pago.value == 'efectivo' %}checked{% endif %}>
+                            <span class="material-symbols-outlined ventas-pago-icon">payments</span>
+                            <div>
+                                <div class="fw-semibold">Efectivo</div>
+                                <div class="ventas-opcion-desc text-muted small">
+                                    {% if datos.metodo_envio == 'retiro_local' %}
+                                        Tu pedido queda pendiente. Pasá por el local a pagar y retirar.
+                                    {% else %}
+                                        Tu pedido queda pendiente. Pagás en efectivo cuando coordinamos la entrega.
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </label>
+
+                        <div class="ventas-opcion ventas-opcion-disabled d-flex align-items-center gap-3 p-3">
+                            <input class="form-check-input" type="radio" disabled>
+                            <span class="material-symbols-outlined ventas-pago-icon">credit_card</span>
+                            <div>
+                                <div class="fw-semibold">Mercado Pago</div>
+                                <div class="ventas-opcion-desc text-muted small">
+                                    No disponible por el momento.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="ventas-sidebar">
+                {% include 'ventas/_resumen_pedido.html' %}
+                <div class="d-grid gap-2">
+                    <button class="btn btn-enviar text-white fw-bold py-2" type="submit" form="form-metodo-pago" id="btn-submit" disabled>
+                        <span id="btn-text">Continuar</span>
+                        <span class="spinner-border spinner-border-sm d-none" role="status" id="btn-spinner"></span>
+                    </button>
+                    <a class="btn btn-outline-secondary fw-bold py-2" href="{% url 'envio' %}">Volver</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+    <script type="module" src="{% static 'ventas/js/metodoPago.js' %}"></script>
+{% endblock %}
