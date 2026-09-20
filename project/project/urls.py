@@ -17,7 +17,22 @@ Including another URLconf
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
+from django.contrib.sitemaps.views import sitemap
 from django.urls import path, include
+
+from seo.sitemaps import (
+    StaticViewSitemap,
+    CategoriaSitemap,
+    SubcategoriaSitemap,
+    ProductoSitemap,
+)
+
+sitemaps = {
+    'estaticas': StaticViewSitemap,
+    'categorias': CategoriaSitemap,
+    'subcategorias': SubcategoriaSitemap,
+    'productos': ProductoSitemap,
+}
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -27,4 +42,6 @@ urlpatterns = [
     path('productos/', include('productos.urls')),
     path('ventas/', include('ventas.urls')),
     path('usuarios/', include('usuarios.urls')),
+    path('sitemap.xml', sitemap, {'sitemaps': sitemaps}, name='sitemap'),
+    path('', include('seo.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
