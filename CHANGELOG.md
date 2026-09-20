@@ -10,6 +10,7 @@
 #### Fixes
 - Permito el ajuste de línea del nombre del producto en el resumen del pedido (quito el nowrap)
 - Ajusto el ancho y abrevio el encabezado de la columna de precio de transferencia en el listado de productos del panel
+- Formateo los precios que faltaban en el listado de ventas del panel y en las tarjetas de producto de la home (format_price en ambas plantillas)
 ---
 ## [v0.17.0] - 2026-09-15
 ### Rama: feature/proceso-compra
