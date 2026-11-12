@@ -186,6 +186,7 @@ def crear_venta_confirmada_service(usuario, datos, metodo_envio, metodo_pago, va
         raise ValueError('Tu carrito está vacío')
 
     _validar_stock_service(carrito, carrito_context)
+    _validar_limite_pendientes_service(usuario)
 
     subtotal = carrito_context['total']
     costo_envio = calcular_costo_envio_service(metodo_envio, subtotal)

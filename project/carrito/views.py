@@ -2,7 +2,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, get_object_or_404
 from django.http import Http404, JsonResponse
 from django.views.decorators.http import require_POST
-
+from ventas.services import get_pedidos_pendientes_mp_service
 from .models import CarritoItemModel
 from .services import (
     get_o_crear_carrito_service, agregar_item_service, actualizar_cantidad_service,
@@ -16,6 +16,7 @@ from .services import (
 def ver_carrito(request):
     carrito = get_o_crear_carrito_service(request.user)
     context = get_carrito_context_service(carrito)
+    context['pedidos_pendientes'] = get_pedidos_pendientes_mp_service(request.user)
     return render(request, 'carrito/carrito.html', context)
 
 
