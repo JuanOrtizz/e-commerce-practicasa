@@ -1,3 +1,4 @@
+from django.db.models import Count, Q
 from django.db.models.deletion import ProtectedError
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -7,8 +8,14 @@ from django.views.decorators.http import require_POST
 from base.forms import ConsultaAdminForm
 from base.models import ConsultaModel
 from ventas.forms import VentaAdminForm
-from ventas.models import VentaItemModel, VentaModel
-from ventas.services import eliminar_venta_service
+from ventas.models import PagoModel, VentaItemModel, VentaModel
+from ventas.services import (
+    actualizar_estado_pago_service,
+    eliminar_venta_service,
+    enviar_email_reembolso_service,
+    expirar_pagos_vencidos_service,
+    venta_mp_en_curso,
+)
 from productos.forms import (
     MAX_IMAGENES_PRODUCTO,
     CategoriaForm,
@@ -333,7 +340,12 @@ def subcategoria_eliminar(request, id):
 
 @requiere_admin
 def lista_ventas(request):
-    ventas = VentaModel.objects.prefetch_related('items').all()
+    expirar_pagos_vencidos_service()
+    ventas = VentaModel.objects.prefetch_related('items').annotate(
+        pagos_aprobados=Count(
+            'pagos', filter=Q(pagos__estado=PagoModel.EstadoChoices.APROBADO)
+        )
+    )
     return render(request, 'panel_admin/ventas_lista.html', {'ventas': ventas})
 
 
@@ -347,6 +359,14 @@ def venta_detalle(request, id):
 def venta_modificar(request, id):
     venta = get_object_or_404(VentaModel, id=id)
     if request.method == 'POST':
+        if venta_mp_en_curso(venta):
+            return JsonResponse({
+                "success": False,
+                "message": (
+                    "Hay un pago de Mercado Pago en curso. "
+                    "No se puede modificar la venta hasta que termine o venza."
+                ),
+            })
         form = VentaAdminForm(request.POST, instance=venta)
         if form.is_valid():
             if not form.changed_data:

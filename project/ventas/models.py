@@ -78,9 +78,10 @@ class PagoModel(models.Model):
         RECHAZADO = 'rechazado', 'Rechazado'
         VENCIDO = 'vencido', 'Vencido'
         CANCELADO = 'cancelado', 'Cancelado'
+        REEMBOLSADO = 'reembolsado', 'Reembolsado'
 
     venta = models.ForeignKey(
-        VentaModel, on_delete=models.PROTECT, related_name='pagos'
+        VentaModel, on_delete=models.CASCADE, related_name='pagos'
     )
     estado = models.CharField(
         max_length=20, choices=EstadoChoices.choices, default=EstadoChoices.PENDIENTE

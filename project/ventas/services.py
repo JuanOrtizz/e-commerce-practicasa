@@ -318,26 +318,109 @@ def crear_pago_mercado_pago_service(venta, request):
 
 
 def expirar_pagos_vencidos_service():
-    limite = timezone.now() - timedelta(hours=settings.MP_PEDIDO_TTL_HORAS)
-    vencidos = PagoModel.objects.filter(
-        estado=PagoModel.EstadoChoices.PENDIENTE, created_at__lt=limite
-    ).select_related('venta')
+    limite = timezone.now() - timedelta(hours=settings.PEDIDO_TTL_HORAS)
     cancelada = VentaModel.EstadoChoices.CANCELADA
     pendiente = VentaModel.EstadoChoices.PENDIENTE
+    vencidas = VentaModel.objects.filter(
+        estado=pendiente,
+        metodo_pago=VentaModel.MetodoPagoChoices.MERCADO_PAGO,
+        created_at__lt=limite,
+    ).exclude(
+        pagos__estado=PagoModel.EstadoChoices.APROBADO
+    ).distinct()
     procesados = False
     with transaction.atomic():
-        for pago in vencidos:
-            venta = pago.venta
-            if venta.estado != pendiente:
-                continue
-            if venta.pagos.filter(estado=PagoModel.EstadoChoices.APROBADO).exists():
-                continue
-            pago.estado = PagoModel.EstadoChoices.VENCIDO
-            pago.save(update_fields=['estado'])
+        for venta in vencidas:
+            venta.pagos.filter(
+                estado=PagoModel.EstadoChoices.PENDIENTE
+            ).update(estado=PagoModel.EstadoChoices.VENCIDO)
             venta.estado = cancelada
             venta.save(update_fields=['estado'])
             procesados = True
     return procesados
+
+
+def _reactivar_venta_service(venta):
+    items = list(venta.items.select_related('producto'))
+    producto_ids = [item.producto_id for item in items]
+    bloqueados = {
+        producto.id: producto
+        for producto in ProductoModel.objects.select_for_update().filter(
+            id__in=producto_ids
+        )
+    }
+    sin_stock = [
+        item.producto.nombre
+        for item in items
+        if bloqueados[item.producto_id].stock < item.cantidad
+    ]
+    if sin_stock:
+        raise ValueError(
+            'No hay stock suficiente para reactivar la venta: '
+            + ', '.join(sin_stock)
+        )
+    venta.estado = VentaModel.EstadoChoices.CONFIRMADA
+    venta.save(update_fields=['estado'])
+
+
+def _sincronizar_venta_por_estado_pago_service(venta, nuevo_estado):
+    if nuevo_estado == PagoModel.EstadoChoices.REEMBOLSADO:
+        if (
+            venta.estado == VentaModel.EstadoChoices.CONFIRMADA
+            and not venta.pagos.filter(estado=PagoModel.EstadoChoices.APROBADO).exists()
+        ):
+            venta.estado = VentaModel.EstadoChoices.CANCELADA
+            venta.save(update_fields=['estado'])
+    elif nuevo_estado == PagoModel.EstadoChoices.APROBADO:
+        if venta.estado == VentaModel.EstadoChoices.CANCELADA:
+            _reactivar_venta_service(venta)
+        elif venta.estado == VentaModel.EstadoChoices.PENDIENTE:
+            venta.estado = VentaModel.EstadoChoices.CONFIRMADA
+            venta.save(update_fields=['estado'])
+
+
+@transaction.atomic
+def actualizar_estado_pago_service(pago, nuevo_estado):
+    pago.estado = nuevo_estado
+    pago.save(update_fields=['estado'])
+
+    venta = VentaModel.objects.select_for_update().get(pk=pago.venta_id)
+    _sincronizar_venta_por_estado_pago_service(venta, nuevo_estado)
+    return venta
+
+
+def enviar_email_reembolso_service(venta, request):
+    logo_url = request.build_absolute_uri('/static/img/logo_practicasa.png')
+
+    def _html(para_comercio):
+        return render_to_string('email/email_reembolso.html', {
+            'titulo': 'Pago reembolsado',
+            'venta': venta,
+            'logo_url': logo_url,
+            'para_comercio': para_comercio,
+        })
+
+    enviar_email(
+        asunto=f'Tu pago fue reembolsado | Pedido #{venta.id} | Practicasa',
+        mensaje_texto=(
+            f'Te informamos que el pago del pedido #{venta.id} fue reembolsado. '
+            f'Total: ${venta.total}. '
+            'El plazo para verlo acreditado depende de tu medio de pago. '
+            'Si tenés dudas, respondé este correo y te ayudamos.'
+        ),
+        mensaje_html=_html(False),
+        destinatarios=[venta.email],
+    )
+    enviar_email(
+        asunto=f'Pago reembolsado del pedido #{venta.id} | Practicasa',
+        mensaje_texto=(
+            f'El pago del pedido #{venta.id} de {venta.nombre} ({venta.email}) '
+            f'fue marcado como reembolsado desde el panel. Total: ${venta.total}. '
+            'Recordá que la venta quedó cancelada y el stock se repuso automáticamente.'
+        ),
+        mensaje_html=_html(True),
+        destinatarios=[settings.EMAIL_COMERCIO],
+    )
 
 
 def _monto_coincide(monto_mp, esperado):
