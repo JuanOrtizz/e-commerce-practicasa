@@ -13,8 +13,10 @@
 <div class="container my-4 animacion-aparicion-abajo-fade">
     <div class="text-center mb-4">
         <span class="material-symbols-outlined ventas-exito-icon">check_circle</span>
-        <h2 class="fw-bold mt-2">¡Pedido realizado!</h2>
-        {% if venta.metodo_envio == 'retiro_local' %}
+        <h2 class="fw-bold mt-2">{% if venta.metodo_pago == 'transferencia' %}Pedido realizado{% else %}¡Pedido realizado!{% endif %}</h2>
+        {% if venta.metodo_pago == 'transferencia' %}
+            <p class="text-muted mb-1">Tu pedido quedó <strong>Pendiente</strong>. Realizá la transferencia y compartinos el comprobante de pago por WhatsApp al número <strong>{{ datos_local.whatsapp }}</strong>.</p>
+        {% elif venta.metodo_envio == 'retiro_local' %}
             <p class="text-muted mb-1">Tu pedido quedó <strong>pendiente</strong>. Pasá por nuestro local para retirar y pagar en efectivo. <br> En breve nos comunicaremos para <strong>coordinar</strong> horarios </p>
         {% elif venta.metodo_envio == 'coordinar_entrega' %}
             <p class="text-muted mb-1">Tu pedido quedó <strong>pendiente</strong>. Pagás en efectivo cuando <strong>coordinamos la entrega</strong>. <br> En breve nos comunicaremos para coordinar el día y horario </p>
@@ -26,86 +28,68 @@
 
     <div class="row g-4 justify-content-center">
         <div class="col-lg-6">
-            <div class="ventas-paso">
-                <h5 class="fw-bold mb-3">{% if venta.metodo_envio == 'retiro_local' %}Nuestro local{% else %}Coordinación{% endif %}</h5>
-                <ul class="list-unstyled mb-0 d-flex flex-column gap-2">
-                    <li class="d-flex align-items-center gap-2">
-                        <span class="material-symbols-outlined ventas-pago-icon">storefront</span>
-                        <span>{{ datos_local.nombre }}{% if datos_local.ciudad %} — {{ datos_local.ciudad }}{% endif %}</span>
-                    </li>
-                    {% if datos_local.direccion %}
-                        <li class="d-flex align-items-center gap-2">
-                            <span class="material-symbols-outlined ventas-pago-icon">location_on</span>
-                            <span>{{ datos_local.direccion }}</span>
-                        </li>
-                    {% endif %}
-                    {% if datos_local.horario %}
-                        <li class="d-flex align-items-center gap-2">
-                            <span class="material-symbols-outlined ventas-pago-icon">schedule</span>
-                            <span>{{ datos_local.horario }}</span>
-                        </li>
-                    {% endif %}
-                    </ul>
-                <a class="btn ventas-btn-wsp text-white fw-bold w-100 d-flex align-items-center justify-content-center gap-2" href="{{ whatsapp_link }}?text=Hola%2C%20quiero%20coordinar%20el%20pedido%20N%C2%B0%3A%20%23{{ venta.id }}" target="_blank" rel="noopener noreferrer">
-                    <img src="{% static 'img/logo_whatsapp.png' %}" alt="WhatsApp">
-                    {% if venta.metodo_envio == 'retiro_local' %}Coordinar horarios{% else %}Coordinar entrega{% endif %}
-                </a>
-                <div class="ventas-resumen-mapa-wrap">
-                    <iframe src="{{ datos_local.mapa_url }}" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade" title="Mapa de Practicasa"></iframe>
+            {% if venta.metodo_pago == 'transferencia' %}
+                <div class="ventas-paso">
+                    <div class="ventas-datos-bancarios">
+                        <h5 class="fw-bold mb-3 d-flex align-items-center gap-2">
+                            <span class="material-symbols-outlined ventas-pago-icon">account_balance</span>
+                            Nuestros datos bancarios
+                        </h5>
+                        <dl class="row mb-0 g-1">
+                            <dt class="col-4 text-muted small fw-semibold">Alias</dt>
+                            <dd class="col-8 mb-2 fw-semibold">{{ datos_bancarios.alias }}</dd>
+                            <dt class="col-4 text-muted small fw-semibold">CVU</dt>
+                            <dd class="col-8 mb-2 fw-semibold text-break">{{ datos_bancarios.cvu }}</dd>
+                            <dt class="col-4 text-muted small fw-semibold">Nombre</dt>
+                            <dd class="col-8 mb-2 fw-semibold">{{ datos_bancarios.nombre }}</dd>
+                            <dt class="col-4 text-muted small fw-semibold">Banco</dt>
+                            <dd class="col-8 mb-2 fw-semibold">{{ datos_bancarios.banco }}</dd>
+                            <dt class="col-4 text-muted small fw-semibold">CUIL</dt>
+                            <dd class="col-8 mb-0 fw-semibold">{{ datos_bancarios.cuil }}</dd>
+                        </dl>
+                    </div>
+                    <a class="btn ventas-btn-wsp text-white fw-bold w-100 d-flex align-items-center justify-content-center gap-2" href="{{ whatsapp_link }}?text=Hola%2C%20env%C3%ADo%20el%20comprobante%20de%20pago%20del%20pedido%20N%C2%B0%3A%20%23{{ venta.id }}" target="_blank" rel="noopener noreferrer">
+                        <img src="{% static 'img/logo_whatsapp.png' %}" alt="WhatsApp">
+                        Enviar Comprobante de pago
+                    </a>
                 </div>
-            </div>
+            {% else %}
+                <div class="ventas-paso">
+                    <h5 class="fw-bold mb-3">{% if venta.metodo_envio == 'retiro_local' %}Nuestro local{% else %}Coordinación{% endif %}</h5>
+                    <ul class="list-unstyled mb-0 d-flex flex-column gap-2">
+                        <li class="d-flex align-items-center gap-2">
+                            <span class="material-symbols-outlined ventas-pago-icon">storefront</span>
+                            <span>{{ datos_local.nombre }}{% if datos_local.ciudad %} — {{ datos_local.ciudad }}{% endif %}</span>
+                        </li>
+                        {% if datos_local.direccion %}
+                            <li class="d-flex align-items-center gap-2">
+                                <span class="material-symbols-outlined ventas-pago-icon">location_on</span>
+                                <span>{{ datos_local.direccion }}</span>
+                            </li>
+                        {% endif %}
+                        {% if datos_local.horario %}
+                            <li class="d-flex align-items-center gap-2">
+                                <span class="material-symbols-outlined ventas-pago-icon">schedule</span>
+                                <span>{{ datos_local.horario }}</span>
+                            </li>
+                        {% endif %}
+                        </ul>
+                    <a class="btn ventas-btn-wsp text-white fw-bold w-100 d-flex align-items-center justify-content-center gap-2" href="{{ whatsapp_link }}?text=Hola%2C%20quiero%20coordinar%20el%20pedido%20N%C2%B0%3A%20%23{{ venta.id }}" target="_blank" rel="noopener noreferrer">
+                        <img src="{% static 'img/logo_whatsapp.png' %}" alt="WhatsApp">
+                        {% if venta.metodo_envio == 'retiro_local' %}Coordinar horarios{% else %}Coordinar entrega{% endif %}
+                    </a>
+                    <div class="ventas-resumen-mapa-wrap">
+                        <iframe src="{{ datos_local.mapa_url }}" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade" title="Mapa de Practicasa"></iframe>
+                    </div>
+                </div>
+            {% endif %}
         </div>
         <div class="col-lg-6">
-            <div class="ventas-paso">
-                <h5 class="fw-bold mb-3">Detalle del pedido</h5>
-                <div class="d-flex flex-column gap-2 mb-3">
-                    {% for item in venta.items.select_related.all %}
-                        <div class="d-flex justify-content-between gap-2">
-                            <span>
-                                {{ item.cantidad }} x {{ item.nombre_producto }}
-                                {% if item.etiqueta_promocion %}
-                                    <span class="badge rounded-pill text-bg-warning">{{ item.etiqueta_promocion }}</span>
-                                {% endif %}
-                                {% if item.promocion == '2x1' or item.promocion == '3x2' %}
-                                    <span class="text-muted small">(pagás {{ item.cantidad_paga }})</span>
-                                {% endif %}
-                            </span>
-                            <span class="fw-semibold flex-shrink-0">
-                                {% if venta.metodo_pago == 'efectivo' %}
-                                    ${{ item.subtotal_transferencia|format_price }}
-                                {% else %}
-                                    ${{ item.subtotal|format_price }}
-                                {% endif %}
-                            </span>
-                        </div>
-                    {% endfor %}
+            <div class="ventas-sidebar">
+                {% include 'ventas/_resumen_pedido.html' with order_context=resumen_venta modo_precio=modo_precio resumen_titulo='Detalle del pedido' %}
+                <div class="d-grid gap-2">
+                    <a class="btn btn-enviar text-white fw-bold py-2" href="{% url 'productos' %}">Seguir comprando</a>
                 </div>
-                <hr class="my-3">
-                <div class="d-flex justify-content-between mb-2">
-                    <span>Subtotal</span>
-                    <span>
-                        {% if venta.metodo_pago == 'efectivo' %}
-                            ${{ venta.subtotal_transferencia|format_price }}
-                        {% else %}
-                            ${{ venta.subtotal|format_price }}
-                        {% endif %}
-                    </span>
-                </div>
-                <div class="d-flex justify-content-between mb-2">
-                    <span>Envío</span>
-                    <span>Gratis</span>
-                </div>
-                <div class="d-flex justify-content-between">
-                    <span class="ventas-total-label">Total</span>
-                    <span class="ventas-total-valor">
-                        {% if venta.metodo_pago == 'efectivo' %}
-                            ${{ venta.total_transferencia|format_price }}
-                        {% else %}
-                            ${{ venta.total|format_price }}
-                        {% endif %}
-                    </span>
-                </div>
-                <a class="btn btn-enviar text-white fw-bold w-100 py-2 mt-4" href="{% url 'productos' %}">Seguir comprando</a>
             </div>
         </div>
     </div>

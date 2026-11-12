@@ -16,8 +16,9 @@ class VentaModel(models.Model):
         COORDINAR_ENTREGA = 'coordinar_entrega', 'Coordinar entrega'
 
     class MetodoPagoChoices(models.TextChoices):
-        MERCADO_PAGO = 'mercado_pago', 'Mercado Pago'
         EFECTIVO = 'efectivo', 'Efectivo (local)'
+        TRANSFERENCIA = 'transferencia', 'Transferencia'
+        MERCADO_PAGO = 'mercado_pago', 'Mercado Pago'
 
     usuario = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='ventas'

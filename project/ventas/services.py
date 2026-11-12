@@ -1,28 +1,28 @@
+import logging
 import re
 from datetime import timedelta
 from decimal import Decimal
-
 from django.conf import settings
 from django.db import transaction
+from django.db.models import F
 from django.template.loader import render_to_string
 from django.utils import timezone
-
 from project.services import enviar_email
-
 from carrito.services import (
     get_o_crear_carrito_service,
     get_carrito_context_service,
     vaciar_carrito_service,
 )
-
+from productos.models import ProductoModel
+from productos.services import actualizar_tags_stock_service
 from . import mp
 from .models import PagoModel, VentaModel, VentaItemModel
 
-SESSION_DATOS_CLAVE = 'datos_venta'
+logger = logging.getLogger('ventas.mp')
 
+SESSION_DATOS_CLAVE = 'datos_venta'
 CODIGOS_POSTALES_COORDINAR = {'3156', '3158', '3164', '3100'}
 CODIGOS_POSTALES_DOMICILIO = {'3150'}
-
 LOCALIDADES_POR_CP = {
     '3150': 'Nogoyá',
     '3156': 'Hernández',
@@ -31,73 +31,151 @@ LOCALIDADES_POR_CP = {
     '3100': 'Paraná',
 }
 
-DATOS_LOCAL = {
-    'nombre': 'Practicasa',
-    'ciudad': 'Nogoyá',
-    'direccion': '',
-    'horario': '',
-    'whatsapp': '+54 3435 46-8162',
-    'mapa_url': 'https://www.google.com/maps?q=-32.399059,-59.783521&z=16&output=embed',
-}
-
-EMAIL_COMERCIO = 'practicasaok@gmail.com'
-
-
 def get_datos_venta_session(request):
     return request.session.get(SESSION_DATOS_CLAVE, {})
-
 
 def set_datos_venta_session(request, datos):
     request.session[SESSION_DATOS_CLAVE] = datos
     request.session.modified = True
 
-
 def limpiar_datos_venta_session(request):
     request.session.pop(SESSION_DATOS_CLAVE, None)
     request.session.modified = True
-
 
 def get_order_context_service(usuario):
     carrito = get_o_crear_carrito_service(usuario)
     return get_carrito_context_service(carrito)
 
+def calcular_precios_venta_item_service(item):
+    cantidad = item.cantidad
+    cantidad_paga = item.cantidad_paga
+    precio_unitario = item.precio_unitario
+    precio_transferencia_unitario = item.precio_transferencia_unitario
+    precio_original = item.precio_original_unitario or item.producto.precio
+    precio_transferencia_original = (
+        item.precio_transferencia_original_unitario
+        or item.producto.precio_transferencia
+    )
+    subtotal = item.subtotal
+    subtotal_transferencia = item.subtotal_transferencia
+    ahorro = Decimal('0')
+    ahorro_transferencia = Decimal('0')
+
+    if item.promocion in ('2x1', '3x2'):
+        ahorro = (precio_unitario * cantidad) - subtotal
+        ahorro_transferencia = (
+            precio_transferencia_unitario * cantidad
+        ) - subtotal_transferencia
+
+    return {
+        'item': item,
+        'producto': item.producto,
+        'cantidad': cantidad,
+        'cantidad_paga': cantidad_paga,
+        'precio_unitario': precio_unitario,
+        'precio_transferencia_unitario': precio_transferencia_unitario,
+        'precio_original': precio_original,
+        'precio_transferencia_original': precio_transferencia_original,
+        'subtotal': subtotal,
+        'subtotal_transferencia': subtotal_transferencia,
+        'ahorro': ahorro,
+        'ahorro_transferencia': ahorro_transferencia,
+        'tiene_promocion_porcentaje': item.tiene_promocion_porcentaje,
+        'promocion': item.promocion,
+    }
+
+def get_venta_context_service(venta):
+    items_data = []
+    total = Decimal('0')
+    total_transferencia = Decimal('0')
+    total_ahorro = Decimal('0')
+    total_ahorro_transferencia = Decimal('0')
+
+    for item in venta.items.select_related('producto').all():
+        data = calcular_precios_venta_item_service(item)
+        items_data.append(data)
+        total += data['subtotal']
+        total_transferencia += data['subtotal_transferencia']
+        total_ahorro += data['ahorro']
+        total_ahorro_transferencia += data['ahorro_transferencia']
+
+    return {
+        'items': items_data,
+        'total': total,
+        'total_transferencia': total_transferencia,
+        'total_ahorro': total_ahorro,
+        'total_ahorro_transferencia': total_ahorro_transferencia,
+    }
 
 def calcular_costo_envio_service(metodo_envio, subtotal):
     return Decimal('0')
-
 
 def permite_coordinar_entrega_service(codigo_postal):
     if not codigo_postal:
         return False
     return codigo_postal.strip() in CODIGOS_POSTALES_COORDINAR
 
-
 def localidad_para_coordinar_entrega_service(codigo_postal):
     if not codigo_postal:
         return None
     return LOCALIDADES_POR_CP.get(codigo_postal.strip())
-
 
 def permite_envio_domicilio_service(codigo_postal):
     if not codigo_postal:
         return False
     return codigo_postal.strip() in CODIGOS_POSTALES_DOMICILIO
 
-
 def whatsapp_link_service():
-    numero = re.sub(r'\D', '', DATOS_LOCAL['whatsapp'])
+    numero = re.sub(r'\D', '', settings.DATOS_LOCAL['whatsapp'])
     return f'https://wa.me/{numero}'
 
-
 def _validar_stock_service(carrito, carrito_context):
-    for data in carrito_context['items']:
-        item = data['item']
-        if item.producto.stock < data['cantidad']:
-            raise ValueError(f'Stock insuficiente para {item.producto.nombre}')
+    sin_stock = [
+        data['producto'].nombre
+        for data in carrito_context['items']
+        if data['sin_stock']
+    ]
+    if sin_stock:
+        raise ValueError(
+            'Estos productos ya no tienen stock: '
+            + ', '.join(sin_stock)
+            + '. Eliminalos del carrito para continuar.'
+        )
 
+def _validar_limite_pendientes_service(usuario):
+    limite = timezone.now() - timedelta(hours=settings.PEDIDO_TTL_HORAS)
+    pendientes = (
+        VentaModel.objects.filter(
+            usuario=usuario,
+            estado=VentaModel.EstadoChoices.PENDIENTE,
+            created_at__gte=limite,
+        )
+        .exclude(pagos__estado=PagoModel.EstadoChoices.APROBADO)
+        .distinct()
+        .count()
+    )
+    if pendientes >= settings.MAX_PEDIDOS_PENDIENTES:
+        raise ValueError(
+            f'Tenés {settings.MAX_PEDIDOS_PENDIENTES} pedidos pendientes. '
+            'Completá alguno o esperá a que venza antes de crear otro.'
+        )
+
+def get_pedidos_pendientes_mp_service(usuario):
+    limite = timezone.now() - timedelta(hours=settings.PEDIDO_TTL_HORAS)
+    return (
+        VentaModel.objects.filter(
+            usuario=usuario,
+            estado=VentaModel.EstadoChoices.PENDIENTE,
+            metodo_pago=VentaModel.MetodoPagoChoices.MERCADO_PAGO,
+            created_at__gte=limite,
+        )
+        .exclude(pagos__estado=PagoModel.EstadoChoices.APROBADO)
+        .distinct()
+        .order_by('-created_at')
+    )
 
 @transaction.atomic
-def crear_venta_confirmada_service(usuario, datos, metodo_envio, metodo_pago):
+def crear_venta_confirmada_service(usuario, datos, metodo_envio, metodo_pago, vaciar_carrito=True):
     if metodo_pago == VentaModel.MetodoPagoChoices.MERCADO_PAGO and not settings.MP_ACCESS_TOKEN:
         raise ValueError('El pago con Mercado Pago no está disponible por el momento.')
 

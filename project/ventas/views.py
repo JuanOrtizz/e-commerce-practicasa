@@ -129,6 +129,7 @@ def metodo_pago(request):
         'form': form,
         'order_context': order_context,
         'datos': datos,
+        'mp_disponible': bool(settings.MP_ACCESS_TOKEN),
         'localidad_coordinar_entrega': localidad_para_coordinar_entrega_service(datos.get('codigo_postal')),
     })
 
@@ -149,13 +150,19 @@ def confirmacion(request):
     context = {
         'order_context': order_context,
         'datos': datos,
+        'modo_precio': (
+            'normal'
+            if datos.get('metodo_pago') == VentaModel.MetodoPagoChoices.MERCADO_PAGO
+            else 'transferencia'
+        ),
         'localidad_coordinar_entrega': localidad_para_coordinar_entrega_service(datos.get('codigo_postal')),
     }
 
     if request.method == 'POST':
         try:
             venta = crear_venta_confirmada_service(
-                request.user, datos, datos['metodo_envio'], datos['metodo_pago']
+                request.user, datos, datos['metodo_envio'], datos['metodo_pago'],
+                vaciar_carrito=datos['metodo_pago'] != VentaModel.MetodoPagoChoices.MERCADO_PAGO,
             )
             limpiar_datos_venta_session(request)
         except ValueError as e:
@@ -166,6 +173,7 @@ def confirmacion(request):
             try:
                 init_point = crear_pago_mercado_pago_service(venta, request)
             except mp.MercadoPagoError as e:
+                logger.warning('Mercado Pago rechazó la preferencia (venta %s): %s', venta.id, e)
                 eliminar_venta_service(venta)
                 context['error'] = f'No pudimos iniciar el pago: {e}'
                 return render(request, 'ventas/confirmacion.html', context)
@@ -174,9 +182,11 @@ def confirmacion(request):
                 context['error'] = str(e)
                 return render(request, 'ventas/confirmacion.html', context)
             except Exception:
+                logger.exception('Error inesperado al iniciar el pago con Mercado Pago (venta %s)', venta.id)
                 eliminar_venta_service(venta)
                 context['error'] = 'No pudimos iniciar el pago. Intentalo de nuevo.'
                 return render(request, 'ventas/confirmacion.html', context)
+            vaciar_carrito_service(get_o_crear_carrito_service(request.user))
             return redirect(init_point)
 
         enviar_factura_venta_service(venta, request)
@@ -190,31 +200,47 @@ def pago_local(request, venta_id):
     venta = VentaModel.objects.filter(id=venta_id, usuario=request.user).first()
     if not venta:
         return redirect('ver_carrito')
+    if venta.metodo_pago == VentaModel.MetodoPagoChoices.MERCADO_PAGO:
+        return redirect('pago', venta_id=venta.id)
     return render(request, 'ventas/pago_local.html', {
         'venta': venta,
-        'datos_local': DATOS_LOCAL,
+        'resumen_venta': get_venta_context_service(venta),
+        'modo_precio': 'transferencia',
+        'datos_local': settings.DATOS_LOCAL,
+        'datos_bancarios': settings.DATOS_BANCARIOS,
         'whatsapp_link': whatsapp_link_service(),
     })
 
 
 @login_required
 def pago(request, venta_id):
+    expirar_pagos_vencidos_service()
     venta = VentaModel.objects.filter(id=venta_id, usuario=request.user).first()
     if not venta:
         return redirect('ver_carrito')
     if venta.metodo_pago != VentaModel.MetodoPagoChoices.MERCADO_PAGO:
         return redirect('pago_local', venta_id=venta.id)
 
-    expirar_pagos_vencidos_service()
-    sincronizar_estado_pago_service(venta, request)
+    sincronizar_estado_pago_service(
+        venta,
+        request,
+        request.GET.get('payment_id') or request.GET.get('collection_id'),
+    )
+    venta.refresh_from_db()
 
     pagos = venta.pagos.all()
     pago_aprobado = venta.pagos.filter(estado=PagoModel.EstadoChoices.APROBADO).exists()
+    pago_reembolsado = venta.pagos.filter(
+        estado=PagoModel.EstadoChoices.REEMBOLSADO
+    ).exists()
     reintentos = venta.pagos.count()
+    max_reintentos = settings.MP_MAX_REINTENTOS
+    reintentos_restantes = max(max_reintentos - reintentos, 0)
     puede_pagar = (
         venta.estado == VentaModel.EstadoChoices.PENDIENTE
         and not pago_aprobado
-        and reintentos < settings.MP_MAX_REINTENTOS
+        and not pago_reembolsado
+        and reintentos < max_reintentos
     )
 
     error = None
