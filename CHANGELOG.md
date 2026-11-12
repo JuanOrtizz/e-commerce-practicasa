@@ -56,6 +56,9 @@
 - Unifico el contexto y los includes del resumen del pedido entre checkout, envío, método de pago, confirmación, pago y pago local
 - Reemplazo la tabla de detalle duplicada de pago.html por el include _resumen_pedido.html
 - Paso los estilos del flujo de compra a ventas.css y elimino estilos duplicados en las plantillas
+#### Tests
+- Agrego una fixture autouse en project/conftest.py que fija EMAIL_BACKEND locmem, DEFAULT_FROM_EMAIL y EMAIL_COMERCIO para toda la suite, así los tests de emails no dependen del .env ni de las variables de CI y nunca envían emails reales
+- Corrijo los 9 tests de emails que fallaban en CI con EMAIL_COMERCIO vacío (reembolso, transferencia y webhooks de Mercado Pago)
 #### Docs
 - Completo .env.example con todas las variables: Django, PostgreSQL, SMTP, Mercado Pago, seguridad HTTPS, datos del local, datos bancarios y reglas de negocio
 - Agrego las variables de Mercado Pago a .env.example y documento el pago online y el webhook en el README
