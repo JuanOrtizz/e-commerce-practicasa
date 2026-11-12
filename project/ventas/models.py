@@ -116,6 +116,12 @@ class VentaItemModel(models.Model):
     cantidad = models.PositiveIntegerField(default=1)
     precio_unitario = models.DecimalField(max_digits=10, decimal_places=2)
     precio_transferencia_unitario = models.DecimalField(max_digits=10, decimal_places=2)
+    precio_original_unitario = models.DecimalField(
+        max_digits=10, decimal_places=2, null=True, blank=True
+    )
+    precio_transferencia_original_unitario = models.DecimalField(
+        max_digits=10, decimal_places=2, null=True, blank=True
+    )
     color_nombre = models.CharField(max_length=50, null=True, blank=True)
     color_hex = models.CharField(max_length=7, null=True, blank=True)
     medida_nombre = models.CharField(max_length=50, null=True, blank=True)

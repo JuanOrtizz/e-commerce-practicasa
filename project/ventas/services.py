@@ -220,27 +220,43 @@ def crear_venta_confirmada_service(usuario, datos, metodo_envio, metodo_pago, va
             cantidad=item.cantidad,
             precio_unitario=data['precio_unitario'],
             precio_transferencia_unitario=data['precio_transferencia_unitario'],
+            precio_original_unitario=data['precio_original'],
+            precio_transferencia_original_unitario=data['precio_transferencia_original'],
             color_nombre=item.color_nombre,
             color_hex=item.color_hex,
             medida_nombre=item.medida_nombre,
         )
 
     _descontar_stock_venta_service(venta)
-    vaciar_carrito_service(carrito)
+    if vaciar_carrito:
+        vaciar_carrito_service(carrito)
     return venta
 
 
 def _descontar_stock_venta_service(venta):
+    producto_ids = []
     for item in venta.items.select_related('producto'):
-        item.producto.stock -= item.cantidad
-        item.producto.save(update_fields=['stock'])
+        actualizados = ProductoModel.objects.filter(
+            pk=item.producto_id, stock__gte=item.cantidad
+        ).update(stock=F('stock') - item.cantidad)
+        if not actualizados:
+            raise ValueError(
+                f'Otro cliente compró la última unidad de {item.producto.nombre}. '
+                'Actualizá tu carrito.'
+            )
+        producto_ids.append(item.producto_id)
+    actualizar_tags_stock_service(producto_ids)
 
 
 @transaction.atomic
 def revertir_stock_venta_service(venta):
+    producto_ids = []
     for item in venta.items.select_related('producto'):
-        item.producto.stock += item.cantidad
-        item.producto.save(update_fields=['stock'])
+        ProductoModel.objects.filter(pk=item.producto_id).update(
+            stock=F('stock') + item.cantidad
+        )
+        producto_ids.append(item.producto_id)
+    actualizar_tags_stock_service(producto_ids)
 
 
 def sincronizar_stock_venta_service(venta, anterior):
