@@ -10,6 +10,16 @@
 {% block content %}
 {% include 'partials/_breadcrumb.html' with breadcrumb_paso='carrito' %}
 <div class="container my-4 animacion-aparicion-abajo-fade">
+    {% if pedidos_pendientes %}
+        <div class="alert alert-warning py-2 d-flex flex-wrap align-items-center justify-content-between gap-2">
+            <span>Tenés {{ pedidos_pendientes|length }} pedido{{ pedidos_pendientes|length|pluralize }} pendiente{{ pedidos_pendientes|length|pluralize }} de pago.</span>
+            <span class="d-flex flex-wrap gap-2">
+                {% for pedido in pedidos_pendientes %}
+                    <a class="btn btn-sm btn-enviar text-white fw-bold" href="{% url 'pago' pedido.id %}">Continuar pago #{{ pedido.id }}</a>
+                {% endfor %}
+            </span>
+        </div>
+    {% endif %}
     {% if not items %}
         <h2 class="fw-bold mb-4">Carrito de Compras</h2>
         <div class="text-center py-5 gap-3">
@@ -26,7 +36,7 @@
                 </div>
                 <div class="d-flex flex-column gap-3">
                     {% for data in items %}
-                    <div class="carrito-item p-3 p-lg-4" data-item-id="{{ data.item.id }}">
+                    <div class="carrito-item p-3 p-lg-4{% if data.sin_stock %} card-disabled{% endif %}" data-item-id="{{ data.item.id }}">
                         <div class="row g-2 g-lg-3 align-items-start align-items-lg-center">
                             <div class="col-12 d-lg-none d-flex align-items-start gap-3">
                                 {% with primera=data.producto.primera_imagen_valida %}
@@ -53,6 +63,9 @@
                                 <a href="{% url 'detalle_producto' data.producto.subcategoria.categoria.slug data.producto.subcategoria.slug data.producto.slug %}" class="carrito-producto-link text-decoration-none fw-semibold d-block">
                                     {{ data.producto.nombre }}
                                 </a>
+                                {% if data.sin_stock %}
+                                    <span class="badge bg-secondary carrito-badge-promo mt-2">Sin stock</span>
+                                {% endif %}
                                 {% if data.item.color_nombre or data.item.medida_nombre %}
                                     <div class="variante-label mt-1 d-flex flex-column">
                                         {% if data.item.color_nombre %}
@@ -175,7 +188,14 @@
                         </div>
                     </div>
                     <div class="d-grid gap-2">
-                        <a class="btn btn-enviar text-white fw-bold py-2" href="{% url 'checkout' %}">Ir a Checkout</a>
+                        {% if hay_sin_stock %}
+                            <div class="alert alert-warning py-2 small mb-0 text-center">
+                                Eliminá los productos sin stock para continuar.
+                            </div>
+                            <span class="btn btn-enviar text-white fw-bold py-2 disabled" aria-disabled="true">Comprar</span>
+                        {% else %}
+                            <a class="btn btn-enviar text-white fw-bold py-2" href="{% url 'checkout' %}">Comprar</a>
+                        {% endif %}
                         <a class="btn btn-outline-secondary fw-bold py-2 disabled" href="#" aria-disabled="true" tabindex="-1">Volver</a>
                     </div>
                 </div>

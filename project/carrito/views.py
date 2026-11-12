@@ -40,6 +40,7 @@ def agregar_al_carrito(request):
                 'message': f'{item.producto.nombre} agregado al carrito',
                 'producto_id': item.producto.id,
                 'stock_restante': get_stock_restante_producto_service(request.user, item.producto),
+                'stock_total': item.producto.stock,
             }
         })
     except ValueError as e:
