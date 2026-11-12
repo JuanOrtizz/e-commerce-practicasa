@@ -268,16 +268,44 @@ def sincronizar_stock_venta_service(venta, anterior):
         revertir_stock_venta_service(venta)
 
 
+def venta_mp_en_curso(venta):
+    if venta.metodo_pago != VentaModel.MetodoPagoChoices.MERCADO_PAGO:
+        return False
+    if venta.estado != VentaModel.EstadoChoices.PENDIENTE:
+        return False
+    limite = timezone.now() - timedelta(hours=settings.PEDIDO_TTL_HORAS)
+    if venta.created_at < limite:
+        return False
+    return venta.pagos.filter(
+        estado=PagoModel.EstadoChoices.PENDIENTE
+    ).exists()
+
+
+@transaction.atomic
 def eliminar_venta_service(venta):
-    if venta.estado != VentaModel.EstadoChoices.CANCELADA:
+    if venta_mp_en_curso(venta):
+        raise ValueError(
+            'Hay un pago de Mercado Pago en curso. '
+            f'Esperá a que termine o a que venza ({settings.PEDIDO_TTL_HORAS} h).'
+        )
+    pago_aprobado = venta.pagos.filter(
+        estado=PagoModel.EstadoChoices.APROBADO
+    ).exists()
+    if (
+        venta.estado == VentaModel.EstadoChoices.PENDIENTE
+        and not pago_aprobado
+    ):
         revertir_stock_venta_service(venta)
     venta.delete()
 
-
 def _render_factura_venta(venta, request, titulo):
+    pago = venta.pagos.filter(
+        estado=PagoModel.EstadoChoices.APROBADO
+    ).order_by('-created_at').first()
     contexto = {
         'titulo': titulo,
         'venta': venta,
+        'pago': pago,
         'logo_url': request.build_absolute_uri('/static/img/logo_practicasa.png'),
     }
     return render_to_string('email/email_factura.html', contexto)

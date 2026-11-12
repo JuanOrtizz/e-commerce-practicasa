@@ -392,8 +392,63 @@ def venta_modificar(request, id):
 def venta_eliminar(request, id):
     venta = get_object_or_404(VentaModel, id=id)
     venta_id = venta.id
-    eliminar_venta_service(venta)
+    try:
+        eliminar_venta_service(venta)
+    except ValueError as e:
+        return JsonResponse({
+            "success": False,
+            "message": str(e),
+        })
+    except ProtectedError:
+        return JsonResponse({
+            "success": False,
+            "message": (
+                f"No se puede eliminar la venta #{venta_id} porque tiene "
+                "registros asociados."
+            ),
+        })
     return JsonResponse({
         "success": True,
         "message": f"Venta #{venta_id} eliminada."
+    })
+
+
+@require_POST
+@requiere_admin
+def pago_estado(request, id):
+    pago = get_object_or_404(PagoModel, id=id)
+    nuevo = request.POST.get('estado')
+    permitidos = {
+        PagoModel.EstadoChoices.APROBADO,
+        PagoModel.EstadoChoices.REEMBOLSADO,
+    }
+    if nuevo not in permitidos:
+        return JsonResponse({
+            "success": False,
+            "message": "Estado de pago inválido.",
+        })
+    if pago.estado not in permitidos:
+        return JsonResponse({
+            "success": False,
+            "message": "Solo se puede marcar como reembolsado un pago aprobado.",
+        })
+    if pago.estado == nuevo:
+        return JsonResponse({
+            "success": False,
+            "message": "El pago ya tiene ese estado.",
+        })
+    try:
+        venta = actualizar_estado_pago_service(pago, nuevo)
+    except ValueError as e:
+        return JsonResponse({"success": False, "message": str(e)})
+    mensaje = f"Pago {pago.payment_id or pago.id} marcado como {pago.get_estado_display().lower()}."
+    if nuevo == PagoModel.EstadoChoices.REEMBOLSADO:
+        enviar_email_reembolso_service(venta, request)
+        if venta.estado == VentaModel.EstadoChoices.CANCELADA:
+            mensaje += " La venta quedó cancelada y el stock se repuso."
+    elif venta.estado == VentaModel.EstadoChoices.CONFIRMADA:
+        mensaje += " La venta volvió a confirmada y el stock se descontó."
+    return JsonResponse({
+        "success": True,
+        "message": mensaje,
     })
