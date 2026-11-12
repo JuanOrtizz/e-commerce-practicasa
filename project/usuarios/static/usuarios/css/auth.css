@@ -33,3 +33,46 @@
     background: #E8E8E8;
     z-index: -1;
 }
+
+.btn-toggle-password {
+    position: absolute;
+    top: 50%;
+    right: .75rem;
+    transform: translateY(-50%);
+    z-index: 3;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: #6c757d;
+    cursor: pointer;
+}
+
+.btn-toggle-password:hover {
+    color: #4a4a4a;
+}
+
+.btn-toggle-password:focus-visible {
+    outline: 2px solid #DE8A5E;
+    outline-offset: 2px;
+    border-radius: .375rem;
+}
+
+.btn-toggle-password svg {
+    width: 1.15rem;
+    height: 1.15rem;
+}
+
+.btn-toggle-password[aria-pressed="true"] .icono-ver,
+.btn-toggle-password[aria-pressed="false"] .icono-ocultar {
+    display: none;
+}
+
+.form-floating:has(.btn-toggle-password) .form-control.is-invalid {
+    padding-right: 4.5rem !important;
+    background-position: right 3rem center;
+}
