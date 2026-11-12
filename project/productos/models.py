@@ -1,6 +1,7 @@
 from decimal import Decimal
 from datetime import timedelta
 import os
+from django.conf import settings
 from django.db import models
 from django.utils.text import slugify
 from django.utils import timezone
@@ -190,13 +191,13 @@ class ProductoModel(models.Model):
             if self.destacado:
                 tags.add(TagModel.TagChoices.DESTACADO)
 
-            if self.stock <= 2:
+            if self.stock == 1:
                 tags.add(TagModel.TagChoices.ULTIMA_UNIDAD)
 
             if self.promocion:
                 tags.add(TagModel.TagChoices.OFERTA)
 
-            if self.created_at and self.created_at >= timezone.now() - timedelta(days=30):
+            if self.created_at and self.created_at >= timezone.now() - timedelta(days=settings.DIAS_TAG_NUEVO):
                 tags.add(TagModel.TagChoices.NUEVO)
 
         self.tags.set(TagModel.objects.filter(nombre__in=tags))
