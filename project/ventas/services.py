@@ -293,7 +293,7 @@ def enviar_factura_venta_service(venta, request):
         asunto=f'Nuevo pedido #{venta.id} | Practicasa',
         mensaje_texto=f'Nuevo pedido #{venta.id} de {venta.nombre} ({venta.email}).',
         mensaje_html=_render_factura_venta(venta, request, 'Nuevo pedido recibido'),
-        destinatarios=[EMAIL_COMERCIO],
+        destinatarios=[settings.EMAIL_COMERCIO],
     )
 
 
@@ -304,7 +304,7 @@ def crear_pago_mercado_pago_service(venta, request):
     sdk = mp.get_sdk()
     back_url = request.build_absolute_uri(reverse('pago', args=[venta.id]))
     preferencia = mp.crear_preferencia_service(
-        sdk, venta, settings.MP_PEDIDO_TTL_HORAS, settings.MP_WEBHOOK_URL, back_url
+        sdk, venta, settings.PEDIDO_TTL_HORAS, settings.MP_WEBHOOK_URL, back_url
     )
     PagoModel.objects.create(
         venta=venta,
@@ -446,64 +446,125 @@ def sincronizar_pago_service(pago_data, venta, request):
                 external_reference=str(venta.id),
             )
 
+    _guardar_datos_mp(pago, pago_data)
+
     aprobado = PagoModel.EstadoChoices.APROBADO
-    pendiente = VentaModel.EstadoChoices.PENDIENTE
     confirmada = VentaModel.EstadoChoices.CONFIRMADA
+    reembolsado = pago.estado == PagoModel.EstadoChoices.REEMBOLSADO
     ya_aprobado = pago.estado == aprobado
     hay_otro_aprobado = venta.pagos.filter(estado=aprobado).exclude(pk=pago.pk).exists()
 
-    if estado_mp in ('approved', 'authorized'):
-        if not ya_aprobado and not hay_otro_aprobado and venta.estado == pendiente:
+    if estado_mp == 'approved' and not reembolsado:
+        if not ya_aprobado and not hay_otro_aprobado:
             pago.estado = aprobado
             pago.save(update_fields=['estado', 'mp_preference_id', 'monto', 'external_reference'])
-            venta.estado = confirmada
-            venta.save(update_fields=['estado'])
-            enviar_factura_venta_service(venta, request)
+            estado_anterior = venta.estado
+            try:
+                _sincronizar_venta_por_estado_pago_service(venta, aprobado)
+            except ValueError as e:
+                logger.error(
+                    'Venta %s con pago %s aprobado sin stock: %s', venta.id, payment_id, e
+                )
+                _alertar_reversion_pago(venta)
+            else:
+                if estado_anterior != confirmada and venta.estado == confirmada:
+                    enviar_factura_venta_service(venta, request)
         elif not ya_aprobado:
             pago.estado = aprobado
             pago.save(update_fields=['estado', 'mp_preference_id', 'monto', 'external_reference'])
-    elif estado_mp in ('rejected', 'chargedback', 'cancelled'):
+    elif estado_mp in ('rejected', 'cancelled'):
         nuevo = (
             PagoModel.EstadoChoices.RECHAZADO
-            if estado_mp in ('rejected', 'chargedback')
+            if estado_mp == 'rejected'
             else PagoModel.EstadoChoices.CANCELADO
         )
         if pago.estado != nuevo:
             pago.estado = nuevo
             pago.save(update_fields=['estado', 'mp_preference_id', 'monto', 'external_reference'])
+    elif estado_mp in ('charged_back', 'refunded'):
+        if pago.estado != PagoModel.EstadoChoices.REEMBOLSADO:
+            pago.estado = PagoModel.EstadoChoices.REEMBOLSADO
+            pago.save(update_fields=['estado', 'mp_preference_id', 'monto', 'external_reference'])
+            _sincronizar_venta_por_estado_pago_service(
+                venta, PagoModel.EstadoChoices.REEMBOLSADO
+            )
+            _alertar_reversion_pago(venta)
+    elif estado_mp == 'in_mediation' and pago.estado == aprobado:
+        _alertar_reversion_pago(venta)
     return pago
+
+
+def _pago_pertenece_a_venta(pago_data, venta):
+    collector_id = str(pago_data.get('collector_id') or '')
+    if not collector_id:
+        return False
+    preferencias = venta.pagos.exclude(mp_preference_id='').values_list(
+        'mp_preference_id', flat=True
+    )
+    return any(
+        str(preferencia).startswith(f'{collector_id}-') for preferencia in preferencias
+    )
 
 
 def procesar_notificacion_pago_service(payment_id, request):
     try:
         sdk = mp.get_sdk()
     except mp.MercadoPagoNoConfigurado:
+        logger.warning('Webhook %s ignorado: Mercado Pago no configurado', payment_id)
         return False
+
     if not mp.verificar_firma_webhook(request, payment_id):
+        logger.warning('Webhook %s ignorado: firma inválida o vencida', payment_id)
         return False
+
     pago_data = mp.consultar_pago_service(sdk, payment_id)
     if not pago_data:
+        logger.warning('Webhook %s ignorado: pago inexistente en Mercado Pago', payment_id)
         return False
     venta = _venta_desde_referencia(pago_data)
     if not venta:
+        logger.warning('Webhook %s ignorado: venta inexistente', payment_id)
         return False
     if not _monto_coincide(pago_data.get('transaction_amount'), venta.total):
+        logger.warning(
+            'Webhook %s ignorado: monto no coincide con la venta #%s',
+            payment_id,
+            venta.id,
+        )
+        return False
+    if not _pago_pertenece_a_venta(pago_data, venta):
+        logger.warning(
+            'Webhook %s ignorado: el pago no pertenece a la cuenta de la venta #%s',
+            payment_id,
+            venta.id,
+        )
         return False
     sincronizar_pago_service(pago_data, venta, request)
     return True
 
 
-def sincronizar_estado_pago_service(venta, request):
-    pago = venta.pagos.filter(
-        estado=PagoModel.EstadoChoices.PENDIENTE
-    ).order_by('-created_at').first()
-    if not pago or not pago.payment_id:
-        return
+def sincronizar_estado_pago_service(venta, request, payment_id=None):
     if venta.pagos.filter(estado=PagoModel.EstadoChoices.APROBADO).exists():
+        return
+    if payment_id:
+        payment_id = str(payment_id)
+        pago = venta.pagos.filter(payment_id=payment_id).first()
+        if pago is None:
+            pago = venta.pagos.filter(
+                estado=PagoModel.EstadoChoices.PENDIENTE, payment_id__isnull=True
+            ).order_by('-created_at').first()
+    else:
+        pago = venta.pagos.filter(
+            estado=PagoModel.EstadoChoices.PENDIENTE
+        ).order_by('-created_at').first()
+        if not pago or not pago.payment_id:
+            return
+        payment_id = pago.payment_id
+    if pago is None:
         return
     try:
         sdk = mp.get_sdk()
-        pago_data = mp.consultar_pago_service(sdk, pago.payment_id)
+        pago_data = mp.consultar_pago_service(sdk, payment_id)
     except Exception:
         return
     if not pago_data:

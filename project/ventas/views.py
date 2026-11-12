@@ -1,5 +1,5 @@
 import json
-
+import logging
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, JsonResponse
@@ -8,12 +8,11 @@ from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from django_ratelimit.decorators import ratelimit
-
+from carrito.services import get_o_crear_carrito_service, vaciar_carrito_service
 from .forms import CheckoutForm, EnvioForm, MetodoPagoForm
 from . import mp
 from .models import PagoModel, VentaModel
 from .services import (
-    DATOS_LOCAL,
     crear_pago_mercado_pago_service,
     crear_venta_confirmada_service,
     eliminar_venta_service,
@@ -21,6 +20,7 @@ from .services import (
     expirar_pagos_vencidos_service,
     get_datos_venta_session,
     get_order_context_service,
+    get_venta_context_service,
     limpiar_datos_venta_session,
     localidad_para_coordinar_entrega_service,
     permite_coordinar_entrega_service,
@@ -284,14 +284,30 @@ def mp_webhook(request):
         payload = {}
 
     data = payload.get('data') if isinstance(payload.get('data'), dict) else {}
-    data_id = data.get('id') or payload.get('data_id')
-    if not data_id and request.GET.get('type') == 'payment':
-        data_id = request.GET.get('data_id')
+    tipo = request.GET.get('type') or payload.get('type')
+    data_id = (
+        request.GET.get('data.id')
+        or request.GET.get('data_id')
+        or data.get('id')
+        or payload.get('data_id')
+    )
+    if tipo and tipo != 'payment':
+        data_id = None
 
-    if data_id:
-        try:
-            procesar_notificacion_pago_service(str(data_id), request)
-        except Exception:
-            pass
+    if not data_id:
+        return HttpResponse('ok')
 
+    try:
+        procesado = procesar_notificacion_pago_service(str(data_id), request)
+    except mp.MercadoPagoErrorTransitorio:
+        logger.warning(
+            'Mercado Pago no respondió al consultar el pago %s; se reintentará', data_id
+        )
+        return HttpResponse('retry', status=503)
+    except Exception:
+        logger.exception('Error procesando la notificación de pago %s', data_id)
+        return HttpResponse('ok')
+
+    if not procesado:
+        logger.warning('Notificación de pago %s no procesada', data_id)
     return HttpResponse('ok')

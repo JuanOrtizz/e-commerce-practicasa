@@ -120,6 +120,7 @@ def _parsear_params_signature(valor):
 
 def verificar_firma_webhook(request, data_id):
     from django.conf import settings
+    from django.utils import timezone
 
     params = _parsear_params_signature(request.headers.get('X-Signature', ''))
     ts = params.get('ts')
@@ -127,8 +128,16 @@ def verificar_firma_webhook(request, data_id):
     request_id = request.headers.get('x-request-id', '')
     if not (ts and v1 and request_id):
         return False
+    try:
+        ts_int = int(ts)
+    except (TypeError, ValueError):
+        return False
+    if ts_int > 10_000_000_000:
+        ts_int = ts_int / 1000
+    if abs(timezone.now().timestamp() - ts_int) > 300:
+        return False
     cadena = f'id:{data_id};request-id:{request_id};ts:{ts};'
-    secreto = settings.MP_WEBHOOK_SECRET or settings.MP_ACCESS_TOKEN
+    secreto = settings.MP_WEBHOOK_SECRET
     if not secreto:
         return False
     firma_esperada = hmac.new(
