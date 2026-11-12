@@ -1,20 +1,19 @@
 import hashlib
 import hmac
+import mercadopago
+import requests
 from datetime import timedelta
 from decimal import Decimal
-
-import mercadopago
-
 from .models import VentaModel
-
 
 class MercadoPagoError(Exception):
     pass
 
+class MercadoPagoErrorTransitorio(MercadoPagoError):
+    pass
 
 class MercadoPagoNoConfigurado(Exception):
     pass
-
 
 def get_sdk():
     from django.conf import settings
@@ -23,10 +22,13 @@ def get_sdk():
         raise MercadoPagoNoConfigurado('El pago con Mercado Pago no está disponible por el momento.')
     return mercadopago.SDK(settings.MP_ACCESS_TOKEN)
 
-
 def _precio_item(item):
-    return item.subtotal_transferencia if item.venta.metodo_pago == VentaModel.MetodoPagoChoices.EFECTIVO else item.subtotal
-
+    if item.venta.metodo_pago in (
+        VentaModel.MetodoPagoChoices.EFECTIVO,
+        VentaModel.MetodoPagoChoices.TRANSFERENCIA,
+    ):
+        return item.subtotal_transferencia
+    return item.subtotal
 
 def _items_preferencia(venta):
     items = []
@@ -47,7 +49,6 @@ def _items_preferencia(venta):
         acumulado += precio
     return items
 
-
 def crear_preferencia_service(sdk, venta, ttl_horas, webhook_url, back_url):
     from django.utils import timezone
 
@@ -56,6 +57,7 @@ def crear_preferencia_service(sdk, venta, ttl_horas, webhook_url, back_url):
         'items': _items_preferencia(venta),
         'currency_id': 'ARS',
         'statement_descriptor': 'PRACTICASA',
+        'payer': {'email': venta.email},
         'expires': True,
         'expiration_date_from': timezone.now().isoformat(),
         'expiration_date_to': (timezone.now() + timedelta(hours=ttl_horas)).isoformat(),
@@ -64,30 +66,52 @@ def crear_preferencia_service(sdk, venta, ttl_horas, webhook_url, back_url):
             'pending': back_url,
             'failure': back_url,
         },
-        'auto_return': 'approved',
+        'payment_methods': {
+            'excluded_payment_types': [
+                {'id': 'ticket'},
+                {'id': 'atm'},
+                {'id': 'bank_transfer'},
+                {'id': 'debit_card'},
+                {'id': 'prepaid_card'},
+                {'id': 'digital_currency'},
+                {'id': 'crypto'},
+            ],
+        },
     }
+    if back_url.startswith('https://'):
+        data['auto_return'] = 'approved'
     if webhook_url:
         data['notification_url'] = webhook_url
     res = sdk.preference().create(data)
     response = res.get('response') or {}
     if res.get('status', 400) >= 400:
         raise MercadoPagoError(response.get('message', 'No pudimos generar el pago.'))
-    if 'init_point' not in response:
+    if 'init_point' not in response and 'sandbox_init_point' not in response:
         raise MercadoPagoError('No pudimos generar el pago.')
     return response
 
 
 def consultar_pago_service(sdk, payment_id):
-    res = sdk.payment().get(payment_id)
+    try:
+        res = sdk.payment().get(payment_id)
+    except requests.exceptions.RequestException as e:
+        raise MercadoPagoErrorTransitorio(
+            'Mercado Pago no respondió al consultar el pago.'
+        ) from e
+    status = res.get('status', 400)
+    if status >= 500:
+        raise MercadoPagoErrorTransitorio(
+            'Mercado Pago devolvió un error al consultar el pago.'
+        )
     response = res.get('response')
-    if res.get('status', 400) >= 400 or not response:
+    if status >= 400 or not response:
         return None
     return response
 
 
 def _parsear_params_signature(valor):
     params = {}
-    for parte in (valor or '').split(';'):
+    for parte in (valor or '').replace(';', ',').split(','):
         if '=' in parte:
             clave, _, valor_parte = parte.partition('=')
             params[clave.strip()] = valor_parte.strip()

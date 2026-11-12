@@ -16,6 +16,11 @@
             <span class="material-symbols-outlined ventas-exito-icon">check_circle</span>
             <h2 class="fw-bold mt-2">¡Pago acreditado!</h2>
             <p class="text-muted mb-1">Tu pedido <strong>#{{ venta.id }}</strong> fue <strong>confirmado</strong> y ya está en proceso.</p>
+        {% elif pago_reembolsado %}
+            <span class="material-symbols-outlined ventas-exito-icon text-danger">undo</span>
+            <h2 class="fw-bold mt-2">Pago reembolsado</h2>
+            <p class="text-muted mb-1">El pago del pedido <strong>#{{ venta.id }}</strong> fue <strong>reembolsado</strong> y el pedido quedó cancelado.</p>
+            <p class="text-muted mb-0">Si querés, volvé a armar tu pedido cuando quieras.</p>
         {% elif venta.estado == 'cancelada' or pagos.first.estado == 'vencido' %}
             <span class="material-symbols-outlined ventas-exito-icon text-danger">cancel</span>
             <h2 class="fw-bold mt-2">El pago venció</h2>
@@ -30,48 +35,34 @@
 
     <div class="row g-4 justify-content-center">
         <div class="col-lg-6">
-            <div class="ventas-paso">
-                <h5 class="fw-bold mb-3">Detalle del pedido</h5>
-                <div class="d-flex flex-column gap-2 mb-3">
-                    {% for item in venta.items.select_related.all %}
-                        <div class="d-flex justify-content-between gap-2">
-                            <span>
-                                {{ item.cantidad }} x {{ item.nombre_producto }}
-                                {% if item.etiqueta_promocion %}
-                                    <span class="badge rounded-pill text-bg-warning">{{ item.etiqueta_promocion }}</span>
-                                {% endif %}
-                                {% if item.promocion == '2x1' or item.promocion == '3x2' %}
-                                    <span class="text-muted small">(pagás {{ item.cantidad_paga }})</span>
-                                {% endif %}
-                            </span>
-                            <span class="fw-semibold flex-shrink-0">${{ item.subtotal|format_price }}</span>
-                        </div>
-                    {% endfor %}
-                </div>
-                <hr class="my-3">
-                <div class="d-flex justify-content-between mb-2">
-                    <span>Subtotal</span>
-                    <span>${{ venta.subtotal|format_price }}</span>
-                </div>
-                <div class="d-flex justify-content-between mb-2">
-                    <span>Envío</span>
-                    <span>Gratis</span>
-                </div>
-                <div class="d-flex justify-content-between">
-                    <span class="ventas-total-label">Total a pagar</span>
-                    <span class="ventas-total-valor">${{ venta.total|format_price }}</span>
-                </div>
+            <div class="ventas-sidebar">
+                {% include 'ventas/_resumen_pedido.html' with order_context=resumen_venta modo_precio=modo_precio resumen_titulo='Detalle del pedido' %}
             </div>
         </div>
         <div class="col-lg-6">
             <div class="ventas-paso">
-                <h5 class="fw-bold mb-3">Estado del pago</h5>
+                <h5 class="fw-bold mb-3 d-flex align-items-center justify-content-between gap-2">
+                    Estado del pago
+                    {% if pago_aprobado %}
+                        <span class="badge rounded-pill text-bg-success">Aprobado</span>
+                    {% elif pago_reembolsado %}
+                        <span class="badge rounded-pill text-bg-danger">Reembolsado</span>
+                    {% elif venta.estado == 'cancelada' or pagos.first.estado == 'vencido' %}
+                        <span class="badge rounded-pill text-bg-secondary">Vencido</span>
+                    {% else %}
+                        <span class="badge rounded-pill text-bg-warning">Pendiente</span>
+                    {% endif %}
+                </h5>
+                <p class="mb-3">Total del pedido: <strong class="ventas-total-valor">${{ venta.total|format_price }}</strong></p>
                 {% if error %}
                     <div class="alert alert-danger py-2">{{ error }}</div>
                 {% endif %}
                 {% if pago_aprobado %}
                     <p class="mb-2">Nº de pedido: <strong>#{{ venta.id }}</strong></p>
                     <p class="text-muted mb-3">Te enviamos la factura por email.</p>
+                    <a class="btn btn-enviar text-white fw-bold w-100 py-2" href="{% url 'productos' %}">Seguir comprando</a>
+                {% elif pago_reembolsado %}
+                    <p class="text-muted mb-3">El pago fue reembolsado. Si corresponde, el stock ya fue repuesto.</p>
                     <a class="btn btn-enviar text-white fw-bold w-100 py-2" href="{% url 'productos' %}">Seguir comprando</a>
                 {% elif venta.estado == 'cancelada' or pagos.first.estado == 'vencido' %}
                     <p class="text-muted mb-3">El pedido se canceló automáticamente al vencer el tiempo de pago.</p>
@@ -80,7 +71,9 @@
                     <div class="d-flex flex-column gap-2">
                         <ul class="list-unstyled mb-2 d-flex flex-column gap-1 small text-muted">
                             <li>Te redirigimos a Mercado Pago para completar el pago de forma segura.</li>
-                            <li>Tenés <strong>{{ max_reintentos|add:"-1" }}</strong> reintento{{ max_reintentos|add:"-1"|pluralize }} más antes de que el pedido se cancele.</li>
+                            {% if reintentos_restantes %}
+                                <li>Tenés <strong>{{ reintentos_restantes }}</strong> reintento{{ reintentos_restantes|pluralize }} más antes de que el pedido se cancele.</li>
+                            {% endif %}
                         </ul>
                         {% if puede_pagar %}
                             <form method="post">
@@ -110,7 +103,10 @@
                             <thead>
                                 <tr>
                                     <th>Estado</th>
-                                    <th>Monto</th>
+                                    <th>Tarjeta</th>
+                                    <th>Cuotas</th>
+                                    <th>Total pagado</th>
+                                    <th>Interés</th>
                                     <th>Fecha</th>
                                 </tr>
                             </thead>
@@ -126,7 +122,19 @@
                                                 {{ pago.get_estado_display }}
                                             </span>
                                         </td>
-                                        <td>${{ pago.monto|format_price }}</td>
+                                        <td>
+                                            {% if pago.tarjeta_ultimos_digitos %}
+                                                **** {{ pago.tarjeta_ultimos_digitos }}
+                                                {% if pago.metodo_pago_mp %}<div class="small text-muted">{{ pago.metodo_pago_mp }}</div>{% endif %}
+                                            {% else %}—{% endif %}
+                                        </td>
+                                        <td>
+                                            {% if pago.cuotas %}
+                                                {{ pago.cuotas }} x ${{ pago.monto_cuota|format_price }}
+                                            {% else %}—{% endif %}
+                                        </td>
+                                        <td>{% if pago.total_pagado %}${{ pago.total_pagado|format_price }}{% else %}${{ pago.monto|format_price }}{% endif %}</td>
+                                        <td>{% if pago.interes and pago.interes > 0 %}${{ pago.interes|format_price }}{% else %}—{% endif %}</td>
                                         <td>{{ pago.created_at|date:'d/m/Y H:i' }}</td>
                                     </tr>
                                 {% endfor %}
@@ -138,4 +146,9 @@
         </div>
     {% endif %}
 </div>
+{% if not pago_aprobado and venta.estado == 'pendiente' and volvio_de_mp %}
+<script>
+    setTimeout(() => window.location.reload(), 6000)
+</script>
+{% endif %}
 {% endblock %}

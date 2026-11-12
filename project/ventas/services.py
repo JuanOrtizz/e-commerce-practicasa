@@ -355,7 +355,73 @@ def _venta_desde_referencia(pago_data):
     return VentaModel.objects.filter(id=venta_id).first()
 
 
+def _alertar_reversion_pago(venta):
+    mensaje_html = (
+        f'<p>Se revirtió el pago del pedido <strong>#{venta.id}</strong> '
+        f'de {venta.nombre} ({venta.email}). Total: ${venta.total}.</p>'
+        '<p><strong>Si todavía no entregaste</strong>, cancelá la venta desde el panel '
+        'y el stock se repone automáticamente.</p>'
+        '<p><strong>Si ya entregaste</strong>, gestioná el reclamo con Mercado Pago.</p>'
+    )
+    enviar_email(
+        asunto=f'Se revirtió el pago del pedido #{venta.id} | Practicasa',
+        mensaje_texto=(
+            f'Se revirtió el pago del pedido #{venta.id} de {venta.nombre} '
+            f'({venta.email}). Total: ${venta.total}. '
+            'Si todavía no entregaste, cancelá la venta desde el panel y el stock se repone solo. '
+            'Si ya entregaste, gestioná el reclamo con Mercado Pago.'
+        ),
+        mensaje_html=mensaje_html,
+        destinatarios=[settings.EMAIL_COMERCIO],
+    )
+
+CAMPOS_DATOS_MP = (
+    'metodo_pago_mp',
+    'cuotas',
+    'monto_cuota',
+    'total_pagado',
+    'tarjeta_ultimos_digitos',
+)
+
+def _entero_o_none(valor):
+    try:
+        return int(valor)
+    except (TypeError, ValueError):
+        return None
+
+
+def _decimal_o_none(valor):
+    try:
+        return Decimal(str(valor))
+    except (TypeError, ValueError, ArithmeticError):
+        return None
+
+
+def _extraer_datos_mp(pago_data):
+    tarjeta = pago_data.get('card') or {}
+    detalles = pago_data.get('transaction_details') or {}
+    metodo = pago_data.get('payment_method_id') or ''
+    ultimos_digitos = tarjeta.get('last_four_digits') or ''
+    return {
+        'metodo_pago_mp': metodo[:50] or None,
+        'cuotas': _entero_o_none(pago_data.get('installments')),
+        'monto_cuota': _decimal_o_none(detalles.get('installment_amount')),
+        'total_pagado': _decimal_o_none(detalles.get('total_paid_amount')),
+        'tarjeta_ultimos_digitos': str(ultimos_digitos)[:4] or None,
+    }
+
+
+def _guardar_datos_mp(pago, pago_data):
+    for campo, valor in _extraer_datos_mp(pago_data).items():
+        setattr(pago, campo, valor)
+    pago.save(update_fields=list(CAMPOS_DATOS_MP))
+
+
+@transaction.atomic
 def sincronizar_pago_service(pago_data, venta, request):
+    venta = VentaModel.objects.select_for_update().filter(pk=venta.pk).first()
+    if not venta:
+        return None
     payment_id = str(pago_data.get('id'))
     estado_mp = pago_data.get('status', '')
 

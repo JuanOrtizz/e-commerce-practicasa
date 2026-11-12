@@ -257,12 +257,21 @@ def pago(request, venta_id):
 
     return render(request, 'ventas/pago.html', {
         'venta': venta,
+        'resumen_venta': get_venta_context_service(venta),
+        'modo_precio': 'normal',
         'pagos': pagos,
         'pago_aprobado': pago_aprobado,
+        'pago_reembolsado': pago_reembolsado,
         'reintentos': reintentos,
         'max_reintentos': settings.MP_MAX_REINTENTOS,
+        'reintentos_restantes': reintentos_restantes,
         'puede_pagar': puede_pagar,
         'error': error,
+        'volvio_de_mp': bool(
+            request.GET.get('payment_id')
+            or request.GET.get('collection_id')
+            or request.GET.get('collection_status')
+        ),
     })
 
 

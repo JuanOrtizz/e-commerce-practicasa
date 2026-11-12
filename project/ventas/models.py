@@ -88,9 +88,18 @@ class PagoModel(models.Model):
     payment_id = models.CharField(
         max_length=40, unique=True, null=True, blank=True
     )
-    mp_preference_id = models.CharField(max_length=40, null=True, blank=True)
+    mp_preference_id = models.CharField(max_length=100, null=True, blank=True)
     monto = models.DecimalField(max_digits=10, decimal_places=2)
     external_reference = models.CharField(max_length=20, null=True, blank=True)
+    metodo_pago_mp = models.CharField(max_length=50, null=True, blank=True)
+    cuotas = models.PositiveIntegerField(null=True, blank=True)
+    monto_cuota = models.DecimalField(
+        max_digits=10, decimal_places=2, null=True, blank=True
+    )
+    total_pagado = models.DecimalField(
+        max_digits=10, decimal_places=2, null=True, blank=True
+    )
+    tarjeta_ultimos_digitos = models.CharField(max_length=4, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True, db_index=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -99,6 +108,12 @@ class PagoModel(models.Model):
         verbose_name = 'Pago'
         verbose_name_plural = 'Pagos'
         ordering = ['-created_at']
+
+    @property
+    def interes(self):
+        if self.total_pagado is None:
+            return None
+        return self.total_pagado - self.monto
 
     def __str__(self):
         return f'Pago {self.payment_id or self.id} de la venta {self.venta_id}'
