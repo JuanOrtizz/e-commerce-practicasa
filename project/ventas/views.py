@@ -31,13 +31,43 @@ from .services import (
     whatsapp_link_service,
 )
 
+logger = logging.getLogger('ventas.mp')
+
+MENSAJE_RATE_LIMIT = 'Demasiados intentos. Esperá un minuto antes de volver a intentar.'
+
+def _respuesta_sin_carrito(request, mensaje):
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return JsonResponse({
+            'success': False,
+            'redirect': reverse('ver_carrito'),
+            'message': mensaje,
+        })
+    return redirect('ver_carrito')
 
 @login_required
-@ratelimit(key='ip', rate='5/m', method='POST', block=True)
+@ratelimit(key='ip', rate='5/m', method='POST', block=False)
 def checkout(request):
     order_context = get_order_context_service(request.user)
     if not order_context['items']:
-        return redirect('ver_carrito')
+        return _respuesta_sin_carrito(request, 'Tu carrito está vacío.')
+    if order_context['hay_sin_stock']:
+        return _respuesta_sin_carrito(
+            request,
+            'Uno o más productos se quedaron sin stock. Revisá tu carrito para continuar.',
+        )
+
+    if request.method == 'POST' and getattr(request, 'limited', False):
+        form = CheckoutForm(request.POST)
+        form.add_error(None, MENSAJE_RATE_LIMIT)
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse(
+                {'success': False, 'errors': {'__all__': [MENSAJE_RATE_LIMIT]}},
+                status=429,
+            )
+        return render(request, 'ventas/checkout.html', {
+            'form': form,
+            'order_context': order_context,
+        }, status=429)
 
     datos = get_datos_venta_session(request)
     form = CheckoutForm(initial={
