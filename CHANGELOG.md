@@ -62,7 +62,8 @@
 #### Docs
 - Completo .env.example con todas las variables: Django, PostgreSQL, SMTP, Mercado Pago, seguridad HTTPS, datos del local, datos bancarios y reglas de negocio
 - Agrego las variables de Mercado Pago a .env.example y documento el pago online y el webhook en el README
-- Actualizo docs/manejo-de-stock-futuro.md (las ventas con Mercado Pago expiran por TTL y liberan stock)
+- Actualizo docs/DER.png con el esquema real: pagos por venta (1:N), snapshot de precios originales y de transferencia, estados de pago y variantes de color/medida como texto
+- Elimino docs/manejo-de-stock-futuro.md para no duplicar la documentación de stock con contenido desactualizado
 - Actualizo CHANGELOG.md con v0.19.0
 ---
 ## [v0.18.0] - 2026-09-17
