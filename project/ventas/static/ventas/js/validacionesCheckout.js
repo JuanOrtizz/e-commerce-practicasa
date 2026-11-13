@@ -1,4 +1,6 @@
-export function validateForm(formData){
+import {esLocalidadValida, esProvinciaValida} from './localidadesAutocomplete.js'
+
+export async function validateForm(formData){
     let isValid = true
 
     const form = document.getElementById("form")
@@ -37,10 +39,10 @@ export function validateForm(formData){
             if(!validarInputTelefono(input, valor)) isValid = false
         }
         else if (llave === "provincia"){
-            if(!validarInputProvincia(input, valor)) isValid = false
+            if(!await validarInputProvincia(input, valor)) isValid = false
         }
         else if (llave === "ciudad"){
-            if(!validarInputCiudad(input, valor)) isValid = false
+            if(!await validarInputCiudad(input, valor, (formData.get("provincia") || "").trim())) isValid = false
         }
         else if (llave === "direccion"){
             if(!validarInputDireccion(input, valor)) isValid = false
@@ -97,29 +99,27 @@ function validarInputTelefono(input, valor){
     return true
 }
 
-function validarInputProvincia(input, valor){
-    const patron = /^[a-zA-ZáéíóúñÁÉÍÓÚÑ]+(?:\s[a-zA-ZáéíóúñÁÉÍÓÚÑ]+)*$/
-    if(valor.length >= 2 && valor.length <= 100){
-        if (!patron.test(valor)){
-            textErrorInput(input, "La provincia no es válida (solo letras y espacios)")
-            return false
-        }
-    }else{
-        textErrorInput(input, "Provincia: de 2 a 100 caracteres")
+async function validarInputProvincia(input, valor){
+    if(!await esProvinciaValida(valor)){
+        textErrorInput(input, "Provincia inválida. Seleccioná una opción válida.")
         return false
     }
     return true
 }
 
-function validarInputCiudad(input, valor){
-    const patron = /^[a-zA-ZáéíóúñÁÉÍÓÚÑ]+(?:\s[a-zA-ZáéíóúñÁÉÍÓÚÑ]+)*$/
+async function validarInputCiudad(input, valor, provincia){
+    const patron = /^[a-zA-Z0-9áéíóúüñÁÉÍÓÚÜÑ .,'°()\/-]+$/
     if(valor.length >= 2 && valor.length <= 100){
-        if (!patron.test(valor)){
-            textErrorInput(input, "La ciudad no es válida (solo letras y espacios)")
+        if (!patron.test(valor) || !/[a-zA-ZáéíóúüñÁÉÍÓÚÜÑ]/.test(valor)){
+            textErrorInput(input, "La ciudad no es válida")
             return false
         }
     }else{
         textErrorInput(input, "Ciudad: de 2 a 100 caracteres")
+        return false
+    }
+    if (!await esLocalidadValida(provincia, valor)){
+        textErrorInput(input, "Ciudad inválida. Seleccioná una opción válida.")
         return false
     }
     return true
@@ -154,9 +154,12 @@ function validarInputNumero(input, valor){
 }
 
 function validarInputCodigoPostal(input, valor){
-    const patron = /^\d{4}$/
-    if (!patron.test(valor)){
+    if (valor.length !== 4){
         textErrorInput(input, "El CP debe tener 4 dígitos")
+        return false
+    }
+    if (!/^[0-9]{4}$/.test(valor)){
+        textErrorInput(input, "El CP debe tener solo números")
         return false
     }
     return true

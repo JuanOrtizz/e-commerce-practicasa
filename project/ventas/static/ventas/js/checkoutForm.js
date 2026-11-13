@@ -8,10 +8,10 @@ document.addEventListener('DOMContentLoaded', ()=>{
     }
     const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value
 
-    form.addEventListener('submit', (e) =>{
+    form.addEventListener('submit', async (e) =>{
         e.preventDefault()
         const formData = new FormData(form)
-        if(validateForm(formData)){
+        if(await validateForm(formData)){
             postForm(formData, csrfToken, form)
         }
     })
@@ -43,8 +43,11 @@ async function postForm(formData, csrfToken, form){
             } else {
                 form.reset()
             }
+        }else if (data.redirect) {
+            errorAlert(data.message || "No podés continuar con la compra.")
+            window.location.href = data.redirect
         }else{
-            const errors = data.errors
+            const errors = data.errors || {}
             if (errors.__all__) {
                 const nonFieldDiv = document.getElementById("non-field-errors")
                 if (nonFieldDiv) {

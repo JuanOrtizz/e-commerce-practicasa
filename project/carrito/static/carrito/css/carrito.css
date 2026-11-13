@@ -190,3 +190,18 @@
     min-width: 0;
 }
 
+.carrito-item.card-disabled {
+    opacity: 0.6;
+    pointer-events: none;
+    filter: grayscale(0.5);
+}
+
+.carrito-item.card-disabled:hover {
+    transform: none;
+    border-color: transparent;
+}
+
+.carrito-item.card-disabled .btn-eliminar-item {
+    pointer-events: auto;
+}
+

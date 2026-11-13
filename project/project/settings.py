@@ -29,6 +29,9 @@ DEBUG = config("DEBUG", cast=bool)
 
 ALLOWED_HOSTS = config("ALLOWED_HOSTS", default="localhost,127.0.0.1", cast=Csv())
 
+if config("USE_PROXY_SSL_HEADER", default=False, cast=bool):
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -120,13 +123,44 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 #Emails SMTP
-EMAIL_BACKEND='django.core.mail.backends.smtp.EmailBackend'
+EMAIL_BACKEND = config("EMAIL_BACKEND", default="django.core.mail.backends.smtp.EmailBackend")
 EMAIL_HOST = config("EMAIL_HOST", default="")
 EMAIL_PORT = config("EMAIL_PORT", default="587", cast=int)
 EMAIL_USE_TLS = config("EMAIL_USE_TLS", default=False, cast=bool)
 EMAIL_HOST_USER = config("EMAIL_HOST_USER", default="")
 EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD", default="")
-DEFAULT_FROM_EMAIL = config("DEFAULT_FROM_EMAIL", default="webmaster@localhost")
+DEFAULT_FROM_EMAIL = config("DEFAULT_FROM_EMAIL", default="")
+EMAIL_COMERCIO = config("EMAIL_COMERCIO", default="")
+
+#Datos del local
+DATOS_LOCAL = {
+    'nombre': config("LOCAL_NOMBRE", default="Practicasa"),
+    'ciudad': config("LOCAL_CIUDAD", default=""),
+    'direccion': config("LOCAL_DIRECCION", default=""),
+    'horario': config("LOCAL_HORARIO", default=""),
+    'whatsapp': config("LOCAL_WHATSAPP", default=""),
+    'mapa_url': config("LOCAL_MAPA_URL", default=""),
+}
+
+#Datos bancarios
+DATOS_BANCARIOS = {
+    'alias': config("DATOS_BANCARIOS_ALIAS", default=""),
+    'cvu': config("DATOS_BANCARIOS_CVU", default=""),
+    'nombre': config("DATOS_BANCARIOS_NOMBRE", default=""),
+    'banco': config("DATOS_BANCARIOS_BANCO", default="Mercado Pago"),
+    'cuil': config("DATOS_BANCARIOS_CUIL", default=""),
+}
+
+#Reglas de negocio
+MAX_PEDIDOS_PENDIENTES = config("MAX_PEDIDOS_PENDIENTES", default=2, cast=int)
+DIAS_TAG_NUEVO = config("DIAS_TAG_NUEVO", default=30, cast=int)
+
+#Mercado Pago
+MP_ACCESS_TOKEN = config("MP_ACCESS_TOKEN", default="")
+PEDIDO_TTL_HORAS = config("PEDIDO_TTL_HORAS", default=4, cast=int)
+MP_WEBHOOK_URL = config("MP_WEBHOOK_URL", default="")
+MP_WEBHOOK_SECRET = config("MP_WEBHOOK_SECRET", default="")
+MP_MAX_REINTENTOS = config("MP_MAX_REINTENTOS", default=5, cast=int)
 
 # Internationalization
 # https://docs.djangoproject.com/en/6.0/topics/i18n/
@@ -156,7 +190,7 @@ STATICFILES_DIRS= [
     os.path.join(BASE_DIR, 'static'),
 ]
 
-PRODUCTOS_POR_PAGINA = 12
+PRODUCTOS_POR_PAGINA = config("PRODUCTOS_POR_PAGINA", default=12, cast=int)
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'

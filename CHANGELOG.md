@@ -1,5 +1,71 @@
 # Changelog
 ---
+## [v0.19.0] - 2026-11-12
+### Rama: feature/mercado-pago
+#### Features
+- Agrego el modelo PagoModel con su migración (0006) y su registro en el admin Django (1 venta -> N pagos, sin duplicar el detalle de la venta)
+- Habilito Mercado Pago en la página de método de pago y al confirmar creo la venta + el pago pendiente + la preferencia en MP, redirigiendo al init_point
+- Agrego la página "Pago" con el estado del pago, "Volver a pagar" (límite de reintentos configurable) y expiración por TTL que cancela la venta y repone el stock automáticamente (lazy-check al cargar la página y desde el panel)
+- Agrego el webhook /ventas/mp-webhook/ idempotente: verificación de firma HMAC, consulta del estado real del pago a la API y validación del monto; al aprobarse confirma la venta y envía las facturas al cliente y al comercio
+- Parametrizo el secreto de firma del webhook (MP_WEBHOOK_SECRET, con fallback al access token) y agrego el badge "Pago duplicado" en el detalle de venta del panel cuando hay más de un pago aprobado
+- Corrijo el parseo del header X-Signature (formato ts;v1 separado por ';' que envía Mercado Pago, parse_qs no lo dividía)
+- Agrego la sección "Pagos" (id MP, estado con badge, monto y fecha) en el detalle de venta del panel admin
+- Agrego la modalidad Transferencia (migración 0008) con precios de transferencia, datos bancarios configurables y confirmación del pedido en estado Pendiente hasta recibir el comprobante por WhatsApp
+- Agrego la página de pago local con los datos bancarios del comercio (alias, CVU, nombre, banco y CUIL) parametrizados desde settings
+- Guardo snapshot de los precios originales y de transferencia en cada ítem de la venta (migración 0009) para que el detalle y la factura no cambien si el producto se modifica después
+- Agrego cuotas, método de pago MP y últimos dígitos de la tarjeta al PagoModel (migración 0012), y los muestro en el detalle del pago y en la factura
+- Agrego el estado Reembolsado al PagoModel (migración 0011) y el reembolso manual desde el panel: cancela la venta, repone el stock y envía el email de reembolso al cliente y al comercio
+- Limito los pedidos pendientes por usuario a MAX_PEDIDOS_PENDIENTES (2) en las últimas PEDIDO_TTL_HORAS (4 h), para todos los medios de pago
+- Muestro en el carrito los pedidos pendientes de Mercado Pago para que el usuario pueda terminarlos o esperar su vencimiento
+- Valido provincia y ciudad contra static/data/localidades_ar.json, con autocompletado y mensajes específicos ("Provincia inválida. Seleccioná una opción válida." / "Ciudad inválida. Seleccioná una opción válida.")
+- Agrego el toggle de contraseña en login, registro, reset y cambio de contraseña, con ícono accesible y estilos propios
+- Agrego rate limit de 5 POST por IP por minuto en los logins de cliente y admin de tienda, con respuesta 429 JSON para AJAX y error de formulario para HTML
+- Parametrizo datos del local (nombre, ciudad, dirección, horario, WhatsApp y mapa), datos bancarios, email del comercio, productos por página y días del tag "Nuevo"
+- Completo el resumen del pedido con promociones, cantidad que se paga, precios originales tachados, ahorro y precio de transferencia según el medio de pago
+- Agrego el detalle del pago en la factura por email: tarjeta, cuotas, monto por cuota, total pagado e intereses
+- Muestro la etiqueta "Última unidad" solo cuando el stock es 1 y calculo "Sin stock" directo del stock del producto, sin depender de un tag
+- Agrego el estado "Ya agregaste todo el stock" en las tarjetas cuando el usuario ya tiene todas las unidades disponibles en el carrito
+- Permito que mp_preference_id sea nulo (migración 0007) para pagos pendientes creados sin preferencia
+- Completo los gráficos pendientes del dashboard con las ventas confirmadas: mínimo KPI "Total recaudado (último mes)" con sparkline y variación, "Productos más vendidos" por unidades y "Ventas histórico" por monto mensual
+- Trunco el nombre del producto en el resumen del pedido del flujo de compra (una línea con elipsis)
+#### Fixes
+- Corrijo el cálculo de stock del carrito cuando hay varios ítems del mismo producto: ahora se reparte el stock disponible entre todos y se marca cada ítem sin stock por separado
+- Corrijo el conteo de cantidad de ítems del carrito para que no incluya productos sin stock
+- Corrijo la UI de stock en home, listado, detalle y carrito: badge "Sin Stock", tarjeta deshabilitada y botón "Ya agregaste todo el stock" según corresponda
+- Corrijo el rate limit del checkout: block=False y respuesta 429 JSON/HTML con mensaje claro, en lugar del 403 HTML crudo que rompía el fetch
+- Evito crear una nueva preferencia de pago cuando la venta ya tiene un pago reembolsado, aunque el estado de la venta haya quedado inconsistente
+- Corrijo la sincronización del webhook: no reactiva pagos reembolsados, valida que el pago pertenezca a la venta y registra en logs los rechazos por firma, pago inexistente o venta inexistente
+- Corrijo la sincronización de la venta al marcar un pago como reembolsado: cancela solo si no queda otro pago aprobado y repone el stock a través de las señales
+- Corrijo la validación del código postal: 4 dígitos exactos y solo números
+- Corrijo el mensaje y la lógica de envío a domicilio/sucursal de Correo Argentino
+- Deshabilito Mercado Pago en la UI cuando falta MP_ACCESS_TOKEN y muestro "No disponible por el momento"
+- Bloqueo la modificación y eliminación de ventas con un pago de Mercado Pago en curso, con mensaje claro en el panel
+- Manejo ProtectedError al eliminar ventas con registros asociados y devuelvo un JSON de error en lugar de un 500
+- Unifico el email público a practicasa_nogoya@outlook.com en footer, términos y emails del sistema
+- Corrijo el número de WhatsApp público en el botón flotante
+- Corrijo el padding del toggle de contraseña en los formularios de auth para que no se superponga con el input ni con el mensaje de error
+- Corrijo el render de errores generales del checkout en el camino sin JavaScript (#non-field-errors)
+#### Refactor
+- Elimino _es_ajax y dejo la comparación del header X-Requested-With inline en _respuesta_sin_carrito
+- Renombro MP_PEDIDO_TTL_HORAS a PEDIDO_TTL_HORAS porque el TTL también aplica a transferencia y al límite de pedidos pendientes
+- Centralizo el contexto del resumen de venta en get_venta_context_service para reutilizarlo en pago, pago local y factura
+- Muevo el cálculo de precios y ahorros de los ítems de venta a calcular_precios_venta_item_service
+- Cacheo la carga de localidades_ar.json con lru_cache para no leer el archivo en cada validación
+- Agrego actualizar_tags_stock_service para recalcular los tags automáticos después de cambios de stock
+- Cambio la FK de PagoModel.venta a CASCADE (migración 0010) para que los pagos se eliminen junto con la venta
+- Unifico el contexto y los includes del resumen del pedido entre checkout, envío, método de pago, confirmación, pago y pago local
+- Reemplazo la tabla de detalle duplicada de pago.html por el include _resumen_pedido.html
+- Paso los estilos del flujo de compra a ventas.css y elimino estilos duplicados en las plantillas
+#### Tests
+- Agrego una fixture autouse en project/conftest.py que fija EMAIL_BACKEND locmem, DEFAULT_FROM_EMAIL y EMAIL_COMERCIO para toda la suite, así los tests de emails no dependen del .env ni de las variables de CI y nunca envían emails reales
+- Corrijo los 9 tests de emails que fallaban en CI con EMAIL_COMERCIO vacío (reembolso, transferencia y webhooks de Mercado Pago)
+#### Docs
+- Completo .env.example con todas las variables: Django, PostgreSQL, SMTP, Mercado Pago, seguridad HTTPS, datos del local, datos bancarios y reglas de negocio
+- Agrego las variables de Mercado Pago a .env.example y documento el pago online y el webhook en el README
+- Actualizo docs/DER.png con el esquema real: pagos por venta (1:N), snapshot de precios originales y de transferencia, estados de pago y variantes de color/medida como texto
+- Elimino docs/manejo-de-stock-futuro.md para no duplicar la documentación de stock con contenido desactualizado
+- Actualizo CHANGELOG.md con v0.19.0
+---
 ## [v0.18.0] - 2026-09-17
 ### Rama: feature/proceso-compra
 #### Features

@@ -1,6 +1,8 @@
 from decimal import Decimal
 
 import pytest
+from django.core import mail
+from django.test import override_settings
 from django.urls import reverse
 
 from base.models import ConsultaModel
@@ -12,7 +14,7 @@ from productos.models import (
     ProductoImagenModel,
     SubcategoriaModel,
 )
-from ventas.models import VentaItemModel, VentaModel
+from ventas.models import PagoModel, VentaItemModel, VentaModel
 
 
 def producto_form_data(subcategoria, **kwargs):
@@ -60,6 +62,49 @@ def test_dashboard_admin_200(admin_client, producto, consulta):
     assert response.context['total_productos'] == 1
     assert response.context['total_consultas'] == 1
     assert response.context['consultas_mes'] == 1
+
+
+@pytest.mark.django_db
+def test_dashboard_recaudado_solo_confirmadas(admin_client, venta):
+    venta.estado = VentaModel.EstadoChoices.CONFIRMADA
+    venta.save(update_fields=['estado'])
+    VentaModel.objects.create(
+        usuario=venta.usuario,
+        estado=VentaModel.EstadoChoices.CANCELADA,
+        metodo_envio=VentaModel.MetodoEnvioChoices.RETIRO_LOCAL,
+        metodo_pago=VentaModel.MetodoPagoChoices.EFECTIVO,
+        nombre='Cliente Test',
+        email='cliente@example.com',
+        telefono='1122334455',
+        subtotal=Decimal('10000'),
+        costo_envio=Decimal('0'),
+        total=Decimal('10000'),
+    )
+    response = admin_client.get(reverse('panel_inicio'))
+    assert response.context['ventas_recaudado_mes'] == Decimal('30000')
+
+
+@pytest.mark.django_db
+def test_dashboard_ventas_por_mes_incluye_monto(admin_client, venta):
+    venta.estado = VentaModel.EstadoChoices.CONFIRMADA
+    venta.save(update_fields=['estado'])
+    response = admin_client.get(reverse('panel_inicio'))
+    assert response.context['ventas_por_mes'][-1][1] == Decimal('30000')
+
+
+@pytest.mark.django_db
+def test_dashboard_productos_mas_vendidos_por_unidades(admin_client, venta, producto):
+    venta.estado = VentaModel.EstadoChoices.CONFIRMADA
+    venta.save(update_fields=['estado'])
+    VentaItemModel.objects.create(
+        venta=venta,
+        producto=producto,
+        cantidad=2,
+        precio_unitario=Decimal('15000'),
+        precio_transferencia_unitario=Decimal('13500'),
+    )
+    response = admin_client.get(reverse('panel_inicio'))
+    assert response.context['productos_mas_vendidos'] == [[producto.nombre, 2]]
 
 
 @pytest.mark.django_db
@@ -583,6 +628,37 @@ def test_lista_ventas_200(admin_client, venta):
 
 
 @pytest.mark.django_db
+def test_lista_ventas_marca_pago_duplicado(admin_client, venta):
+    PagoModel.objects.create(
+        venta=venta, estado=PagoModel.EstadoChoices.APROBADO,
+        payment_id='12001', monto=venta.total, external_reference=str(venta.id),
+    )
+    PagoModel.objects.create(
+        venta=venta, estado=PagoModel.EstadoChoices.APROBADO,
+        payment_id='12002', monto=venta.total, external_reference=str(venta.id),
+    )
+    response = admin_client.get(reverse('panel_ventas'))
+    assert response.status_code == 200
+    assert response.context['ventas'].get(id=venta.id).pagos_aprobados == 2
+    assert 'Pago duplicado' in response.content.decode()
+
+
+@pytest.mark.django_db
+def test_lista_ventas_un_solo_aprobado_sin_badge_duplicado(admin_client, venta):
+    PagoModel.objects.create(
+        venta=venta, estado=PagoModel.EstadoChoices.APROBADO,
+        payment_id='12001', monto=venta.total, external_reference=str(venta.id),
+    )
+    PagoModel.objects.create(
+        venta=venta, estado=PagoModel.EstadoChoices.RECHAZADO,
+        payment_id='11999', monto=venta.total, external_reference=str(venta.id),
+    )
+    response = admin_client.get(reverse('panel_ventas'))
+    assert response.status_code == 200
+    assert 'Pago duplicado' not in response.content.decode()
+
+
+@pytest.mark.django_db
 def test_lista_ventas_requiere_admin(client, cliente_client):
     assert client.get(reverse('panel_ventas')).status_code == 302
     assert cliente_client.get(reverse('panel_ventas')).status_code == 302
@@ -596,9 +672,285 @@ def test_venta_detalle_200(admin_client, venta):
 
 
 @pytest.mark.django_db
+def test_venta_detalle_muestra_pagos(admin_client, venta):
+    PagoModel.objects.create(
+        venta=venta, estado=PagoModel.EstadoChoices.APROBADO,
+        payment_id='12001', monto=venta.total, external_reference=str(venta.id),
+    )
+    PagoModel.objects.create(
+        venta=venta, estado=PagoModel.EstadoChoices.RECHAZADO,
+        payment_id='11999', monto=venta.total, external_reference=str(venta.id),
+    )
+    response = admin_client.get(reverse('panel_venta_detalle', args=[venta.id]))
+    assert response.status_code == 200
+    content = response.content.decode()
+    assert 'Pagos' in content
+    assert '12001' in content
+    assert '11999' in content
+    assert 'Aprobado' in content
+    assert 'Rechazado' in content
+
+
+@pytest.mark.django_db
+def test_venta_detalle_efectivo_sin_pagos_no_muestra_seccion(admin_client, venta):
+    response = admin_client.get(reverse('panel_venta_detalle', args=[venta.id]))
+    assert response.status_code == 200
+    assert 'Pagos' not in response.content.decode()
+
+
+@pytest.mark.django_db
+def test_venta_detalle_marca_pago_duplicado(admin_client, venta):
+    venta.estado = VentaModel.EstadoChoices.CONFIRMADA
+    venta.save(update_fields=['estado'])
+    PagoModel.objects.create(
+        venta=venta, estado=PagoModel.EstadoChoices.APROBADO,
+        payment_id='12001', monto=venta.total, external_reference=str(venta.id),
+    )
+    PagoModel.objects.create(
+        venta=venta, estado=PagoModel.EstadoChoices.APROBADO,
+        payment_id='12002', monto=venta.total, external_reference=str(venta.id),
+    )
+    response = admin_client.get(reverse('panel_venta_detalle', args=[venta.id]))
+    assert response.status_code == 200
+    assert 'Pago duplicado' in response.content.decode()
+
+
+@pytest.mark.django_db
+def test_venta_detalle_un_solo_aprobado_sin_badge_duplicado(admin_client, venta):
+    venta.estado = VentaModel.EstadoChoices.CONFIRMADA
+    venta.save(update_fields=['estado'])
+    PagoModel.objects.create(
+        venta=venta, estado=PagoModel.EstadoChoices.APROBADO,
+        payment_id='12001', monto=venta.total, external_reference=str(venta.id),
+    )
+    PagoModel.objects.create(
+        venta=venta, estado=PagoModel.EstadoChoices.RECHAZADO,
+        payment_id='11999', monto=venta.total, external_reference=str(venta.id),
+    )
+    response = admin_client.get(reverse('panel_venta_detalle', args=[venta.id]))
+    assert response.status_code == 200
+    assert 'Pago duplicado' not in response.content.decode()
+
+
+@pytest.mark.django_db
 def test_venta_detalle_inexistente_404(admin_client):
     response = admin_client.get(reverse('panel_venta_detalle', args=[999]))
     assert response.status_code == 404
+
+
+@pytest.mark.django_db
+def test_venta_detalle_muestra_boton_reembolsar_pago_aprobado(admin_client, venta):
+    PagoModel.objects.create(
+        venta=venta, estado=PagoModel.EstadoChoices.APROBADO,
+        payment_id='13001', monto=venta.total, external_reference=str(venta.id),
+    )
+    response = admin_client.get(reverse('panel_venta_detalle', args=[venta.id]))
+    assert response.status_code == 200
+    assert 'Marcar reembolsado' in response.content.decode()
+
+
+@override_settings(EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend')
+@pytest.mark.django_db
+def test_pago_estado_marca_reembolsado(admin_client, venta):
+    pago = PagoModel.objects.create(
+        venta=venta, estado=PagoModel.EstadoChoices.APROBADO,
+        payment_id='13001', monto=venta.total, external_reference=str(venta.id),
+    )
+    response = admin_client.post(
+        reverse('panel_pago_estado', args=[pago.id]), {'estado': 'reembolsado'}
+    )
+    assert response.status_code == 200
+    assert response.json()['success'] is True
+    pago.refresh_from_db()
+    assert pago.estado == PagoModel.EstadoChoices.REEMBOLSADO
+
+
+@override_settings(EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend')
+@pytest.mark.django_db
+def test_pago_estado_reembolsado_envia_email_a_comercio_y_cliente(admin_client, venta):
+    mail.outbox.clear()
+    pago = PagoModel.objects.create(
+        venta=venta, estado=PagoModel.EstadoChoices.APROBADO,
+        payment_id='13002', monto=venta.total, external_reference=str(venta.id),
+    )
+    response = admin_client.post(
+        reverse('panel_pago_estado', args=[pago.id]), {'estado': 'reembolsado'}
+    )
+    assert response.status_code == 200
+    assert response.json()['success'] is True
+    assert len(mail.outbox) == 2
+    destinatarios = [m.to for m in mail.outbox]
+    assert all(len(destino) == 1 for destino in destinatarios)
+    assert 'reembolsado' in mail.outbox[0].subject.lower()
+    assert 'reembolsado' in mail.outbox[1].subject.lower()
+    htmls = [m.alternatives[0][0] for m in mail.outbox]
+    assert any('Lamentamos los inconvenientes' in html for html in htmls)
+    assert any('Acción sugerida' in html for html in htmls)
+    assert htmls[0] != htmls[1]
+
+
+@pytest.mark.django_db
+def test_pago_estado_vuelve_a_aprobado(admin_client, venta):
+    pago = PagoModel.objects.create(
+        venta=venta, estado=PagoModel.EstadoChoices.REEMBOLSADO,
+        payment_id='13001', monto=venta.total, external_reference=str(venta.id),
+    )
+    response = admin_client.post(
+        reverse('panel_pago_estado', args=[pago.id]), {'estado': 'aprobado'}
+    )
+    assert response.status_code == 200
+    assert response.json()['success'] is True
+    pago.refresh_from_db()
+    assert pago.estado == PagoModel.EstadoChoices.APROBADO
+
+
+@pytest.mark.django_db
+def test_pago_estado_rechaza_estado_invalido(admin_client, venta):
+    pago = PagoModel.objects.create(
+        venta=venta, estado=PagoModel.EstadoChoices.APROBADO,
+        payment_id='13001', monto=venta.total, external_reference=str(venta.id),
+    )
+    response = admin_client.post(
+        reverse('panel_pago_estado', args=[pago.id]), {'estado': 'pendiente'}
+    )
+    assert response.json()['success'] is False
+    pago.refresh_from_db()
+    assert pago.estado == PagoModel.EstadoChoices.APROBADO
+
+
+@pytest.mark.django_db
+def test_pago_estado_rechaza_pago_no_aprobado(admin_client, venta):
+    pago = PagoModel.objects.create(
+        venta=venta, estado=PagoModel.EstadoChoices.RECHAZADO,
+        payment_id='13001', monto=venta.total, external_reference=str(venta.id),
+    )
+    response = admin_client.post(
+        reverse('panel_pago_estado', args=[pago.id]), {'estado': 'reembolsado'}
+    )
+    assert response.json()['success'] is False
+    pago.refresh_from_db()
+    assert pago.estado == PagoModel.EstadoChoices.RECHAZADO
+
+
+@override_settings(EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend')
+@pytest.mark.django_db
+def test_pago_estado_quita_badge_pago_duplicado(admin_client, venta):
+    primero = PagoModel.objects.create(
+        venta=venta, estado=PagoModel.EstadoChoices.APROBADO,
+        payment_id='13001', monto=venta.total, external_reference=str(venta.id),
+    )
+    PagoModel.objects.create(
+        venta=venta, estado=PagoModel.EstadoChoices.APROBADO,
+        payment_id='13002', monto=venta.total, external_reference=str(venta.id),
+    )
+    assert venta.tiene_pagos_duplicados is True
+
+    admin_client.post(
+        reverse('panel_pago_estado', args=[primero.id]), {'estado': 'reembolsado'}
+    )
+    assert venta.tiene_pagos_duplicados is False
+
+
+@override_settings(EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend')
+@pytest.mark.django_db
+def test_pago_reembolsado_ultimo_aprobado_cancela_venta_y_repone_stock(admin_client, venta, producto):
+    venta.estado = VentaModel.EstadoChoices.CONFIRMADA
+    venta.save(update_fields=['estado'])
+    VentaItemModel.objects.create(
+        venta=venta, producto=producto, nombre_producto=producto.nombre,
+        cantidad=2, precio_unitario=producto.precio,
+        precio_transferencia_unitario=producto.precio_transferencia,
+        precio_original_unitario=producto.precio,
+    )
+    producto.stock -= 2
+    producto.save(update_fields=['stock'])
+    pago = PagoModel.objects.create(
+        venta=venta, estado=PagoModel.EstadoChoices.APROBADO,
+        payment_id='13001', monto=venta.total, external_reference=str(venta.id),
+    )
+
+    response = admin_client.post(
+        reverse('panel_pago_estado', args=[pago.id]), {'estado': 'reembolsado'}
+    )
+    assert response.json()['success'] is True
+    venta.refresh_from_db()
+    producto.refresh_from_db()
+    assert venta.estado == VentaModel.EstadoChoices.CANCELADA
+    assert producto.stock == 10
+
+
+@pytest.mark.django_db
+def test_pago_aprobado_reactiva_venta_cancelada_y_descuenta_stock(admin_client, venta, producto):
+    venta.estado = VentaModel.EstadoChoices.CANCELADA
+    venta.save(update_fields=['estado'])
+    VentaItemModel.objects.create(
+        venta=venta, producto=producto, nombre_producto=producto.nombre,
+        cantidad=2, precio_unitario=producto.precio,
+        precio_transferencia_unitario=producto.precio_transferencia,
+        precio_original_unitario=producto.precio,
+    )
+    pago = PagoModel.objects.create(
+        venta=venta, estado=PagoModel.EstadoChoices.REEMBOLSADO,
+        payment_id='13001', monto=venta.total, external_reference=str(venta.id),
+    )
+
+    response = admin_client.post(
+        reverse('panel_pago_estado', args=[pago.id]), {'estado': 'aprobado'}
+    )
+    assert response.json()['success'] is True
+    venta.refresh_from_db()
+    producto.refresh_from_db()
+    assert venta.estado == VentaModel.EstadoChoices.CONFIRMADA
+    assert producto.stock == 8
+
+
+@pytest.mark.django_db
+def test_pago_aprobado_sin_stock_no_reactiva_venta(admin_client, venta, producto):
+    venta.estado = VentaModel.EstadoChoices.CANCELADA
+    venta.save(update_fields=['estado'])
+    VentaItemModel.objects.create(
+        venta=venta, producto=producto, nombre_producto=producto.nombre,
+        cantidad=20, precio_unitario=producto.precio,
+        precio_transferencia_unitario=producto.precio_transferencia,
+        precio_original_unitario=producto.precio,
+    )
+    pago = PagoModel.objects.create(
+        venta=venta, estado=PagoModel.EstadoChoices.REEMBOLSADO,
+        payment_id='13001', monto=venta.total, external_reference=str(venta.id),
+    )
+
+    response = admin_client.post(
+        reverse('panel_pago_estado', args=[pago.id]), {'estado': 'aprobado'}
+    )
+    assert response.json()['success'] is False
+    venta.refresh_from_db()
+    pago.refresh_from_db()
+    assert venta.estado == VentaModel.EstadoChoices.CANCELADA
+    assert pago.estado == PagoModel.EstadoChoices.REEMBOLSADO
+
+
+@pytest.mark.django_db
+def test_pago_estado_requiere_admin(cliente_client, venta):
+    pago = PagoModel.objects.create(
+        venta=venta, estado=PagoModel.EstadoChoices.APROBADO,
+        payment_id='13001', monto=venta.total, external_reference=str(venta.id),
+    )
+    response = cliente_client.post(
+        reverse('panel_pago_estado', args=[pago.id]), {'estado': 'reembolsado'}
+    )
+    assert response.status_code == 302
+    pago.refresh_from_db()
+    assert pago.estado == PagoModel.EstadoChoices.APROBADO
+
+
+@pytest.mark.django_db
+def test_pago_estado_get_405(admin_client, venta):
+    pago = PagoModel.objects.create(
+        venta=venta, estado=PagoModel.EstadoChoices.APROBADO,
+        payment_id='13001', monto=venta.total, external_reference=str(venta.id),
+    )
+    response = admin_client.get(reverse('panel_pago_estado', args=[pago.id]))
+    assert response.status_code == 405
 
 
 @pytest.mark.django_db
@@ -684,6 +1036,123 @@ def test_venta_eliminar_restaura_stock_y_mensaje_con_id(admin_client, producto, 
 
 
 @pytest.mark.django_db
+def test_venta_eliminar_con_pago_pendiente_elimina_y_repone_stock(admin_client, producto, venta):
+    VentaItemModel.objects.create(
+        venta=venta,
+        producto=producto,
+        cantidad=2,
+        precio_unitario=Decimal('15000'),
+        precio_transferencia_unitario=Decimal('13500'),
+    )
+    producto.stock = 8
+    producto.save(update_fields=['stock'])
+    pago = PagoModel.objects.create(
+        venta=venta,
+        estado=PagoModel.EstadoChoices.PENDIENTE,
+        mp_preference_id='pref-1',
+        monto=venta.total,
+        external_reference=str(venta.id),
+    )
+    response = admin_client.post(reverse('panel_venta_eliminar', args=[venta.id]))
+    data_json = response.json()
+    assert data_json['success'] is True
+    assert not VentaModel.objects.filter(id=venta.id).exists()
+    assert not PagoModel.objects.filter(id=pago.id).exists()
+    producto.refresh_from_db()
+    assert producto.stock == 10
+
+
+@pytest.mark.django_db
+def test_venta_eliminar_con_pago_aprobado_elimina_venta_y_pagos(admin_client, producto, venta):
+    VentaItemModel.objects.create(
+        venta=venta,
+        producto=producto,
+        cantidad=2,
+        precio_unitario=Decimal('15000'),
+        precio_transferencia_unitario=Decimal('13500'),
+    )
+    producto.stock = 8
+    producto.save(update_fields=['stock'])
+    PagoModel.objects.create(
+        venta=venta,
+        estado=PagoModel.EstadoChoices.APROBADO,
+        payment_id='mp-1',
+        monto=venta.total,
+        external_reference=str(venta.id),
+    )
+    response = admin_client.post(reverse('panel_venta_eliminar', args=[venta.id]))
+    data_json = response.json()
+    assert data_json['success'] is True
+    assert not VentaModel.objects.filter(id=venta.id).exists()
+    assert not PagoModel.objects.filter(external_reference=str(venta.id)).exists()
+    producto.refresh_from_db()
+    assert producto.stock == 8
+
+
+@pytest.mark.django_db
+def test_venta_eliminar_confirmada_con_pago_aprobado_no_repone_stock(admin_client, producto, venta):
+    VentaItemModel.objects.create(
+        venta=venta,
+        producto=producto,
+        cantidad=2,
+        precio_unitario=Decimal('15000'),
+        precio_transferencia_unitario=Decimal('13500'),
+    )
+    producto.stock = 8
+    producto.save(update_fields=['stock'])
+    venta.estado = VentaModel.EstadoChoices.CONFIRMADA
+    venta.save(update_fields=['estado'])
+    PagoModel.objects.create(
+        venta=venta,
+        estado=PagoModel.EstadoChoices.APROBADO,
+        payment_id='mp-2',
+        monto=venta.total,
+        external_reference=str(venta.id),
+    )
+    response = admin_client.post(reverse('panel_venta_eliminar', args=[venta.id]))
+    data_json = response.json()
+    assert data_json['success'] is True
+    assert not VentaModel.objects.filter(id=venta.id).exists()
+    assert not PagoModel.objects.filter(external_reference=str(venta.id)).exists()
+    producto.refresh_from_db()
+    assert producto.stock == 8
+
+
+@pytest.mark.django_db
+def test_venta_eliminar_requiere_admin(cliente_client, venta):
+    response = cliente_client.post(reverse('panel_venta_eliminar', args=[venta.id]))
+    assert response.status_code == 302
+    assert VentaModel.objects.filter(id=venta.id).exists()
+
+
+@pytest.mark.django_db
+def test_venta_eliminar_inexistente_404(admin_client):
+    response = admin_client.post(reverse('panel_venta_eliminar', args=[999999]))
+    assert response.status_code == 404
+
+
+@pytest.mark.django_db
+def test_venta_eliminar_confirmada_no_restaura_stock(admin_client, producto, venta):
+    VentaItemModel.objects.create(
+        venta=venta,
+        producto=producto,
+        cantidad=2,
+        precio_unitario=Decimal('15000'),
+        precio_transferencia_unitario=Decimal('13500'),
+    )
+    producto.stock = 8
+    producto.save(update_fields=['stock'])
+    venta.estado = VentaModel.EstadoChoices.CONFIRMADA
+    venta.save(update_fields=['estado'])
+    response = admin_client.post(reverse('panel_venta_eliminar', args=[venta.id]))
+    data_json = response.json()
+    assert data_json['success'] is True
+    assert not VentaModel.objects.filter(id=venta.id).exists()
+    producto.refresh_from_db()
+    assert producto.stock == 8
+
+
+@pytest.mark.django_db
 def test_venta_eliminar_cancelada_no_duplica_stock(admin_client, producto, venta):
     VentaItemModel.objects.create(
         venta=venta,
@@ -703,3 +1172,53 @@ def test_venta_eliminar_cancelada_no_duplica_stock(admin_client, producto, venta
     assert data_json['success'] is True
     producto.refresh_from_db()
     assert producto.stock == 10
+
+
+def _marcar_venta_mp_con_pago_pendiente(venta):
+    venta.metodo_pago = VentaModel.MetodoPagoChoices.MERCADO_PAGO
+    venta.save(update_fields=['metodo_pago'])
+    return PagoModel.objects.create(
+        venta=venta,
+        estado=PagoModel.EstadoChoices.PENDIENTE,
+        mp_preference_id='3776797576-1',
+        monto=venta.total,
+        external_reference=str(venta.id),
+    )
+
+
+@pytest.mark.django_db
+def test_venta_eliminar_con_pago_mp_en_curso_bloquea(admin_client, producto, venta):
+    VentaItemModel.objects.create(
+        venta=venta,
+        producto=producto,
+        cantidad=2,
+        precio_unitario=Decimal('15000'),
+        precio_transferencia_unitario=Decimal('13500'),
+    )
+    producto.stock = 8
+    producto.save(update_fields=['stock'])
+    _marcar_venta_mp_con_pago_pendiente(venta)
+
+    response = admin_client.post(reverse('panel_venta_eliminar', args=[venta.id]))
+    data_json = response.json()
+
+    assert data_json['success'] is False
+    assert 'Mercado Pago en curso' in data_json['message']
+    assert VentaModel.objects.filter(id=venta.id).exists()
+    producto.refresh_from_db()
+    assert producto.stock == 8
+
+
+@pytest.mark.django_db
+def test_venta_modificar_con_pago_mp_en_curso_bloquea(admin_client, venta):
+    _marcar_venta_mp_con_pago_pendiente(venta)
+
+    response = admin_client.post(
+        reverse('panel_venta_modificar', args=[venta.id]), {'estado': 'confirmada'}
+    )
+    data_json = response.json()
+
+    assert data_json['success'] is False
+    assert 'Mercado Pago en curso' in data_json['message']
+    venta.refresh_from_db()
+    assert venta.estado == VentaModel.EstadoChoices.PENDIENTE

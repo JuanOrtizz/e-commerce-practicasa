@@ -7,6 +7,7 @@ urlpatterns = [
     path('ventas/', views.lista_ventas, name='panel_ventas'),
     path('ventas/modificar/<int:id>/', views.venta_modificar, name='panel_venta_modificar'),
     path('ventas/eliminar/<int:id>/', views.venta_eliminar, name='panel_venta_eliminar'),
+    path('ventas/pagos/<int:id>/estado/', views.pago_estado, name='panel_pago_estado'),
     path('ventas/<int:id>/', views.venta_detalle, name='panel_venta_detalle'),
     path('productos/', views.lista_productos, name='panel_productos'),
     path('productos/nuevo/', views.producto_nuevo, name='panel_producto_nuevo'),

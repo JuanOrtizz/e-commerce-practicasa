@@ -73,13 +73,15 @@
             {% endif %}
 
             <div class="d-flex flex-wrap gap-1 mb-3">
+                {% if producto.stock <= 0 %}
+                    <span class="badge bg-secondary">Sin Stock</span>
+                {% endif %}
                 {% for tag in producto.tags.all %}
                     {% if tag.nombre == 'oferta' %}
                         <span class="badge bg-danger">{{ tag.get_nombre_display }}</span>
                     {% elif tag.nombre == 'nuevo' %}
                         <span class="badge bg-success">{{ tag.get_nombre_display }}</span>
                     {% elif tag.nombre == 'sin_stock' %}
-                        <span class="badge bg-secondary">{{ tag.get_nombre_display }}</span>
                     {% elif tag.nombre == 'ultima_unidad' %}
                         <span class="badge bg-warning text-dark">{{ tag.get_nombre_display }}</span>
                     {% elif tag.nombre == 'destacado' %}
@@ -127,6 +129,8 @@
                         <span class="btn-text" id="btn-text">Agregar al Carrito</span>
                         <span class="spinner-border spinner-border-sm d-none text-white btn-spinner" id="btn-spinner"></span>
                     </button>
+                {% elif producto.stock > 0 %}
+                    <button class="btn btn-secondary w-100 py-2 mt-3" disabled>Ya agregaste todo el stock</button>
                 {% else %}
                     <button class="btn btn-secondary w-100 py-2 mt-3" disabled>Sin stock</button>
                 {% endif %}

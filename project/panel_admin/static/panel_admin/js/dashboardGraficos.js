@@ -11,6 +11,8 @@ const datos = {
     tags: leerDatos('datos-tags') || [],
     enPromocion: leerDatos('datos-en-promocion') ?? 0,
     productosActivos: leerDatos('datos-productos-activos') ?? 0,
+    ventasPorMes: leerDatos('datos-ventas-mes') || [],
+    masVendidos: leerDatos('datos-mas-vendidos') || [],
 };
 
 const COLORES = {
@@ -57,6 +59,7 @@ const crearSparkline = (canvas, serie, color) => {
 document.querySelectorAll('.sparkline-canvas').forEach((canvas) => {
     const serie = canvas.dataset.series;
     if (serie === 'consultas') crearSparkline(canvas, datos.consultasPorMes, COLORES.terracota);
+    if (serie === 'ventas') crearSparkline(canvas, datos.ventasPorMes, COLORES.verde);
 });
 
 const pluginTextoCentro = {
@@ -202,5 +205,73 @@ if (graficoGauge) {
             },
         },
         plugins: [pluginTextoCentro],
+    });
+}
+
+const graficoMasVendidos = document.getElementById('graficoMasVendidos');
+if (graficoMasVendidos) {
+    new Chart(graficoMasVendidos, {
+        type: 'bar',
+        data: {
+            labels: datos.masVendidos.map((producto) => producto[0]),
+            datasets: [{
+                data: datos.masVendidos.map((producto) => producto[1]),
+                backgroundColor: 'rgba(162, 86, 48, 0.75)',
+                hoverBackgroundColor: COLORES.terracota,
+                borderRadius: 6,
+                borderSkipped: false,
+                maxBarThickness: 22,
+            }],
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                x: {
+                    beginAtZero: true,
+                    ticks: { precision: 0 },
+                    grid: { color: 'rgba(0, 0, 0, 0.05)' },
+                },
+                y: { grid: { display: false } },
+            },
+        },
+    });
+}
+
+const graficoVentasHistorico = document.getElementById('graficoVentasHistorico');
+if (graficoVentasHistorico) {
+    new Chart(graficoVentasHistorico, {
+        type: 'line',
+        data: {
+            labels: datos.ventasPorMes.map((punto) => punto[0]),
+            datasets: [{
+                data: datos.ventasPorMes.map((punto) => Number(punto[1])),
+                borderColor: COLORES.terracota,
+                backgroundColor: 'rgba(162, 86, 48, 0.1)',
+                borderWidth: 2,
+                fill: true,
+                tension: 0.4,
+                pointRadius: 4,
+                pointBackgroundColor: COLORES.terracota,
+            }],
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { grid: { display: false } },
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        precision: 0,
+                        callback: (valor) => new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 }).format(valor),
+                    },
+                    grid: { color: 'rgba(0, 0, 0, 0.05)' },
+                },
+            },
+        },
     });
 }

@@ -57,9 +57,15 @@
 
 .metrica-etiqueta { color: var(--secondary-color-hover); }
 
+.panel-table {
+    font-size: .85rem;
+}
+
 .panel-table thead th { background-color: var(--primary-color); }
 
 .panel-table tbody tr:hover { background-color: var(--primary-color); }
+
+.panel-table .badge { font-size: .72rem; }
 
 .panel-table td {
     overflow-wrap: break-word;
@@ -140,3 +146,15 @@ header h2 {
 }
 
 .min-w-0 { min-width: 0; }
+
+.v-id {
+    font-size: .8rem;
+    white-space: nowrap;
+    word-break: normal;
+}
+
+.panel-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .25rem;
+}

@@ -170,24 +170,50 @@ def get_carrito_context_service(carrito):
     total = Decimal('0')
     total_transferencia = Decimal('0')
     total_ahorro = Decimal('0')
+    stock_restante_por_producto = {}
+    cantidad_servible = 0
 
-    for item in carrito.items.select_related('producto').all():
-        if item.producto.stock == 0 or not item.producto.activo:
-            item.delete()
-            continue
-        stock_disponible = get_stock_disponible_item_service(carrito, item)
-        if stock_disponible <= 0:
-            item.delete()
-            continue
-        if item.cantidad > stock_disponible:
-            item.cantidad = stock_disponible
-            item.save()
+    for item in carrito.items.select_related('producto').order_by('id'):
+        producto = item.producto
+        restante = stock_restante_por_producto.get(producto.id, producto.stock)
         data = calcular_precios_item_service(item)
-        data['stock_disponible'] = stock_disponible
+        sin_stock = not producto.activo or restante <= 0
+
+        if sin_stock:
+            stock_restante_por_producto[producto.id] = 0
+        else:
+            if item.cantidad > restante:
+                item.cantidad = restante
+                item.save(update_fields=['cantidad'])
+                data = calcular_precios_item_service(item)
+            stock_restante_por_producto[producto.id] = restante - item.cantidad
+            cantidad_servible += 1
+
+        data['sin_stock'] = sin_stock
         items_data.append(data)
+
+        if sin_stock:
+            continue
         total += data['subtotal']
         total_transferencia += data['subtotal_transferencia']
         total_ahorro += data['ahorro']
+
+    cantidades_servibles = {}
+    for data in items_data:
+        if data['sin_stock']:
+            continue
+        producto_id = data['producto'].id
+        cantidades_servibles[producto_id] = (
+            cantidades_servibles.get(producto_id, 0) + data['cantidad']
+        )
+
+    for data in items_data:
+        if data['sin_stock']:
+            data['stock_disponible'] = 0
+            continue
+        producto = data['producto']
+        otras = cantidades_servibles[producto.id] - data['cantidad']
+        data['stock_disponible'] = max(producto.stock - otras, 0)
 
     return {
         'carrito': carrito,
@@ -195,5 +221,6 @@ def get_carrito_context_service(carrito):
         'total': total,
         'total_transferencia': total_transferencia,
         'total_ahorro': total_ahorro,
-        'cantidad_items': carrito.items.count(),
+        'cantidad_items': cantidad_servible,
+        'hay_sin_stock': any(data['sin_stock'] for data in items_data),
     }

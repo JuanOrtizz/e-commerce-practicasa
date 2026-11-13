@@ -4,9 +4,24 @@ from django.contrib.auth.views import LoginView, PasswordResetView, PasswordRese
 from django.http import JsonResponse
 from django.shortcuts import redirect
 from django.urls import reverse, reverse_lazy
+from django.utils.decorators import method_decorator
 from django.views.generic.edit import CreateView
+from django_ratelimit.decorators import ratelimit
 from .forms import RegistroForm, LoginForm, LoginAdminTiendaForm, CustomSetPasswordForm, CustomPasswordResetForm
 from .services import es_administrador
+
+MENSAJE_RATE_LIMIT_LOGIN = 'Demasiados intentos. Esperá un minuto antes de volver a intentar.'
+
+def _respuesta_rate_limit_login(view, request):
+    if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+        return JsonResponse(
+            {"success": False, "errors": {"__all__": [MENSAJE_RATE_LIMIT_LOGIN]}},
+            status=429,
+        )
+    form = view.get_form()
+    form.full_clean()
+    form.add_error(None, MENSAJE_RATE_LIMIT_LOGIN)
+    return view.render_to_response(view.get_context_data(form=form), status=429)
 
 
 class CustomRegisterView(CreateView):
@@ -31,6 +46,12 @@ class CustomLoginView(LoginView):
     template_name = "usuarios/login.html"
     redirect_authenticated_user = True
 
+    @method_decorator(ratelimit(key='ip', rate='5/m', method='POST', block=False))
+    def dispatch(self, request, *args, **kwargs):
+        if getattr(request, 'limited', False):
+            return _respuesta_rate_limit_login(self, request)
+        return super().dispatch(request, *args, **kwargs)
+
     def form_valid(self, form):
         login(self.request, form.get_user())
         redirect_to = self.get_redirect_url()
@@ -47,6 +68,12 @@ class CustomLoginAdminTiendaView(LoginView):
     form_class = LoginAdminTiendaForm
     template_name = "usuarios/login_admin_tienda.html"
     redirect_authenticated_user = True
+
+    @method_decorator(ratelimit(key='ip', rate='5/m', method='POST', block=False))
+    def dispatch(self, request, *args, **kwargs):
+        if getattr(request, 'limited', False):
+            return _respuesta_rate_limit_login(self, request)
+        return super().dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):
         if not es_administrador(form.get_user()):

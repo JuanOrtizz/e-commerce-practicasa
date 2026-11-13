@@ -132,7 +132,7 @@
                 <div class="row px-5 p-md-0 justify-content-center justify-content-md-start g-3">
                     {% for producto in productos %}
                         <div class="col-12 col-md-6 col-lg-4">
-                            <div class="card h-100 shadow-sm border-2 d-flex flex-column{% if producto.stock_restante <= 0 %} card-disabled{% endif %}">
+                            <div class="card h-100 shadow-sm border-2 d-flex flex-column{% if producto.stock <= 0 %} card-disabled{% endif %}">
                                 <a href="{% url 'detalle_producto' producto.subcategoria.categoria.slug producto.subcategoria.slug producto.slug %}" class="text-decoration-none text-black d-flex flex-column flex-grow-1">
                                     <div class="position-relative">
                                      {% with primera_imagen=producto.primera_imagen_valida %}
@@ -143,13 +143,15 @@
                                         {% endif %}
                                     {% endwith %}
                                     <div class="position-absolute top-0 start-0 p-1 d-flex flex-wrap gap-1">
+                                        {% if producto.stock <= 0 %}
+                                            <span class="badge bg-secondary">Sin Stock</span>
+                                        {% endif %}
                                         {% for tag in producto.tags.all %}
                                             {% if tag.nombre == 'oferta' %}
                                                 <span class="badge bg-danger">{{ tag.get_nombre_display }}</span>
                                             {% elif tag.nombre == 'nuevo' %}
                                                 <span class="badge bg-success">{{ tag.get_nombre_display }}</span>
                                             {% elif tag.nombre == 'sin_stock' %}
-                                                <span class="badge bg-secondary">{{ tag.get_nombre_display }}</span>
                                             {% elif tag.nombre == 'ultima_unidad' %}
                                                 <span class="badge bg-warning text-dark">{{ tag.get_nombre_display }}</span>
                                             {% elif tag.nombre == 'destacado' %}
@@ -207,6 +209,8 @@
                                                 <span class="btn-text">Agregar al Carrito</span>
                                                 <span class="spinner-border spinner-border-sm d-none text-white btn-spinner"></span>
                                             </button>
+                                        {% elif producto.stock > 0 %}
+                                            <button class="btn btn-secondary w-100 py-2" disabled>Ya agregaste todo el stock</button>
                                         {% else %}
                                             <button class="btn btn-secondary w-100 py-2" disabled>Sin stock</button>
                                         {% endif %}

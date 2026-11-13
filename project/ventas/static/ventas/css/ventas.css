@@ -70,13 +70,14 @@
 }
 
 .ventas-resumen-items {
-    max-height: 220px;
+    max-height: 320px;
     overflow-y: auto;
     overflow-x: hidden;
+    padding-right: 0.15rem;
 }
 
 .ventas-resumen-item {
-    padding: 0.5rem 0;
+    padding: 0.65rem 0;
     border-bottom: 1px dashed var(--secondary-color);
     align-items: flex-start;
 }
@@ -90,73 +91,77 @@
 }
 
 .ventas-resumen-item-img {
-    width: 52px;
-    height: 52px;
+    width: 56px;
+    height: 56px;
     object-fit: cover;
     border-radius: 8px;
 }
 
-.ventas-resumen-item-cant {
-    position: absolute;
-    top: -6px;
-    right: -6px;
-    background: var(--tertiary-color);
-    color: var(--white);
-    font-size: 0.7rem;
-    font-weight: 700;
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
 .ventas-resumen-item-nombre {
-    font-size: 0.85rem;
+    font-size: 0.82rem;
     font-weight: 600;
-    overflow-wrap: break-word;
-    word-break: break-word;
+    line-height: 1.2;
+    overflow-wrap: anywhere;
 }
 
 .ventas-resumen-item-variante {
-    font-size: 0.75rem;
+    font-size: 0.7rem;
+    line-height: 1.3;
     color: var(--secondary-color-hover);
+}
+
+.ventas-resumen-item-color {
+    display: inline-block;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    border: 1px solid #adb5bd;
+    vertical-align: middle;
 }
 
 .ventas-resumen-item-badge {
     display: inline-block;
     background: var(--tertiary-color);
     color: var(--white);
-    font-size: 0.7rem;
+    font-size: 0.62rem;
     font-weight: 600;
     letter-spacing: 0.3px;
-    padding: 0.25em 0.6em;
+    padding: 0.2em 0.5em;
     border-radius: 50px;
-    margin-bottom: 0.25rem;
+}
+
+.ventas-resumen-item-precios {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    column-gap: 0.35rem;
+    row-gap: 0.05rem;
+    margin-top: 0.2rem;
 }
 
 .ventas-resumen-item-precio-original {
     text-decoration: line-through;
     color: var(--secondary-color-hover);
-    font-size: 0.72rem;
+    font-size: 0.7rem;
+}
+
+.ventas-resumen-item-precio-normal {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--black);
 }
 
 .ventas-resumen-item-precio-transf {
     color: var(--tertiary-color);
     font-weight: 700;
-    font-size: 1rem;
+    font-size: 0.82rem;
 }
 
-.ventas-resumen-item-precio-normal {
-    font-size: 0.8rem;
-    font-weight: 600;
-}
-
-.ventas-resumen-item-precio-tachado {
-    text-decoration: line-through;
-    color: var(--secondary-color-hover);
-    font-weight: 400;
+.ventas-resumen-item-promo-text {
+    font-size: 0.68rem;
+    line-height: 1.25;
+    color: var(--tertiary-color);
+    margin-top: 0.15rem;
 }
 
 .ventas-resumen-ahorro {
@@ -171,14 +176,44 @@
     border-radius: 12px;
 }
 
-.ventas-btn-wsp {
-    margin-top: 1.25rem;
-    background-color: #25D366;
-    border: none;
+.ventas-datos-bancarios {
+    padding: 1.25rem;
+    background: var(--primary-color);
+    border: 1px solid var(--secondary-color);
+    border-left: 4px solid var(--tertiary-color);
+    border-radius: 12px;
+    box-shadow: 0 4px 16px rgba(162, 86, 48, 0.08);
 }
 
-.ventas-btn-wsp:hover {
+.ventas-datos-bancarios h5 {
+    color: var(--tertiary-color);
+}
+
+.ventas-btn-wsp {
+    margin-top: 1.25rem;
+    border: none;
+    --bs-btn-color: #fff;
+    --bs-btn-bg: #25D366;
+    --bs-btn-border-color: #25D366;
+    --bs-btn-hover-color: #fff;
+    --bs-btn-hover-bg: #1DA851;
+    --bs-btn-hover-border-color: #1DA851;
+    --bs-btn-active-color: #fff;
+    --bs-btn-active-bg: #1DA851;
+    --bs-btn-active-border-color: #1DA851;
+    --bs-btn-focus-shadow-rgb: 37, 211, 102;
+    background-color: #25D366;
+    color: #fff;
+}
+
+.ventas-btn-wsp:hover,
+.ventas-btn-wsp:focus,
+.ventas-btn-wsp:focus-visible,
+.ventas-btn-wsp:active,
+.ventas-btn-wsp.active {
     background-color: #1DA851;
+    border: none;
+    color: #fff;
 }
 
 .ventas-btn-wsp img {
@@ -247,4 +282,98 @@
         visibility: visible;
         opacity: 1;
     }
+}
+
+.localidad-combobox .form-control {
+    padding-right: 2.75rem;
+}
+
+.localidad-combobox .form-control.is-invalid {
+    padding-right: 5rem;
+}
+
+.localidad-combobox .form-control.is-invalid ~ .localidad-chevron {
+    right: 3rem;
+}
+
+.localidad-chevron {
+    position: absolute;
+    top: 50%;
+    right: 0.9rem;
+    z-index: 2;
+    color: var(--tertiary-color, #A25630);
+    font-size: 1.3rem;
+    line-height: 1;
+    transform: translateY(-50%);
+    transition: transform 0.15s ease;
+    cursor: pointer;
+}
+
+.localidad-combobox.localidad-abierto .localidad-chevron {
+    transform: translateY(-50%) rotate(180deg);
+}
+
+.localidad-dropdown {
+    position: absolute;
+    top: calc(100% + 0.35rem);
+    left: 0;
+    right: 0;
+    z-index: 1050;
+    max-height: 16rem;
+    padding: 0.35rem;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    background-color: var(--white, #fff);
+    border: 1px solid rgba(162, 86, 48, 0.22);
+    border-radius: 0.75rem;
+    box-shadow: 0 0.75rem 1.75rem rgba(40, 30, 25, 0.16);
+    scrollbar-width: thin;
+    scrollbar-color: rgba(162, 86, 48, 0.45) transparent;
+}
+
+.localidad-dropdown::-webkit-scrollbar {
+    width: 8px;
+}
+
+.localidad-dropdown::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.localidad-dropdown::-webkit-scrollbar-thumb {
+    background-color: rgba(162, 86, 48, 0.35);
+    border: 2px solid transparent;
+    border-radius: 999px;
+    background-clip: content-box;
+}
+
+.localidad-dropdown::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(162, 86, 48, 0.6);
+}
+
+.localidad-opcion {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.55rem 0.75rem;
+    border-radius: 0.5rem;
+    color: #3a2a22;
+    font-size: 0.9rem;
+    line-height: 1.25;
+    cursor: pointer;
+    user-select: none;
+    transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.localidad-opcion:hover,
+.localidad-opcion-activa {
+    background-color: rgba(162, 86, 48, 0.12);
+    color: var(--tertiary-color-hover, #7E4326);
+}
+
+.localidad-opcion:active {
+    background-color: rgba(162, 86, 48, 0.18);
+}
+
+.localidad-opcion-nombre {
+    font-weight: 500;
 }

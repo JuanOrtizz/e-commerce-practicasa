@@ -1,6 +1,6 @@
 {% extends 'panel_admin/base.html' %}
 
-{% load static %}
+{% load static precio_tags %}
 
 {% block title %}Dashboard | Practicasa{% endblock %}
 
@@ -17,6 +17,8 @@
 {{ tags_distribucion|json_script:"datos-tags" }}
 {{ productos_en_promocion|json_script:"datos-en-promocion" }}
 {{ productos_activos|json_script:"datos-productos-activos" }}
+{{ ventas_por_mes|json_script:"datos-ventas-mes" }}
+{{ productos_mas_vendidos|json_script:"datos-mas-vendidos" }}
 
 <div class="row g-3 mb-4">
     <div class="col-12 col-md-3">
@@ -65,13 +67,15 @@
         <div class="panel-card dashboard-kpi p-3 h-100">
             <div class="d-flex align-items-center justify-content-between mb-2">
                 <span class="kpi-icon kpi-icon-valor material-symbols-outlined">payments</span>
-                <span class="kpi-badge kpi-badge-neutral">Ventas</span>
+                <span class="kpi-badge {% if ventas_variacion >= 0 %}kpi-badge-up{% else %}kpi-badge-down{% endif %}">
+                    {% if ventas_variacion >= 0 %}+{% endif %}{{ ventas_variacion }}%
+                </span>
             </div>
-            <div class="kpi-placeholder d-flex flex-column align-items-center justify-content-center text-center mb-2">
-                <span class="material-symbols-outlined">monitoring</span>
-                <p class="mb-0 small">Disponible con el módulo de ventas</p>
+            <div class="fs-3 fw-bold lh-1 kpi-valor">${{ ventas_recaudado_mes|format_price }}</div>
+            <div class="metrica-etiqueta small mb-2">Total recaudado (último mes)</div>
+            <div class="kpi-sparkline">
+                <canvas class="sparkline-canvas" data-series="ventas"></canvas>
             </div>
-            <div class="metrica-etiqueta small">Total recaudado (último mes)</div>
         </div>
     </div>
 </div>
@@ -80,9 +84,8 @@
     <div class="col-xl-8">
         <div class="panel-card p-3 h-100">
             <h5 class="fw-bold mb-3">Productos más vendidos</h5>
-            <div class="placeholder-grafico d-flex flex-column align-items-center justify-content-center text-center p-3">
-                <span class="material-symbols-outlined">leaderboard</span>
-                <p class="mb-1">Gráfico disponible cuando se implemente el módulo de ventas.</p>
+            <div class="chart-area">
+                <canvas id="graficoMasVendidos"></canvas>
             </div>
         </div>
     </div>
@@ -127,9 +130,8 @@
     <div class="col-xl-12">
         <div class="panel-card p-3 h-100">
             <h5 class="fw-bold mb-3">Ventas histórico</h5>
-            <div class="placeholder-grafico d-flex flex-column align-items-center justify-content-center text-center p-3">
-                <span class="material-symbols-outlined">monitoring</span>
-                <p class="mb-1">Gráfico disponible cuando se implemente el módulo de ventas.</p>
+            <div class="chart-area">
+                <canvas id="graficoVentasHistorico"></canvas>
             </div>
         </div>
     </div>

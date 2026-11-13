@@ -16,8 +16,9 @@ class VentaModel(models.Model):
         COORDINAR_ENTREGA = 'coordinar_entrega', 'Coordinar entrega'
 
     class MetodoPagoChoices(models.TextChoices):
-        MERCADO_PAGO = 'mercado_pago', 'Mercado Pago'
         EFECTIVO = 'efectivo', 'Efectivo (local)'
+        TRANSFERENCIA = 'transferencia', 'Transferencia'
+        MERCADO_PAGO = 'mercado_pago', 'Mercado Pago'
 
     usuario = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='ventas'
@@ -63,6 +64,61 @@ class VentaModel(models.Model):
     def total_transferencia(self):
         return self.subtotal_transferencia + self.costo_envio
 
+    @property
+    def tiene_pagos_duplicados(self):
+        return (
+            self.pagos.filter(estado=PagoModel.EstadoChoices.APROBADO).count() > 1
+        )
+
+
+class PagoModel(models.Model):
+    class EstadoChoices(models.TextChoices):
+        PENDIENTE = 'pendiente', 'Pendiente'
+        APROBADO = 'aprobado', 'Aprobado'
+        RECHAZADO = 'rechazado', 'Rechazado'
+        VENCIDO = 'vencido', 'Vencido'
+        CANCELADO = 'cancelado', 'Cancelado'
+        REEMBOLSADO = 'reembolsado', 'Reembolsado'
+
+    venta = models.ForeignKey(
+        VentaModel, on_delete=models.CASCADE, related_name='pagos'
+    )
+    estado = models.CharField(
+        max_length=20, choices=EstadoChoices.choices, default=EstadoChoices.PENDIENTE
+    )
+    payment_id = models.CharField(
+        max_length=40, unique=True, null=True, blank=True
+    )
+    mp_preference_id = models.CharField(max_length=100, null=True, blank=True)
+    monto = models.DecimalField(max_digits=10, decimal_places=2)
+    external_reference = models.CharField(max_length=20, null=True, blank=True)
+    metodo_pago_mp = models.CharField(max_length=50, null=True, blank=True)
+    cuotas = models.PositiveIntegerField(null=True, blank=True)
+    monto_cuota = models.DecimalField(
+        max_digits=10, decimal_places=2, null=True, blank=True
+    )
+    total_pagado = models.DecimalField(
+        max_digits=10, decimal_places=2, null=True, blank=True
+    )
+    tarjeta_ultimos_digitos = models.CharField(max_length=4, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = 'ventas_pagos'
+        verbose_name = 'Pago'
+        verbose_name_plural = 'Pagos'
+        ordering = ['-created_at']
+
+    @property
+    def interes(self):
+        if self.total_pagado is None:
+            return None
+        return self.total_pagado - self.monto
+
+    def __str__(self):
+        return f'Pago {self.payment_id or self.id} de la venta {self.venta_id}'
+
 
 class VentaItemModel(models.Model):
     venta = models.ForeignKey(
@@ -76,6 +132,12 @@ class VentaItemModel(models.Model):
     cantidad = models.PositiveIntegerField(default=1)
     precio_unitario = models.DecimalField(max_digits=10, decimal_places=2)
     precio_transferencia_unitario = models.DecimalField(max_digits=10, decimal_places=2)
+    precio_original_unitario = models.DecimalField(
+        max_digits=10, decimal_places=2, null=True, blank=True
+    )
+    precio_transferencia_original_unitario = models.DecimalField(
+        max_digits=10, decimal_places=2, null=True, blank=True
+    )
     color_nombre = models.CharField(max_length=50, null=True, blank=True)
     color_hex = models.CharField(max_length=7, null=True, blank=True)
     medida_nombre = models.CharField(max_length=50, null=True, blank=True)
