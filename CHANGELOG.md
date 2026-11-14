@@ -1,6 +1,6 @@
 # Changelog
 ---
-## [v0.20.0] - 2026-09-20
+## [v0.20.0] - 2026-11-13
 ### Rama: feature/seo-geo
 #### Features
 - Agrego la app seo con /robots.txt (Disallow de rutas internas), /llms.txt para buscadores basados en IA (GEO) y /sitemap.xml con las URL estáticas, categorías, subcategorías y productos
@@ -15,6 +15,8 @@
 - Agrego SITE_URL a settings y corrijo el AttributeError del context processor de SEO que rompía el render de todas las páginas
 - Corrijo el TypeError del sitemap estático (items() devolvía dict_keys)
 - Quito los blocks anidados duplicados de título y descripción en los metadatos de Open Graph y Twitter
+- Corrijo el teléfono del JSON-LD y de llms.txt para que salga de DATOS_LOCAL y coincida con el WhatsApp del sitio
+- Alineo el meta robots de las páginas internas con el header X-Robots-Tag (noindex, nofollow)
 #### Style
 - Rediseño la card de presentación de la home con borde de colores animado (mismo patrón que la card de login), padding compacto y tamaño de título contenido
 #### Docs

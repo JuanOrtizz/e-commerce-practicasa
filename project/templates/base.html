@@ -9,7 +9,7 @@
     <link rel="shortcut icon" href="{% static 'img/favicon.png' %}" type="image/x-icon">
     <title>{% block title %} {% endblock %}</title>
     <meta name="description" content="{% block meta_description %}{{ SITE_EMPRESA }}{% endblock %}">
-    <meta name="robots" content="{% block meta_robots %}index, follow{% endblock %}">
+    <meta name="robots" content="{% block meta_robots %}{% if es_noindex %}noindex, nofollow{% else %}index, follow{% endif %}{% endblock %}">
     <link rel="canonical" href="{% block canonical %}{{ canonical_url }}{% endblock %}">
     <meta property="og:type" content="{% block og_type %}website{% endblock %}">
     <meta property="og:site_name" content="Practicasa">

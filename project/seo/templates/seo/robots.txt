@@ -6,6 +6,5 @@ Disallow: /ventas/
 Disallow: /usuarios/
 Disallow: /productos/search/
 Disallow: /api/
-Disallow: /media/
 
 Sitemap: {{ SITE_URL }}/sitemap.xml

@@ -40,8 +40,17 @@ def test_paginas_internas_con_noindex(client):
 
 
 @pytest.mark.django_db
+def test_paginas_internas_con_meta_noindex(client):
+    for url in ['/usuarios/login/', '/productos/search/']:
+        response = client.get(url)
+        content = response.content.decode()
+        assert '<meta name="robots" content="noindex, nofollow">' in content
+
+
+@pytest.mark.django_db
 def test_home_json_ld_store(client):
     response = client.get('/')
     content = response.content.decode()
     assert '"@type": "Store"' in content
     assert 'https://schema.org' in content
+    assert '+5493435468162' in content
