@@ -7,7 +7,7 @@
 - Agrego middleware de noindex que aplica X-Robots-Tag: noindex a admin, panel admin, carrito, ventas, usuarios y resultados de búsqueda
 - Agrego metadatos reutilizables en base.html para todas las páginas: meta description, robots, canonical (sin query string), Open Graph y Twitter Card con defaults y blocks por página
 - Agrego JSON-LD global (WebSite con SearchAction y Organization con las redes sociales) y por página: Store en la home, Product con BreadcrumbList en el detalle, CollectionPage/ItemList en el listado y FAQPage en las FAQs
-- Agrego la card de presentación "Artículos para el hogar en Nogoyá, Entre Ríos" bajo el hero con H1 único y keywords, animación GSAP (animacion-aparicion-abajo-fade) y borde cónico giratorio igual al del login
+- Mantengo un único H1 en la home en el primer slide del hero ("Tu hogar, nuestra misión") sin bloques de texto extra bajo el hero
 - Dejo un solo H1 por página: quito el H1 del logo del header (texto-logo), convierto el título del detalle de producto a H1 y agrego H1 al listado de productos, FAQs y contacto
 - Agrego alt descriptivos a las imágenes del hero
 - Agrego tests del app seo (robots, llms, sitemap, noindex de páginas internas y JSON-LD de la home)
@@ -17,8 +17,8 @@
 - Quito los blocks anidados duplicados de título y descripción en los metadatos de Open Graph y Twitter
 - Corrijo el teléfono del JSON-LD y de llms.txt para que salga de DATOS_LOCAL y coincida con el WhatsApp del sitio
 - Alineo el meta robots de las páginas internas con el header X-Robots-Tag (noindex, nofollow)
-#### Style
-- Rediseño la card de presentación de la home con borde de colores animado (mismo patrón que la card de login), padding compacto y tamaño de título contenido
+- Quito la card de presentación de la home y su CSS (card-seo-home, kicker-seo-home, borde cónico animado)
+- Paso los textos de la home, llms.txt y del listado de productos a "envíos a todo el país", dejando Nogoyá solo como retiro local y dirección del JSON-LD con areaServed AR
 #### Docs
 - Actualizo .env.example con la variable SITE_URL
 - Actualizo CHANGELOG.md
