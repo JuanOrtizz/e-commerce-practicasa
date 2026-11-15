@@ -9,6 +9,7 @@
 #### Fixes
 - Corrijo el reuso de conexiones en producción: conn_max_age pasa de 600 s a 60 s, por debajo del scale-to-zero de Neon (300 s), para no reciclar conexiones que el compute ya cerró
 - Ejecuto migrate con DATABASE_URL_DIRECT (rol owner y conexión directa) en el entrypoint, porque el rol de la aplicación no tiene permisos de DDL y el pooler no soporta el estado de sesión que requieren las migraciones
+- Desactivo el SSL obligatorio en el Postgres local de CI (DB_SSL_REQUIRE=False): el default ssl_require=True agregaba sslmode=require a la conexión de CI, que no tiene TLS, y rompía el setup de toda la suite
 #### Docs
 - Documento DATABASE_URL, DATABASE_URL_DIRECT, DB_SSL_REQUIRE, DB_POOLED y DB_CONN_MAX_AGE en .env.example, aclarando que las dos primeras quedan vacías en local
 - Actualizo CHANGELOG.md con v0.21.0
