@@ -84,14 +84,20 @@ WSGI_APPLICATION = 'project.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
-if config("DATABASE_URL", default=""):
+DATABASE_URL = config("DATABASE_URL", default="")
+
+if DATABASE_URL:
     DATABASES = {
         'default': dj_database_url.parse(
-            config("DATABASE_URL"),
-            conn_max_age = 600,
-            ssl_require=config("DB_SSL_REQUIRE", default=False, cast=bool)
+            DATABASE_URL,
+            conn_max_age=config("DB_CONN_MAX_AGE", default=60, cast=int),
+            conn_health_checks=True,
+            disable_server_side_cursors=config("DB_POOLED", default=False, cast=bool),
+            ssl_require=config("DB_SSL_REQUIRE", default=True, cast=bool),
         )
     }
+    DATABASES['default'].setdefault('OPTIONS', {})
+    DATABASES['default']['OPTIONS'].setdefault('connect_timeout', 10)
 else:
     DATABASES = {
         'default': {
