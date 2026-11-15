@@ -16,8 +16,8 @@ def seo_info(request):
         'SITE_URL': settings.SITE_URL,
         'SITE_NOMBRE': 'Practicasa',
         'SITE_EMPRESA': (
-            'Practicasa, tienda online de artículos para el hogar en Nogoyá, '
-            'Entre Ríos. Envíos a todo el país y retiro local.'
+            'Practicasa, tienda online de artículos para el hogar con envíos '
+            'a todo el país. Retiro local en Nogoyá, Entre Ríos.'
         ),
         'SITE_LOGO': f'{base_url}{settings.STATIC_URL}img/logo_practicasa.png',
         'SITE_TELEFONO': telefono,
