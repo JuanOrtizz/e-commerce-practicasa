@@ -1,5 +1,30 @@
 # Changelog
 ---
+
+## [v0.20.0] - 2026-11-13
+### Rama: feature/seo-geo
+#### Features
+- Agrego la app seo con /robots.txt (Disallow de rutas internas), /llms.txt para buscadores basados en IA (GEO) y /sitemap.xml con las URL estáticas, categorías, subcategorías y productos
+- Agrego middleware de noindex que aplica X-Robots-Tag: noindex a admin, panel admin, carrito, ventas, usuarios y resultados de búsqueda
+- Agrego metadatos reutilizables en base.html para todas las páginas: meta description, robots, canonical (sin query string), Open Graph y Twitter Card con defaults y blocks por página
+- Agrego JSON-LD global (WebSite con SearchAction y Organization con las redes sociales) y por página: Store en la home, Product con BreadcrumbList en el detalle, CollectionPage/ItemList en el listado y FAQPage en las FAQs
+- Mantengo un único H1 en la home en el primer slide del hero ("Tu hogar, nuestra misión") sin bloques de texto extra bajo el hero
+- Dejo un solo H1 por página: quito el H1 del logo del header (texto-logo), convierto el título del detalle de producto a H1 y agrego H1 al listado de productos, FAQs y contacto
+- Agrego alt descriptivos a las imágenes del hero
+- Agrego tests del app seo (robots, llms, sitemap, noindex de páginas internas y JSON-LD de la home)
+#### Fixes
+- Agrego SITE_URL a settings y corrijo el AttributeError del context processor de SEO que rompía el render de todas las páginas
+- Corrijo el TypeError del sitemap estático (items() devolvía dict_keys)
+- Quito los blocks anidados duplicados de título y descripción en los metadatos de Open Graph y Twitter
+- Corrijo el teléfono del JSON-LD y de llms.txt para que salga de DATOS_LOCAL y coincida con el WhatsApp del sitio
+- Alineo el meta robots de las páginas internas con el header X-Robots-Tag (noindex, nofollow)
+- Quito la card de presentación de la home y su CSS (card-seo-home, kicker-seo-home, borde cónico animado)
+- Paso los textos de la home, llms.txt y del listado de productos a "envíos a todo el país", dejando Nogoyá solo como retiro local y dirección del JSON-LD con areaServed AR
+- Actualizo el default de SITE_URL al dominio final practicasashop.com.ar
+#### Docs
+- Actualizo .env.example con la variable SITE_URL
+- Actualizo CHANGELOG.md
+---
 ## [v0.19.0] - 2026-11-12
 ### Rama: feature/mercado-pago
 #### Features
@@ -65,6 +90,7 @@
 - Actualizo docs/DER.png con el esquema real: pagos por venta (1:N), snapshot de precios originales y de transferencia, estados de pago y variantes de color/medida como texto
 - Elimino docs/manejo-de-stock-futuro.md para no duplicar la documentación de stock con contenido desactualizado
 - Actualizo CHANGELOG.md con v0.19.0
+
 ---
 ## [v0.18.0] - 2026-09-17
 ### Rama: feature/proceso-compra

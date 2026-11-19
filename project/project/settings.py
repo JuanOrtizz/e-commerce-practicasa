@@ -41,12 +41,14 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sitemaps',
     'base',
     'carrito',
     'panel_admin',
     'productos',
     'ventas',
     'usuarios',
+    'seo',
 ]
 
 MIDDLEWARE = [
@@ -58,6 +60,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'seo.middleware.NoIndexMiddleware',
 ]
 
 ROOT_URLCONF = 'project.urls'
@@ -73,6 +76,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'productos.context_processors.categorias_menu',
+                'seo.context_processors.seo_info',
             ],
         },
     },
@@ -191,6 +195,9 @@ STATICFILES_DIRS= [
 ]
 
 PRODUCTOS_POR_PAGINA = config("PRODUCTOS_POR_PAGINA", default=12, cast=int)
+
+#SEO
+SITE_URL = config("SITE_URL", default="https://practicasashop.com.ar")
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
