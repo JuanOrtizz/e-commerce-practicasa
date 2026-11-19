@@ -1,6 +1,20 @@
 # Changelog
 ---
 
+## [v0.21.0] - 2026-11-16
+### Rama: feature/db
+#### Features
+- Configuro la conexión a Neon PostgreSQL vía DATABASE_URL con dj_database_url: conn_max_age configurable (60 s), conn_health_checks, ssl_require obligatorio por defecto y connect_timeout de 10 s
+- Agrego DB_POOLED para desactivar los cursores del lado del servidor cuando se usa el pooler de Neon (PgBouncer en modo transacción), evitando el error de cursor inexistente en .iterator()
+- Parametrizo DB_CONN_MAX_AGE para ajustar el reuso de conexiones desde el entorno sin tocar código
+#### Fixes
+- Corrijo el reuso de conexiones en producción: conn_max_age pasa de 600 s a 60 s, por debajo del scale-to-zero de Neon (300 s), para no reciclar conexiones que el compute ya cerró
+- Ejecuto migrate con DATABASE_URL_DIRECT (rol owner y conexión directa) en el entrypoint, porque el rol de la aplicación no tiene permisos de DDL y el pooler no soporta el estado de sesión que requieren las migraciones
+- Desactivo el SSL obligatorio en el Postgres local de CI (DB_SSL_REQUIRE=False): el default ssl_require=True agregaba sslmode=require a la conexión de CI, que no tiene TLS, y rompía el setup de toda la suite
+#### Docs
+- Documento DATABASE_URL, DATABASE_URL_DIRECT, DB_SSL_REQUIRE, DB_POOLED y DB_CONN_MAX_AGE en .env.example, aclarando que las dos primeras quedan vacías en local
+- Actualizo CHANGELOG.md con v0.21.0
+---
 ## [v0.20.0] - 2026-11-13
 ### Rama: feature/seo-geo
 #### Features

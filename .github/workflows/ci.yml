@@ -38,5 +38,6 @@ jobs:
           python -m pytest -v
         env:
           DATABASE_URL: postgres://postgres:postgres@localhost:5432/ecommerce_practicasa_db
+          DB_SSL_REQUIRE: False
           SECRET_KEY: clave-ci-no-segura
           DEBUG: True
