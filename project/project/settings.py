@@ -163,7 +163,7 @@ STATICFILES_DIRS= [
 PRODUCTOS_POR_PAGINA = 12
 
 #SEO
-SITE_URL = config("SITE_URL", default="https://practicasa.com.ar")
+SITE_URL = config("SITE_URL", default="https://practicasashop.com.ar")
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'

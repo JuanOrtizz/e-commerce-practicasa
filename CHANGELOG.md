@@ -19,6 +19,7 @@
 - Alineo el meta robots de las páginas internas con el header X-Robots-Tag (noindex, nofollow)
 - Quito la card de presentación de la home y su CSS (card-seo-home, kicker-seo-home, borde cónico animado)
 - Paso los textos de la home, llms.txt y del listado de productos a "envíos a todo el país", dejando Nogoyá solo como retiro local y dirección del JSON-LD con areaServed AR
+- Actualizo el default de SITE_URL al dominio final practicasashop.com.ar
 #### Docs
 - Actualizo .env.example con la variable SITE_URL
 - Actualizo CHANGELOG.md
