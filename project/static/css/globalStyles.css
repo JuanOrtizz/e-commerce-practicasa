@@ -110,7 +110,7 @@ header{
     background-color: var(--primary-color);
 }
 
-header h1{
+header .texto-logo{
     font:'Roboto', sans-serif;
     font-style: italic;
     color: var(--tertiary-color);

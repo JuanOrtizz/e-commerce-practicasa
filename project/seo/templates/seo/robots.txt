@@ -1,0 +1,10 @@
+User-agent: *
+Disallow: /admin/
+Disallow: /panel-admin/
+Disallow: /carrito/
+Disallow: /ventas/
+Disallow: /usuarios/
+Disallow: /productos/search/
+Disallow: /api/
+
+Sitemap: {{ SITE_URL }}/sitemap.xml

@@ -3,7 +3,42 @@
 {% load static %}
 {% load precio_tags %}
 
-{% block title %}Home | Practicasa{% endblock %}
+{% block title %}Practicasa | Artículos para el hogar con envíos a todo el país{% endblock %}
+
+{% block meta_description %}Practicasa, tienda online de artículos para el hogar con envíos a todo el país. Retiro local en Nogoyá, Entre Ríos. Pagá online con Mercado Pago, transferencia o efectivo.{% endblock %}
+
+{% block og_title %}Practicasa | Artículos para el hogar con envíos a todo el país{% endblock %}
+{% block og_description %}Practicasa, tienda online de artículos para el hogar con envíos a todo el país. Retiro local en Nogoyá, Entre Ríos. Pagá online con Mercado Pago, transferencia o efectivo.{% endblock %}
+{% block twitter_title %}Practicasa | Artículos para el hogar con envíos a todo el país{% endblock %}
+{% block twitter_description %}Practicasa, tienda online de artículos para el hogar con envíos a todo el país. Retiro local en Nogoyá, Entre Ríos. Pagá online con Mercado Pago, transferencia o efectivo.{% endblock %}
+
+{% block extra_json_ld %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Store",
+  "@id": "{{ SITE_URL }}/#store",
+  "name": "Practicasa",
+  "image": "{{ SITE_LOGO }}",
+  "url": "{{ SITE_URL }}/",
+  "telephone": "{{ SITE_TELEFONO_INTL }}",
+  "priceRange": "$$",
+  "areaServed": "AR",
+  "address": {
+    "@type": "PostalAddress",
+    "addressLocality": "Nogoyá",
+    "addressRegion": "Entre Ríos",
+    "addressCountry": "AR"
+  },
+  "hasMap": "https://maps.app.goo.gl/qnbGySEidAAfJNB78",
+  "sameAs": [
+    "{{ SITE_REDES.tiktok }}",
+    "{{ SITE_REDES.facebook }}",
+    "{{ SITE_REDES.instagram }}"
+  ]
+}
+</script>
+{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'base/css/index.css' %}">
@@ -14,21 +49,21 @@
     <div id="carouselHero" class="carousel slide shadow-sm rounded overflow-hidden" data-bs-ride="carousel">
         <div class="carousel-inner">
             <div class="carousel-item active position-relative">
-                <img src="{% static 'base/img/hero_1.webp' %}" class="d-block w-100 object-fit-cover hero-slide" alt="Banner principal 1">
+                <img src="{% static 'base/img/hero_1.webp' %}" class="d-block w-100 object-fit-cover hero-slide" alt="Ofertas de artículos para el hogar - Practicasa">
+                <div class="slogan-ofertas position-absolute top-0 start-0 bottom-0 end-0 d-flex flex-column justify-content-center align-items-center text-center p-3">
+                    <h1 class="fw-bold text-white">Tu hogar, nuestra misión</h1>
+                    <p class="text-white">Encontralo en Practicasa</p>
+                </div>
+            </div>
+            <div class="carousel-item position-relative">
+                <img src="{% static 'base/img/hero_2.webp' %}" class="d-block w-100 object-fit-cover hero-slide" alt="Nuevos ingresos de artículos para el hogar - Practicasa">
                 <div class="slogan-ofertas position-absolute top-0 start-0 bottom-0 end-0 d-flex flex-column justify-content-center align-items-center text-center p-3">
                     <h2 class="fw-bold text-white">Tu hogar, nuestra misión</h2>
                     <p class="text-white">Encontralo en Practicasa</p>
                 </div>
             </div>
             <div class="carousel-item position-relative">
-                <img src="{% static 'base/img/hero_2.webp' %}" class="d-block w-100 object-fit-cover hero-slide" alt="Banner principal 2">
-                <div class="slogan-ofertas position-absolute top-0 start-0 bottom-0 end-0 d-flex flex-column justify-content-center align-items-center text-center p-3">
-                    <h2 class="fw-bold text-white">Tu hogar, nuestra misión</h2>
-                    <p class="text-white">Encontralo en Practicasa</p>
-                </div>
-            </div>
-            <div class="carousel-item position-relative">
-                <img src="{% static 'base/img/hero_3.webp' %}" class="d-block w-100 object-fit-cover hero-slide" alt="Banner principal 3">
+                <img src="{% static 'base/img/hero_3.webp' %}" class="d-block w-100 object-fit-cover hero-slide" alt="Articulos para el hogar con envíos a todo el país - Practicasa">
                 <div class="slogan-ofertas position-absolute top-0 start-0 bottom-0 end-0 d-flex flex-column justify-content-center align-items-center text-center p-3">
                     <h2 class="fw-bold text-white">Tu hogar, nuestra misión</h2>
                     <p class="text-white">Encontralo en Practicasa</p>
