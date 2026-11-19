@@ -37,6 +37,23 @@ def test_ver_carrito_con_items_200(client, usuario, producto):
 
 
 @pytest.mark.django_db
+def test_ver_carrito_con_item_sin_stock_muestra_aviso(client, usuario, producto):
+    producto.stock = 0
+    producto.save(update_fields=['stock'])
+    CarritoItemModel.objects.create(
+        carrito=usuario.carrito, producto=producto, cantidad=1
+    )
+    client.login(username=usuario.email, password='TestPass123')
+    response = client.get(reverse('ver_carrito'))
+    content = response.content.decode()
+    assert response.status_code == 200
+    assert response.context['hay_sin_stock'] is True
+    assert 'Sin stock' in content
+    assert 'card-disabled' in content
+    assert reverse('checkout') not in content
+
+
+@pytest.mark.django_db
 def test_agregar_anonimo_401(client):
     response = client.post(reverse('agregar'), {'producto_id': 1})
     assert response.status_code == 401

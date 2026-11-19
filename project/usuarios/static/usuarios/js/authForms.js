@@ -1,5 +1,6 @@
 import {validateForm, textErrorInput} from './validacionesAuth.js'
 import {errorAlert} from '/static/js/alertas.js'
+import './passwordToggle.js'
 
 document.addEventListener('DOMContentLoaded', ()=>{
     // capturo el formulario y el token

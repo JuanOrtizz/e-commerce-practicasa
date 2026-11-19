@@ -306,24 +306,30 @@ def test_contexto_con_items_y_totales(carrito, producto):
 
 
 @pytest.mark.django_db
-def test_contexto_elimina_items_sin_stock(carrito, producto):
+def test_contexto_marca_items_sin_stock(carrito, producto):
     CarritoItemModel.objects.create(carrito=carrito, producto=producto, cantidad=2)
     producto.stock = 0
     producto.save()
     ctx = get_carrito_context_service(carrito)
-    assert ctx['items'] == []
-    assert CarritoItemModel.objects.count() == 0
+    assert len(ctx['items']) == 1
+    assert ctx['items'][0]['sin_stock'] is True
+    assert ctx['total'] == Decimal('0')
+    assert ctx['cantidad_items'] == 0
+    assert ctx['hay_sin_stock'] is True
+    assert CarritoItemModel.objects.count() == 1
 
 
 @pytest.mark.django_db
-def test_contexto_elimina_items_producto_inactivo(carrito, producto):
+def test_contexto_marca_items_producto_inactivo(carrito, producto):
     CarritoItemModel.objects.create(carrito=carrito, producto=producto, cantidad=2)
     producto.activo = False
     producto.save()
     ctx = get_carrito_context_service(carrito)
-    assert ctx['items'] == []
+    assert len(ctx['items']) == 1
+    assert ctx['items'][0]['sin_stock'] is True
     assert ctx['cantidad_items'] == 0
-    assert CarritoItemModel.objects.count() == 0
+    assert ctx['hay_sin_stock'] is True
+    assert CarritoItemModel.objects.count() == 1
 
 
 @pytest.mark.django_db
@@ -365,8 +371,13 @@ def test_contexto_reparte_stock_entre_variantes(carrito, producto, color_data):
         carrito=carrito, producto=producto, color_nombre=azul.nombre, cantidad=4
     )
     ctx = get_carrito_context_service(carrito)
-    assert sum(i['cantidad'] for i in ctx['items']) == 3
+    servibles = [i for i in ctx['items'] if not i['sin_stock']]
+    sin_stock = [i for i in ctx['items'] if i['sin_stock']]
+    assert len(servibles) == 1
+    assert len(sin_stock) == 1
+    assert sum(i['cantidad'] for i in servibles) == 3
     assert ctx['cantidad_items'] == 1
+    assert ctx['hay_sin_stock'] is True
 
 
 @pytest.mark.django_db
@@ -377,6 +388,21 @@ def test_contexto_cantidad_items(carrito, producto):
     )
     ctx = get_carrito_context_service(carrito)
     assert ctx['cantidad_items'] == 2
+
+
+@pytest.mark.django_db
+def test_contexto_respeta_orden_de_items(carrito, producto):
+    producto.stock = 2
+    producto.save()
+    primero = CarritoItemModel.objects.create(
+        carrito=carrito, producto=producto, color_nombre='Rojo', cantidad=1
+    )
+    segundo = CarritoItemModel.objects.create(
+        carrito=carrito, producto=producto, color_nombre='Azul', cantidad=1
+    )
+    ctx = get_carrito_context_service(carrito)
+    assert [i['item'].id for i in ctx['items']] == [primero.id, segundo.id]
+    assert all(not i['sin_stock'] for i in ctx['items'])
 
 
 @pytest.mark.django_db

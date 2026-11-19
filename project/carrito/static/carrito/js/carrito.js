@@ -170,6 +170,16 @@ function quitarItem(card) {
     }, 250)
 }
 
+function recargarSiYaNoHaySinStock() {
+    setTimeout(() => {
+        const quedanSinStock = document.querySelector('.carrito-item.card-disabled')
+        const botonBloqueado = document.querySelector('.btn-enviar.disabled')
+        if (!quedanSinStock && botonBloqueado) {
+            location.reload()
+        }
+    }, 300)
+}
+
 async function actualizarCantidad(input, nuevaCantidad, csrfToken) {
     const card = input.closest('.carrito-item')
     mostrarCarga(card)
@@ -193,6 +203,7 @@ async function actualizarCantidad(input, nuevaCantidad, csrfToken) {
                 actualizarResumen(data.success.carrito)
             }
             actualizarStocksDisponibles(data.success.stocks_disponibles)
+            recargarSiYaNoHaySinStock()
         } else {
             errorToast(data.errors || 'Error al actualizar')
         }
@@ -221,6 +232,7 @@ async function eliminarItem(itemId, csrfToken) {
             quitarItem(card)
             actualizarResumen(data.success.carrito)
             actualizarStocksDisponibles(data.success.stocks_disponibles)
+            recargarSiYaNoHaySinStock()
         } else {
             errorToast(data.errors || 'Error al eliminar')
         }

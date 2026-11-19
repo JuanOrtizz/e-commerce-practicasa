@@ -15,6 +15,7 @@
 
     {% if error %}
         <div class="alert alert-danger py-2">{{ error }}</div>
+        <a class="btn btn-outline-secondary fw-bold py-2 mb-4" href="{% url 'ver_carrito' %}">Volver al carrito</a>
     {% endif %}
 
     <div class="row g-4">
@@ -58,8 +59,10 @@
                     <p class="mb-0">
                         {% if datos.metodo_pago == 'efectivo' %}
                             Efectivo
-                        {% else %}
-                            {{ datos.metodo_pago }}
+                        {% elif datos.metodo_pago == 'transferencia' %}
+                            Transferencia
+                        {% elif datos.metodo_pago == 'mercado_pago' %}
+                            Mercado Pago (online)
                         {% endif %}
                     </p>
                 </div>
@@ -68,7 +71,7 @@
 
         <div class="col-lg-4">
             <div class="ventas-sidebar">
-                {% include 'ventas/_resumen_pedido.html' %}
+                {% include 'ventas/_resumen_pedido.html' with modo_precio=modo_precio %}
                 <form method="post" id="form-confirmacion">
                     {% csrf_token %}
                     <div class="d-grid gap-2">

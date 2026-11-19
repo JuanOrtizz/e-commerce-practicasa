@@ -6,12 +6,20 @@ document.addEventListener('DOMContentLoaded', () => {
         btn.addEventListener('click', (e) => {
             e.preventDefault()
             const ventaId = btn.getAttribute('data-id')
+            const metodoPago = btn.getAttribute('data-metodo-pago')
             const form = btn.closest('form')
             const csrfToken = form.querySelector('[name=csrfmiddlewaretoken]').value
-            confirmAlert('¿Estás seguro que querés eliminar esta venta?', 'Eliminar', () => {
-                btn.disabled = true
-                deleteForm(ventaId, csrfToken, form)
-            })
+            const mensaje = metodoPago === 'mercado_pago'
+                ? 'Se eliminarán también los pagos registrados de esta venta. Si tenía un pago aprobado, el reembolso se gestiona aparte desde Mercado Pago.'
+                : '¿Estás seguro que deseas eliminar esta venta?'
+            confirmAlert(
+                mensaje,
+                'Eliminar',
+                () => {
+                    btn.disabled = true
+                    deleteForm(ventaId, csrfToken, form)
+                }
+            )
         })
     })
 })

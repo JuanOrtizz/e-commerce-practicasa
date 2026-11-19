@@ -7,6 +7,11 @@ def get_productos_activos():
         'subcategoria__categoria'
     ).prefetch_related('imagenes', 'colores', 'medidas', 'tags')
 
+
+def actualizar_tags_stock_service(producto_ids):
+    for producto in ProductoModel.objects.filter(id__in=producto_ids):
+        producto._asignar_tags_automaticos()
+
 def aplicar_filtros(request, productos):
     categoria = request.GET.get('categoria')
     subcategoria = request.GET.get('subcategoria')

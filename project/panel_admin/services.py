@@ -4,6 +4,7 @@ from django.db.models.functions import TruncMonth
 from django.utils import timezone
 from base.models import ConsultaModel
 from productos.models import CategoriaModel, ProductoModel, TagModel
+from ventas.models import VentaItemModel, VentaModel
 
 
 def formset_tiene_cambios(formset):
@@ -40,6 +41,31 @@ def _serie_por_mes(queryset, campo_fecha, meses=6):
     ]
 
 
+def _suma_por_mes(queryset, campo_fecha, campo_suma, meses=6):
+    from decimal import Decimal
+
+    hoy = timezone.now()
+    periodos = []
+    for i in range(meses - 1, -1, -1):
+        fecha = hoy - timedelta(days=30 * i)
+        periodos.append((fecha.year, fecha.month))
+
+    agrupado = (
+        queryset
+        .annotate(mes=TruncMonth(campo_fecha))
+        .values('mes')
+        .annotate(total=Sum(campo_suma))
+    )
+    por_periodo = {
+        (fila['mes'].year, fila['mes'].month): fila['total']
+        for fila in agrupado if fila['total'] is not None
+    }
+    return [
+        [f'{mes:02d}/{anio}', por_periodo.get((anio, mes), Decimal('0'))]
+        for anio, mes in periodos
+    ]
+
+
 def get_metricas_dashboard():
     desde_mes = timezone.now() - timedelta(days=30)
     mes_anterior = timezone.now() - timedelta(days=60)
@@ -58,6 +84,36 @@ def get_metricas_dashboard():
         )
     else:
         consultas_variacion = 100 if consultas_mes else 0
+
+    confirmada = VentaModel.EstadoChoices.CONFIRMADA
+    ventas_confirmadas = VentaModel.objects.filter(estado=confirmada)
+    ventas_recaudado_mes = (
+        ventas_confirmadas.filter(created_at__gte=desde_mes)
+        .aggregate(total=Sum('total'))['total'] or 0
+    )
+    ventas_recaudado_mes_anterior = (
+        ventas_confirmadas.filter(
+            created_at__gte=mes_anterior, created_at__lt=desde_mes
+        ).aggregate(total=Sum('total'))['total'] or 0
+    )
+    if ventas_recaudado_mes_anterior:
+        ventas_variacion = round(
+            (ventas_recaudado_mes - ventas_recaudado_mes_anterior)
+            / ventas_recaudado_mes_anterior * 100
+        )
+    else:
+        ventas_variacion = 100 if ventas_recaudado_mes else 0
+
+    productos_mas_vendidos = [
+        [fila['producto__nombre'], fila['total']]
+        for fila in (
+            VentaItemModel.objects
+            .filter(venta__estado=confirmada)
+            .values('producto__nombre')
+            .annotate(total=Sum('cantidad'))
+            .order_by('-total')[:5]
+        )
+    ]
 
     consultas_por_estado = {'pendiente': 0, 'resuelta': 0}
     for fila in ConsultaModel.objects.values('estado').annotate(total=Count('id')):
@@ -112,4 +168,8 @@ def get_metricas_dashboard():
         'consultas_por_estado': consultas_por_estado,
         'productos_por_categoria': productos_por_categoria,
         'tags_distribucion': tags_distribucion,
+        'ventas_recaudado_mes': ventas_recaudado_mes,
+        'ventas_variacion': ventas_variacion,
+        'ventas_por_mes': _suma_por_mes(ventas_confirmadas, 'created_at', 'total'),
+        'productos_mas_vendidos': productos_mas_vendidos,
     }

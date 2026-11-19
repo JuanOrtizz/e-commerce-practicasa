@@ -215,7 +215,7 @@ def test_lista_stock_restante_suma_variantes(client, usuario, producto, color_da
 
 
 @pytest.mark.django_db
-def test_lista_muestra_boton_sin_stock_cuando_carrito_agota(client, usuario, producto):
+def test_lista_muestra_copy_cuando_carrito_agota(client, usuario, producto):
     producto.stock = 4
     producto.save()
     CarritoItemModel.objects.create(carrito=usuario.carrito, producto=producto, cantidad=4)
@@ -223,8 +223,21 @@ def test_lista_muestra_boton_sin_stock_cuando_carrito_agota(client, usuario, pro
     response = client.get(reverse('productos'))
     assert response.status_code == 200
     contenido = response.content.decode()
-    assert 'Sin stock' in contenido
+    assert 'Ya agregaste todo el stock' in contenido
+    assert 'En tu carrito' not in contenido
+    assert 'Sin stock' not in contenido
     assert 'Agregar al Carrito' not in contenido
+
+
+@pytest.mark.django_db
+def test_lista_muestra_sin_stock_cuando_no_hay_unidades(client, producto):
+    producto.stock = 0
+    producto.save()
+    response = client.get(reverse('productos'))
+    assert response.status_code == 200
+    contenido = response.content.decode()
+    assert 'Sin stock' in contenido
+    assert 'Ya agregaste todo el stock' not in contenido
 
 
 @pytest.mark.django_db
@@ -239,5 +252,7 @@ def test_detalle_stock_restante_descuenta_carrito(client, usuario, producto):
     assert response.status_code == 200
     assert response.context['producto'].stock_restante == 0
     contenido = response.content.decode()
-    assert 'Sin stock' in contenido
+    assert 'Ya agregaste todo el stock' in contenido
+    assert 'En tu carrito' not in contenido
+    assert 'Sin stock' not in contenido
     assert 'Agregar al Carrito' not in contenido

@@ -41,14 +41,19 @@
             <tbody>
                 {% for venta in ventas %}
                 <tr id="venta-{{ venta.id }}" class="venta-item" data-fecha="{{ venta.created_at|date:'c' }}" data-estado="{{ venta.estado }}">
-                    <td class="fw-bold">#{{ venta.id }}</td>
+                    <td class="fw-bold v-id">#{{ venta.id }}</td>
                     <td>{{ venta.nombre }}</td>
                     <td>{{ venta.created_at|date:'d/m/Y H:i' }}</td>
                     <td>{{ venta.get_metodo_pago_display }}</td>
                     <td>{{ venta.get_metodo_envio_display }}</td>
                     <td>${{ venta.total|format_price }}</td>
                     <td>
-                        <span class="badge {% if venta.estado == 'pendiente' %}text-bg-warning{% elif venta.estado == 'confirmada' %}text-bg-success{% else %}text-bg-danger{% endif %}">{{ venta.get_estado_display }}</span>
+                        <div class="panel-badges">
+                            <span class="badge {% if venta.estado == 'pendiente' %}text-bg-warning{% elif venta.estado == 'confirmada' %}text-bg-success{% else %}text-bg-danger{% endif %}">{{ venta.get_estado_display }}</span>
+                            {% if venta.pagos_aprobados > 1 %}
+                                <span class="badge rounded-pill text-bg-danger" title="La venta tiene más de un pago aprobado">Pago duplicado</span>
+                            {% endif %}
+                        </div>
                     </td>
                     <td>
                         <div class="d-flex justify-content-end gap-2">
@@ -60,7 +65,7 @@
                             </a>
                             <form method="post" action="{% url 'panel_venta_eliminar' venta.id %}">
                                 {% csrf_token %}
-                                <button class="btn-delete btn btn-sm btn-danger d-flex justify-content-center align-items-center" data-id="{{ venta.id }}" type="submit" aria-label="Eliminar venta #{{ venta.id }}">
+                                <button class="btn-delete btn btn-sm btn-danger d-flex justify-content-center align-items-center" data-id="{{ venta.id }}" data-metodo-pago="{{ venta.metodo_pago }}" type="submit" aria-label="Eliminar venta #{{ venta.id }}">
                                     <span class="material-symbols-outlined">delete</span>
                                 </button>
                             </form>

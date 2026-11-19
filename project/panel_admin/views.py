@@ -1,3 +1,4 @@
+from django.db.models import Count, Q
 from django.db.models.deletion import ProtectedError
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -7,8 +8,14 @@ from django.views.decorators.http import require_POST
 from base.forms import ConsultaAdminForm
 from base.models import ConsultaModel
 from ventas.forms import VentaAdminForm
-from ventas.models import VentaItemModel, VentaModel
-from ventas.services import eliminar_venta_service
+from ventas.models import PagoModel, VentaItemModel, VentaModel
+from ventas.services import (
+    actualizar_estado_pago_service,
+    eliminar_venta_service,
+    enviar_email_reembolso_service,
+    expirar_pagos_vencidos_service,
+    venta_mp_en_curso,
+)
 from productos.forms import (
     MAX_IMAGENES_PRODUCTO,
     CategoriaForm,
@@ -333,7 +340,12 @@ def subcategoria_eliminar(request, id):
 
 @requiere_admin
 def lista_ventas(request):
-    ventas = VentaModel.objects.prefetch_related('items').all()
+    expirar_pagos_vencidos_service()
+    ventas = VentaModel.objects.prefetch_related('items').annotate(
+        pagos_aprobados=Count(
+            'pagos', filter=Q(pagos__estado=PagoModel.EstadoChoices.APROBADO)
+        )
+    )
     return render(request, 'panel_admin/ventas_lista.html', {'ventas': ventas})
 
 
@@ -347,6 +359,14 @@ def venta_detalle(request, id):
 def venta_modificar(request, id):
     venta = get_object_or_404(VentaModel, id=id)
     if request.method == 'POST':
+        if venta_mp_en_curso(venta):
+            return JsonResponse({
+                "success": False,
+                "message": (
+                    "Hay un pago de Mercado Pago en curso. "
+                    "No se puede modificar la venta hasta que termine o venza."
+                ),
+            })
         form = VentaAdminForm(request.POST, instance=venta)
         if form.is_valid():
             if not form.changed_data:
@@ -372,8 +392,63 @@ def venta_modificar(request, id):
 def venta_eliminar(request, id):
     venta = get_object_or_404(VentaModel, id=id)
     venta_id = venta.id
-    eliminar_venta_service(venta)
+    try:
+        eliminar_venta_service(venta)
+    except ValueError as e:
+        return JsonResponse({
+            "success": False,
+            "message": str(e),
+        })
+    except ProtectedError:
+        return JsonResponse({
+            "success": False,
+            "message": (
+                f"No se puede eliminar la venta #{venta_id} porque tiene "
+                "registros asociados."
+            ),
+        })
     return JsonResponse({
         "success": True,
         "message": f"Venta #{venta_id} eliminada."
+    })
+
+
+@require_POST
+@requiere_admin
+def pago_estado(request, id):
+    pago = get_object_or_404(PagoModel, id=id)
+    nuevo = request.POST.get('estado')
+    permitidos = {
+        PagoModel.EstadoChoices.APROBADO,
+        PagoModel.EstadoChoices.REEMBOLSADO,
+    }
+    if nuevo not in permitidos:
+        return JsonResponse({
+            "success": False,
+            "message": "Estado de pago inválido.",
+        })
+    if pago.estado not in permitidos:
+        return JsonResponse({
+            "success": False,
+            "message": "Solo se puede marcar como reembolsado un pago aprobado.",
+        })
+    if pago.estado == nuevo:
+        return JsonResponse({
+            "success": False,
+            "message": "El pago ya tiene ese estado.",
+        })
+    try:
+        venta = actualizar_estado_pago_service(pago, nuevo)
+    except ValueError as e:
+        return JsonResponse({"success": False, "message": str(e)})
+    mensaje = f"Pago {pago.payment_id or pago.id} marcado como {pago.get_estado_display().lower()}."
+    if nuevo == PagoModel.EstadoChoices.REEMBOLSADO:
+        enviar_email_reembolso_service(venta, request)
+        if venta.estado == VentaModel.EstadoChoices.CANCELADA:
+            mensaje += " La venta quedó cancelada y el stock se repuso."
+    elif venta.estado == VentaModel.EstadoChoices.CONFIRMADA:
+        mensaje += " La venta volvió a confirmada y el stock se descontó."
+    return JsonResponse({
+        "success": True,
+        "message": mensaje,
     })

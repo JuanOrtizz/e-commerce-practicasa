@@ -107,10 +107,10 @@
                                         </td>
                                         <td style="padding: 8px; border-bottom: 1px solid #E0E0E0; color: #000000; font-size: 13px; font-family: Roboto, Arial, sans-serif; text-align: right;">{{ item.cantidad }}{% if item.cantidad_paga != item.cantidad %} (pagás {{ item.cantidad_paga }}){% endif %}</td>
                                         <td style="padding: 8px; border-bottom: 1px solid #E0E0E0; color: #000000; font-size: 13px; font-family: Roboto, Arial, sans-serif; text-align: right;">
-                                            {% if venta.metodo_pago == 'efectivo' %}${{ item.precio_transferencia_unitario|format_price }}{% else %}${{ item.precio_unitario|format_price }}{% endif %}
+                                            {% if venta.metodo_pago == 'efectivo' or venta.metodo_pago == 'transferencia' %}${{ item.precio_transferencia_unitario|format_price }}{% else %}${{ item.precio_unitario|format_price }}{% endif %}
                                         </td>
                                         <td style="padding: 8px; border-bottom: 1px solid #E0E0E0; color: #000000; font-size: 13px; font-family: Roboto, Arial, sans-serif; text-align: right;">
-                                            {% if venta.metodo_pago == 'efectivo' %}${{ item.subtotal_transferencia|format_price }}{% else %}${{ item.subtotal|format_price }}{% endif %}
+                                            {% if venta.metodo_pago == 'efectivo' or venta.metodo_pago == 'transferencia' %}${{ item.subtotal_transferencia|format_price }}{% else %}${{ item.subtotal|format_price }}{% endif %}
                                         </td>
                                     </tr>
                                 {% endfor %}
@@ -120,7 +120,7 @@
                             <table role="presentation" cellpadding="0" cellspacing="0" style="width: 100%; margin-bottom: 24px;">
                                 <tr>
                                     <td style="padding: 4px 0; color: #000000; font-size: 14px; font-family: Roboto, Arial, sans-serif;">Subtotal</td>
-                                    <td style="padding: 4px 0; color: #000000; font-size: 14px; font-family: Roboto, Arial, sans-serif; text-align: right;">{% if venta.metodo_pago == 'efectivo' %}${{ venta.subtotal_transferencia|format_price }}{% else %}${{ venta.subtotal|format_price }}{% endif %}</td>
+                                    <td style="padding: 4px 0; color: #000000; font-size: 14px; font-family: Roboto, Arial, sans-serif; text-align: right;">{% if venta.metodo_pago == 'efectivo' or venta.metodo_pago == 'transferencia' %}${{ venta.subtotal_transferencia|format_price }}{% else %}${{ venta.subtotal|format_price }}{% endif %}</td>
                                 </tr>
                                 <tr>
                                     <td style="padding: 4px 0; color: #000000; font-size: 14px; font-family: Roboto, Arial, sans-serif;">Costo de envío</td>
@@ -128,9 +128,43 @@
                                 </tr>
                                 <tr>
                                     <td style="padding: 8px 0 0; color: #A25630; font-size: 16px; font-weight: bold; font-family: Roboto, Arial, sans-serif;">Total</td>
-                                    <td style="padding: 8px 0 0; color: #A25630; font-size: 16px; font-weight: bold; font-family: Roboto, Arial, sans-serif; text-align: right;">{% if venta.metodo_pago == 'efectivo' %}${{ venta.total_transferencia|format_price }}{% else %}${{ venta.total|format_price }}{% endif %}</td>
+                                    <td style="padding: 8px 0 0; color: #A25630; font-size: 16px; font-weight: bold; font-family: Roboto, Arial, sans-serif; text-align: right;">{% if venta.metodo_pago == 'efectivo' or venta.metodo_pago == 'transferencia' %}${{ venta.total_transferencia|format_price }}{% else %}${{ venta.total|format_price }}{% endif %}</td>
                                 </tr>
                             </table>
+
+                            {% if pago %}
+                                <h3 style="margin: 0 0 12px; color: #A25630; font-size: 16px; font-family: Roboto, Arial, sans-serif;">Datos del pago</h3>
+                                <table role="presentation" cellpadding="0" cellspacing="0" style="width: 100%; margin-bottom: 24px;">
+                                    {% if pago.metodo_pago_mp %}
+                                        <tr>
+                                            <td style="padding: 4px 0; color: #7E4326; font-size: 13px; font-weight: bold; font-family: Roboto, Arial, sans-serif; width: 160px; vertical-align: top;">Tarjeta:</td>
+                                            <td style="padding: 4px 0; color: #000000; font-size: 14px; font-family: Roboto, Arial, sans-serif;">{{ pago.metodo_pago_mp|capfirst }}{% if pago.tarjeta_ultimos_digitos %} terminada en {{ pago.tarjeta_ultimos_digitos }}{% endif %}</td>
+                                        </tr>
+                                    {% endif %}
+                                    {% if pago.cuotas %}
+                                        <tr>
+                                            <td style="padding: 4px 0; color: #7E4326; font-size: 13px; font-weight: bold; font-family: Roboto, Arial, sans-serif; width: 160px; vertical-align: top;">Cuotas:</td>
+                                            <td style="padding: 4px 0; color: #000000; font-size: 14px; font-family: Roboto, Arial, sans-serif;">{{ pago.cuotas }}</td>
+                                        </tr>
+                                    {% endif %}
+                                    {% if pago.monto_cuota %}
+                                        <tr>
+                                            <td style="padding: 4px 0; color: #7E4326; font-size: 13px; font-weight: bold; font-family: Roboto, Arial, sans-serif; width: 160px; vertical-align: top;">Monto por cuota:</td>
+                                            <td style="padding: 4px 0; color: #000000; font-size: 14px; font-family: Roboto, Arial, sans-serif;">${{ pago.monto_cuota|format_price }}</td>
+                                        </tr>
+                                    {% endif %}
+                                    {% if pago.total_pagado %}
+                                        <tr>
+                                            <td style="padding: 4px 0; color: #7E4326; font-size: 13px; font-weight: bold; font-family: Roboto, Arial, sans-serif; width: 160px; vertical-align: top;">Total pagado:</td>
+                                            <td style="padding: 4px 0; color: #000000; font-size: 14px; font-family: Roboto, Arial, sans-serif;">${{ pago.total_pagado|format_price }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td style="padding: 4px 0; color: #7E4326; font-size: 13px; font-weight: bold; font-family: Roboto, Arial, sans-serif; width: 160px; vertical-align: top;">Intereses:</td>
+                                            <td style="padding: 4px 0; color: #000000; font-size: 14px; font-family: Roboto, Arial, sans-serif;">${{ pago.interes|format_price }}</td>
+                                        </tr>
+                                    {% endif %}
+                                </table>
+                            {% endif %}
 
                             <p style="margin: 0 0 4px; color: #000000; font-size: 14px; line-height: 1.6; font-family: Roboto, Arial, sans-serif;">
                                 Saludos cordiales,

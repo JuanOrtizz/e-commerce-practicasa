@@ -31,7 +31,7 @@
                         </ul>
                         <p class="small text-muted mb-3">Tus datos se usan solo para procesar este pedido; no los compartimos ni los usamos para spam.</p>
                     </div>
-                <form method="post" id="form" novalidate>
+                <form method="post" id="form" novalidate data-localidades-url="{% static 'data/localidades_ar.json' %}">
                     {% csrf_token %}
                     <div class="row g-3">
                         {% for field in form %}
@@ -46,7 +46,7 @@
                             </div>
                         {% endfor %}
                     </div>
-                    <div class="alert alert-danger py-2 text-center d-none" id="non-field-errors"></div>
+                    <div class="alert alert-danger py-2 text-center{% if not form.non_field_errors %} d-none{% endif %}" id="non-field-errors">{% if form.non_field_errors %}{{ form.non_field_errors.0 }}{% endif %}</div>
                 </form>
                 </div>
         </div>
@@ -67,6 +67,7 @@
 {% endblock %}
 
 {% block extra_js %}
+    <script type="module" src="{% static 'ventas/js/localidadesAutocomplete.js' %}"></script>
     <script type="module" src="{% static 'ventas/js/checkoutForm.js' %}"></script>
 {% endblock %}
 

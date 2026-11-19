@@ -60,13 +60,14 @@ function actualizarStockRestante(success) {
         const card = form.closest('.card')
         const btn = form.querySelector('button[type="submit"]')
         if (success.stock_restante <= 0) {
-            if (card) card.classList.add('card-disabled')
-            if (btn && btn.textContent.trim() !== 'Sin stock') {
+            const hayStock = success.stock_total > 0
+            if (card) card.classList.toggle('card-disabled', !hayStock)
+            if (btn && btn.textContent.trim() !== 'Sin stock' && btn.textContent.trim() !== 'Ya agregaste todo el stock') {
                 const nuevoBtn = document.createElement('button')
                 nuevoBtn.type = 'button'
                 nuevoBtn.className = 'btn btn-secondary w-100 py-2'
                 nuevoBtn.disabled = true
-                nuevoBtn.textContent = 'Sin stock'
+                nuevoBtn.textContent = hayStock ? 'Ya agregaste todo el stock' : 'Sin stock'
                 form.replaceChild(nuevoBtn, btn)
             }
         } else {

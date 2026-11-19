@@ -3,6 +3,7 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, SetPasswordForm, PasswordResetForm
 from .models import UsuarioModel
 from .services import es_administrador
+from .widgets import PasswordToggleInput
 
 
 class RegistroForm(UserCreationForm):
@@ -16,11 +17,19 @@ class RegistroForm(UserCreationForm):
 
     password1 = forms.CharField(
         label="Contraseña",
-        widget=forms.PasswordInput(attrs={"class": "form-control border-2 border-white", "placeholder": ""}),
+        widget=PasswordToggleInput(attrs={
+            "class": "form-control border-2 border-white pe-5",
+            "placeholder": "",
+            "autocomplete": "new-password",
+        }),
     )
     password2 = forms.CharField(
         label="Confirmar contraseña",
-        widget=forms.PasswordInput(attrs={"class": "form-control border-2 border-white", "placeholder": ""}),
+        widget=PasswordToggleInput(attrs={
+            "class": "form-control border-2 border-white pe-5",
+            "placeholder": "",
+            "autocomplete": "new-password",
+        }),
     )
 
     def clean_nombre_completo(self):
@@ -51,7 +60,11 @@ class LoginForm(AuthenticationForm):
     )
     password = forms.CharField(
         label="Contraseña",
-        widget=forms.PasswordInput(attrs={"class": "form-control border-2 border-white", "placeholder": ""}),
+        widget=PasswordToggleInput(attrs={
+            "class": "form-control border-2 border-white pe-5",
+            "placeholder": "",
+            "autocomplete": "current-password",
+        }),
     )
 
 
@@ -62,7 +75,11 @@ class LoginAdminTiendaForm(AuthenticationForm):
     )
     password = forms.CharField(
         label="Contraseña",
-        widget=forms.PasswordInput(attrs={"class": "form-control border-2 border-white", "placeholder": ""}),
+        widget=PasswordToggleInput(attrs={
+            "class": "form-control border-2 border-white pe-5",
+            "placeholder": "",
+            "autocomplete": "current-password",
+        }),
     )
 
     def confirm_login_allowed(self, user):
@@ -78,9 +95,17 @@ class CustomPasswordResetForm(PasswordResetForm):
 class CustomSetPasswordForm(SetPasswordForm):
     new_password1 = forms.CharField(
         label="Nueva contraseña",
-        widget=forms.PasswordInput(attrs={"class": "form-control border-2 border-white", "placeholder": ""}),
+        widget=PasswordToggleInput(attrs={
+            "class": "form-control border-2 border-white pe-5",
+            "placeholder": "",
+            "autocomplete": "new-password",
+        }),
     )
     new_password2 = forms.CharField(
         label="Confirmar contraseña",
-        widget=forms.PasswordInput(attrs={"class": "form-control border-2 border-white", "placeholder": ""}),
+        widget=PasswordToggleInput(attrs={
+            "class": "form-control border-2 border-white pe-5",
+            "placeholder": "",
+            "autocomplete": "new-password",
+        }),
     )

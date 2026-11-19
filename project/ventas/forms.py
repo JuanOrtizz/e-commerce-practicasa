@@ -1,9 +1,28 @@
+import json
 import re
-
+from functools import lru_cache
+from pathlib import Path
 from django import forms
-
+from django.conf import settings
 from .models import VentaModel
 
+PATRON_UBICACION = re.compile(r"^[a-zA-Z0-9áéíóúüñÁÉÍÓÚÜÑ .,'°()/-]+$")
+PATRON_LETRA = re.compile(r"[a-zA-ZáéíóúüñÁÉÍÓÚÜÑ]")
+
+@lru_cache(maxsize=1)
+def get_datos_localidades():
+    ruta = Path(settings.BASE_DIR) / 'static' / 'data' / 'localidades_ar.json'
+    try:
+        with ruta.open(encoding='utf-8') as archivo:
+            return json.load(archivo)
+    except (OSError, ValueError):
+        return {}
+
+def get_localidades_por_provincia():
+    return get_datos_localidades().get('localidades', {})
+
+def get_provincias_argentina():
+    return tuple(get_datos_localidades().get('provincias', ()))
 
 class CheckoutForm(forms.Form):
     email = forms.EmailField(
@@ -39,6 +58,8 @@ class CheckoutForm(forms.Form):
             'class': 'form-control',
             'id': 'id_provincia',
             'placeholder': '',
+            'autocomplete': 'off',
+            'data-autocompletar': 'provincia',
         }),
     )
     ciudad = forms.CharField(
@@ -48,6 +69,8 @@ class CheckoutForm(forms.Form):
             'class': 'form-control',
             'id': 'id_ciudad',
             'placeholder': '',
+            'autocomplete': 'off',
+            'data-autocompletar': 'ciudad',
         }),
     )
     direccion = forms.CharField(
@@ -135,26 +158,32 @@ class CheckoutForm(forms.Form):
 
     def clean_ciudad(self):
         ciudad = self.cleaned_data.get('ciudad', '').strip()
-        if len(ciudad) >= 2 and len(ciudad) <= 100:
-            if not re.fullmatch(r'^[a-zA-ZáéíóúñÁÉÍÓÚÑ]+(?:\s[a-zA-ZáéíóúñÁÉÍÓÚÑ]+)*$', ciudad, re.IGNORECASE):
-                raise forms.ValidationError("La ciudad no es válida (solo letras y espacios).")
-        else:
+        if len(ciudad) < 2 or len(ciudad) > 100:
             raise forms.ValidationError("Ciudad: de 2 a 100 caracteres")
+        if not PATRON_UBICACION.fullmatch(ciudad) or not PATRON_LETRA.search(ciudad):
+            raise forms.ValidationError("La ciudad no es válida.")
+        provincia = self.cleaned_data.get('provincia')
+        localidades = get_localidades_por_provincia().get(provincia)
+        if localidades is not None and ciudad not in localidades:
+            raise forms.ValidationError(
+                'Ciudad inválida. Seleccioná una opción válida.'
+            )
         return ciudad
 
     def clean_provincia(self):
         provincia = self.cleaned_data.get('provincia', '').strip()
-        if len(provincia) >= 2 and len(provincia) <= 100:
-            if not re.fullmatch(r'^[a-zA-ZáéíóúñÁÉÍÓÚÑ]+(?:\s[a-zA-ZáéíóúñÁÉÍÓÚÑ]+)*$', provincia, re.IGNORECASE):
-                raise forms.ValidationError("La provincia no es válida (solo letras y espacios).")
-        else:
-            raise forms.ValidationError("Provincia: de 2 a 100 caracteres")
+        if provincia not in get_provincias_argentina():
+            raise forms.ValidationError(
+                'Provincia inválida. Seleccioná una opción válida.'
+            )
         return provincia
 
     def clean_codigo_postal(self):
         codigo_postal = self.cleaned_data.get('codigo_postal', '').strip()
-        if not re.fullmatch(r'^\d{4}$', codigo_postal):
+        if len(codigo_postal) < 4:
             raise forms.ValidationError("El CP debe tener 4 dígitos.")
+        if not re.fullmatch(r'[0-9]{4}', codigo_postal):
+            raise forms.ValidationError("El CP debe tener solo números.")
         return codigo_postal
 
 

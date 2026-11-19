@@ -1,8 +1,16 @@
 import pytest
 from django.core import mail
+from django.core.cache import cache
 from django.test.utils import override_settings
 from django.urls import reverse
 from usuarios.models import UsuarioModel
+
+
+@pytest.fixture
+def limpiar_ratelimit():
+    cache.clear()
+    yield
+    cache.clear()
 
 
 @pytest.mark.django_db
@@ -150,9 +158,47 @@ def test_logout_post_redirect(client, user_data):
 
 
 @pytest.mark.django_db
+@pytest.mark.parametrize("url_name", ["login", "login_admin_tienda"])
+def test_login_bloquea_tras_cinco_intentos(
+    client, limpiar_ratelimit, url_name, monkeypatch
+):
+    monkeypatch.setattr("django_ratelimit.core.time.time", lambda: 1700000000.0)
+    datos = {"username": "no@existe.com", "password": "wrong"}
+    for _ in range(5):
+        client.post(
+            reverse(url_name), datos, HTTP_X_REQUESTED_WITH="XMLHttpRequest"
+        )
+    response = client.post(
+        reverse(url_name), datos, HTTP_X_REQUESTED_WITH="XMLHttpRequest"
+    )
+    assert response.status_code == 429
+    assert "Demasiados intentos" in response.json()["errors"]["__all__"][0]
+
+
+@pytest.mark.django_db
 def test_logout_admin_tienda_redirige_login_admin(client, user_data):
     UsuarioModel.objects.create_user(**user_data)
     client.login(username=user_data["email"], password=user_data["password"])
     response = client.post(reverse("logout_admin_tienda"))
     assert response.status_code == 302
     assert response.url == reverse("login_admin_tienda")
+
+
+@pytest.mark.django_db
+def test_login_muestra_toggle_password(client):
+    response = client.get(reverse("login"))
+    contenido = response.content.decode()
+    assert 'data-password-toggle' in contenido
+    assert 'aria-controls="id_password"' in contenido
+    assert 'autocomplete="current-password"' in contenido
+
+
+@pytest.mark.django_db
+def test_registro_muestra_toggle_en_ambas_passwords(client):
+    response = client.get(reverse("registro"))
+    contenido = response.content.decode()
+    assert contenido.count('data-password-toggle') == 2
+    assert 'aria-controls="id_password1"' in contenido
+    assert 'aria-controls="id_password2"' in contenido
+    assert contenido.count('autocomplete="new-password"') == 2
+

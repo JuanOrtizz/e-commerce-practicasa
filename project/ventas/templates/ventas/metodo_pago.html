@@ -38,16 +38,34 @@
                             </div>
                         </label>
 
-                        <div class="ventas-opcion ventas-opcion-disabled d-flex align-items-center gap-3 p-3">
-                            <input class="form-check-input" type="radio" disabled>
+                        <label class="ventas-opcion d-flex align-items-center gap-3 p-3 {% if form.metodo_pago.value == 'transferencia' %}selected{% endif %}" data-metodo="transferencia">
+                            <input class="form-check-input" type="radio" name="metodo_pago" value="transferencia"
+                                   {% if form.metodo_pago.value == 'transferencia' %}checked{% endif %}>
+                            <span class="material-symbols-outlined ventas-pago-icon">account_balance</span>
+                            <div>
+                                <div class="fw-semibold">Transferencia</div>
+                                <div class="ventas-opcion-desc text-muted small">
+                                    Tu pedido queda pendiente hasta que recibamos el comprobante de pago por nuestro WhatsApp.
+                                </div>
+                            </div>
+                        </label>
+
+                        <label class="ventas-opcion d-flex align-items-center gap-3 p-3 {% if form.metodo_pago.value == 'mercado_pago' %}selected{% endif %} {% if not mp_disponible %}ventas-opcion-disabled{% endif %}" data-metodo="mercado_pago">
+                            <input class="form-check-input" type="radio" name="metodo_pago" value="mercado_pago"
+                                   {% if form.metodo_pago.value == 'mercado_pago' %}checked{% endif %}
+                                   {% if not mp_disponible %}disabled{% endif %}>
                             <span class="material-symbols-outlined ventas-pago-icon">credit_card</span>
                             <div>
                                 <div class="fw-semibold">Mercado Pago</div>
                                 <div class="ventas-opcion-desc text-muted small">
-                                    No disponible por el momento.
+                                    {% if mp_disponible %}
+                                        Pagás al instante con tarjeta en cuotas.
+                                    {% else %}
+                                        No disponible por el momento.
+                                    {% endif %}
                                 </div>
                             </div>
-                        </div>
+                        </label>
                     </div>
                 </form>
             </div>

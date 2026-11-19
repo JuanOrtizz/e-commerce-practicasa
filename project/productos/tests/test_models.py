@@ -326,6 +326,25 @@ def test_tags_oferta_ultima_unidad(subcategoria_data):
 
 
 @pytest.mark.django_db
+def test_tags_dos_unidades_no_es_ultima_unidad(subcategoria_data):
+    TagModel.objects.get_or_create(nombre=TagModel.TagChoices.ULTIMA_UNIDAD)
+
+    subcategoria = subcategoria_data
+    producto = ProductoModel.objects.create(
+        subcategoria=subcategoria,
+        nombre='Test dos unidades',
+        descripcion='Test',
+        slug='test-dos-unidades',
+        sku='TEST-002',
+        precio=Decimal('100'),
+        precio_transferencia=Decimal('90'),
+        stock=2,
+    )
+
+    assert not producto.tags.filter(nombre=TagModel.TagChoices.ULTIMA_UNIDAD).exists()
+
+
+@pytest.mark.django_db
 def test_tags_nuevo(subcategoria_data):
     TagModel.objects.get_or_create(nombre=TagModel.TagChoices.NUEVO)
 
