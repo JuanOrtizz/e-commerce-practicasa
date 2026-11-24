@@ -19,6 +19,7 @@ from .services import (
     enviar_factura_venta_service,
     expirar_pagos_vencidos_service,
     get_datos_venta_session,
+    get_mis_compras_service,
     get_order_context_service,
     get_venta_context_service,
     limpiar_datos_venta_session,
@@ -305,6 +306,12 @@ def pago(request, venta_id):
     })
 
 
+@login_required
+def mis_compras(request):
+    return render(request, 'ventas/mis_compras.html', {
+        'compras_por_estado': get_mis_compras_service(request.user),
+    })
+
 @csrf_exempt
 @require_POST
 def mp_webhook(request):
@@ -341,3 +348,4 @@ def mp_webhook(request):
     if not procesado:
         logger.warning('Notificación de pago %s no procesada', data_id)
     return HttpResponse('ok')
+
