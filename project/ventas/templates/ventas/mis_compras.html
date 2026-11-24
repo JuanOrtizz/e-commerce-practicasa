@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+
+{% load static precio_tags %}
+
+{% block title %}Mis compras | Practicasa{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'ventas/css/ventas.css' %}">
+    <link rel="stylesheet" href="{% static 'ventas/css/mis_compras.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container my-4 animacion-aparicion-abajo-fade">
+    <h2 class="fw-bold mb-4">Mis compras</h2>
+    {% if compras_por_estado.cantidad_total %}
+        {% for grupo in compras_por_estado.grupos %}
+            {% if grupo.compras %}
+                <section class="mb-4">
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <span class="badge rounded-pill d-inline-flex align-items-center gap-1 px-3 py-2 {% if grupo.estado == 'pendiente' %}text-bg-warning{% elif grupo.estado == 'confirmada' %}text-bg-success{% else %}text-bg-secondary{% endif %}">
+                            <span class="material-symbols-outlined mis-compras-estado-icon">{% if grupo.estado == 'pendiente' %}schedule{% elif grupo.estado == 'confirmada' %}check_circle{% else %}cancel{% endif %}</span>
+                            {% if grupo.estado == 'pendiente' %}Pendientes{% elif grupo.estado == 'confirmada' %}Confirmados{% else %}Cancelados{% endif %} ({{ grupo.compras|length }})
+                        </span>
+                    </div>
+                    <div class="d-flex flex-column gap-3">
+                        {% for compra in grupo.compras %}
+                            <article class="ventas-paso mis-compras-card">
+                                <button type="button" class="mis-compras-toggle w-100 d-flex flex-wrap justify-content-between align-items-center gap-3 text-start collapsed" data-bs-toggle="collapse" data-bs-target="#pedido-{{ compra.venta.id }}" aria-expanded="false" aria-controls="pedido-{{ compra.venta.id }}">
+                                    <span class="d-flex align-items-center gap-3">
+                                        {% if compra.producto_principal %}
+                                            <img src="{{ compra.producto_principal.imagen_url }}" alt="{{ compra.producto_principal.nombre }}" class="mis-compras-portada flex-shrink-0">
+                                        {% endif %}
+                                        <span>
+                                            <span class="d-block fw-bold">Pedido #{{ compra.venta.id }}</span>
+                                            <span class="d-block mis-compras-resumen">{{ compra.producto_principal.nombre }}{% if compra.cantidad_items > 1 %}{% with restantes=compra.cantidad_items|add:-1 %} y {{ restantes }} producto{{ restantes|pluralize }} más{% endwith %}{% endif %}</span>
+                                            <span class="d-block text-muted small">{{ compra.venta.created_at|date:'d/m/Y H:i' }}</span>
+                                        </span>
+                                    </span>
+                                    <span class="d-flex align-items-center gap-2">
+                                        <span class="fw-bold">${{ compra.total|format_price }}</span>
+                                        <span class="material-symbols-outlined mis-compras-chevron">keyboard_arrow_down</span>
+                                    </span>
+                                </button>
+                                <div class="collapse" id="pedido-{{ compra.venta.id }}">
+                                    <div class="pt-3 mt-3 border-top">
+                                        <div class="ventas-resumen-items mis-compras-items d-flex flex-column">
+                                            {% for item in compra.venta.items.all %}
+                                                <div class="ventas-resumen-item d-flex align-items-start gap-2 mis-compras-item">
+                                                    <div class="ventas-resumen-item-img-wrap flex-shrink-0">
+                                                        {% with primera=item.producto.primera_imagen_valida %}
+                                                            {% if primera %}
+                                                                <img src="{{ primera.imagen.url }}" alt="{{ item.producto.nombre }}" class="ventas-resumen-item-img">
+                                                            {% else %}
+                                                                <img src="{% static 'productos/img/logo_default_practicasa.webp' %}" alt="{{ item.producto.nombre }}" class="ventas-resumen-item-img">
+                                                            {% endif %}
+                                                        {% endwith %}
+                                                    </div>
+                                                    <div class="flex-grow-1 min-w-0">
+                                                        <p class="ventas-resumen-item-nombre mb-0">{{ item.nombre_producto|default:item.producto.nombre }}</p>
+                                                        <p class="ventas-resumen-item-variante mb-0">
+                                                            Cant. {{ item.cantidad }}
+                                                            {% if item.color_nombre %}· {{ item.color_nombre }}{% endif %}
+                                                            {% if item.medida_nombre %}· {{ item.medida_nombre }}{% endif %}
+                                                        </p>
+                                                        <div class="ventas-resumen-item-precios mt-1">
+                                                            {% if compra.venta.metodo_pago == 'transferencia' %}
+                                                                {% if item.promocion and item.precio_transferencia_original_unitario and item.precio_transferencia_original_unitario > item.precio_transferencia_unitario %}
+                                                                    <span class="ventas-resumen-item-precio-original">${{ item.precio_transferencia_original_unitario|format_price }}</span>
+                                                                {% endif %}
+                                                                <span class="ventas-resumen-item-precio-transf">${{ item.precio_transferencia_unitario|format_price }} con transferencia</span>
+                                                            {% else %}
+                                                                {% if item.promocion and item.precio_original_unitario and item.precio_original_unitario > item.precio_unitario %}
+                                                                    <span class="ventas-resumen-item-precio-original">${{ item.precio_original_unitario|format_price }}</span>
+                                                                {% endif %}
+                                                                <span class="ventas-resumen-item-precio-normal">${{ item.precio_unitario|format_price }}</span>
+                                                            {% endif %}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            {% endfor %}
+                                        </div>
+                                        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-3">
+                                            <span class="text-muted small">{{ compra.venta.get_metodo_envio_display }} · {{ compra.venta.get_metodo_pago_display }}</span>
+                                            <div class="d-flex flex-wrap gap-2">
+                                                {% if compra.puede_solicitar_cancelacion %}
+                                                    <a class="btn btn-sm ventas-btn-wsp m-0 fw-bold d-inline-flex align-items-center gap-2" href="{{ compra.whatsapp_cancelacion }}" target="_blank" rel="noopener noreferrer">
+                                                        <img src="{% static 'img/logo_whatsapp.png' %}" alt="WhatsApp">
+                                                        Solicitar cancelación
+                                                    </a>
+                                                {% endif %}
+                                                {% if compra.venta.estado == 'pendiente' %}
+                                                    <a class="btn btn-sm btn-enviar text-white fw-bold" href="{% if compra.venta.metodo_pago == 'mercado_pago' %}{% url 'pago' compra.venta.id %}{% else %}{% url 'pago_local' compra.venta.id %}{% endif %}">Ver pedido</a>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </article>
+                        {% endfor %}
+                    </div>
+                </section>
+            {% endif %}
+        {% endfor %}
+    {% else %}
+        <div class="ventas-paso text-center">
+            <span class="material-symbols-outlined ventas-pago-icon">shopping_bag</span>
+            <p class="fw-bold mb-1">Todavía no hiciste compras</p>
+            <p class="text-muted mb-3">Cuando hagas tu primer pedido, vas a poder verlo acá.</p>
+            <a class="btn btn-enviar text-white fw-bold" href="{% url 'productos' %}">Ver productos</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
