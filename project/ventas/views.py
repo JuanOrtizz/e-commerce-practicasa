@@ -348,4 +348,3 @@ def mp_webhook(request):
     if not procesado:
         logger.warning('Notificación de pago %s no procesada', data_id)
     return HttpResponse('ok')
-
