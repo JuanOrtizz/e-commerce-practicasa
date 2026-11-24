@@ -2,10 +2,12 @@ import logging
 import re
 from datetime import timedelta
 from decimal import Decimal
+from urllib.parse import urlencode
 from django.conf import settings
 from django.db import transaction
 from django.db.models import F
 from django.template.loader import render_to_string
+from django.templatetags.static import static
 from django.utils import timezone
 from project.services import enviar_email
 from carrito.services import (
@@ -129,6 +131,10 @@ def whatsapp_link_service():
     numero = re.sub(r'\D', '', settings.DATOS_LOCAL['whatsapp'])
     return f'https://wa.me/{numero}'
 
+def whatsapp_cancelacion_link_service(venta):
+    texto = f'Hola, quiero solicitar la cancelación del pedido N°: #{venta.id}'
+    return f'{whatsapp_link_service()}?{urlencode({"text": texto})}'
+
 def _validar_stock_service(carrito, carrito_context):
     sin_stock = [
         data['producto'].nombre
@@ -173,6 +179,62 @@ def get_pedidos_pendientes_mp_service(usuario):
         .distinct()
         .order_by('-created_at')
     )
+
+def _producto_principal_service(venta):
+    item = next(iter(venta.items.all()), None)
+    if item is None:
+        return None
+    imagen = item.producto.primera_imagen_valida
+    return {
+        'nombre': item.nombre_producto or item.producto.nombre,
+        'imagen_url': (
+            imagen.imagen.url
+            if imagen
+            else static('productos/img/logo_default_practicasa.webp')
+        ),
+    }
+
+def get_mis_compras_service(usuario):
+    ventas = (
+        VentaModel.objects.filter(usuario=usuario)
+        .prefetch_related('items__producto__imagenes', 'pagos')
+        .order_by('-created_at')
+    )
+    compras = [
+        {
+            'venta': venta,
+            'producto_principal': _producto_principal_service(venta),
+            'cantidad_items': len(venta.items.all()),
+            'total': (
+                venta.total
+                if venta.metodo_pago == VentaModel.MetodoPagoChoices.MERCADO_PAGO
+                else venta.total_transferencia
+            ),
+            'puede_solicitar_cancelacion': (
+                venta.estado == VentaModel.EstadoChoices.PENDIENTE
+                and venta.metodo_pago != VentaModel.MetodoPagoChoices.MERCADO_PAGO
+            ),
+            'whatsapp_cancelacion': whatsapp_cancelacion_link_service(venta),
+        }
+        for venta in ventas
+    ]
+    estados = (
+        VentaModel.EstadoChoices.PENDIENTE,
+        VentaModel.EstadoChoices.CONFIRMADA,
+        VentaModel.EstadoChoices.CANCELADA,
+    )
+    return {
+        'cantidad_total': len(compras),
+        'grupos': [
+            {
+                'estado': estado,
+                'compras': [
+                    compra for compra in compras if compra['venta'].estado == estado
+                ],
+            }
+            for estado in estados
+        ],
+    }
 
 @transaction.atomic
 def crear_venta_confirmada_service(usuario, datos, metodo_envio, metodo_pago, vaciar_carrito=True):

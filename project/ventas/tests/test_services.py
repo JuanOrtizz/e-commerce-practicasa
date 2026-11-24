@@ -1,5 +1,6 @@
 from decimal import Decimal
 import threading
+from urllib.parse import parse_qs, urlparse
 
 import pytest
 from django.db import close_old_connections, connections
@@ -13,12 +14,14 @@ from ventas.services import (
     crear_pago_mercado_pago_service,
     crear_venta_confirmada_service,
     eliminar_venta_service,
+    get_mis_compras_service,
     get_order_context_service,
     get_venta_context_service,
     permite_envio_domicilio_service,
     revertir_stock_venta_service,
     sincronizar_pago_service,
     venta_mp_en_curso,
+    whatsapp_cancelacion_link_service,
     whatsapp_link_service,
 )
 
@@ -223,6 +226,55 @@ def test_permite_envio_domicilio_service_otros_codigos():
 })
 def test_whatsapp_link_service_construye_link_desde_datos_local():
     assert whatsapp_link_service() == 'https://wa.me/5493435468162'
+
+
+@override_settings(DATOS_LOCAL={
+    'nombre': 'Practicasa', 'ciudad': 'Nogoyá', 'direccion': 'Lavalle 994',
+    'horario': '16:00 a 21:00 hs', 'whatsapp': '+54 9 3435 46-8162', 'mapa_url': '',
+})
+def test_whatsapp_cancelacion_link_service_incluye_numero_de_pedido():
+    link = whatsapp_cancelacion_link_service(VentaModel(id=123))
+
+    assert link.startswith('https://wa.me/5493435468162?text=')
+    assert parse_qs(urlparse(link).query)['text'] == [
+        'Hola, quiero solicitar la cancelación del pedido N°: #123'
+    ]
+
+
+@pytest.mark.django_db
+def test_get_mis_compras_service_agrupa_por_estado(usuario):
+    def crear_venta(estado):
+        return VentaModel.objects.create(
+            usuario=usuario,
+            estado=estado,
+            metodo_envio=VentaModel.MetodoEnvioChoices.RETIRO_LOCAL,
+            metodo_pago=VentaModel.MetodoPagoChoices.EFECTIVO,
+            nombre='Cliente Test',
+            email='cliente@example.com',
+            telefono='3434567890',
+            subtotal=Decimal('100'),
+            total=Decimal('100'),
+        )
+
+    pendiente = crear_venta(VentaModel.EstadoChoices.PENDIENTE)
+    confirmada = crear_venta(VentaModel.EstadoChoices.CONFIRMADA)
+    cancelada = crear_venta(VentaModel.EstadoChoices.CANCELADA)
+
+    resultado = get_mis_compras_service(usuario)
+
+    assert resultado['cantidad_total'] == 3
+    assert [grupo['estado'] for grupo in resultado['grupos']] == [
+        VentaModel.EstadoChoices.PENDIENTE,
+        VentaModel.EstadoChoices.CONFIRMADA,
+        VentaModel.EstadoChoices.CANCELADA,
+    ]
+    assert [
+        [compra['venta'].id for compra in grupo['compras']]
+        for grupo in resultado['grupos']
+    ] == [[pendiente.id], [confirmada.id], [cancelada.id]]
+    assert resultado['grupos'][0]['compras'][0]['puede_solicitar_cancelacion'] is True
+    assert resultado['grupos'][1]['compras'][0]['puede_solicitar_cancelacion'] is False
+    assert resultado['grupos'][2]['compras'][0]['puede_solicitar_cancelacion'] is False
 
 
 @override_settings(MP_ACCESS_TOKEN='TEST-123', PEDIDO_TTL_HORAS=4)

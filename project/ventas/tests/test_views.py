@@ -2,6 +2,7 @@ import hashlib
 import hmac
 import json
 import time
+from decimal import Decimal
 
 import pytest
 
@@ -12,7 +13,7 @@ from django.urls import reverse
 
 from usuarios.models import UsuarioModel
 from ventas import mp
-from ventas.models import PagoModel, VentaModel
+from ventas.models import PagoModel, VentaItemModel, VentaModel
 from ventas.services import crear_venta_confirmada_service
 
 
@@ -1449,3 +1450,240 @@ def test_pago_view_post_no_repaga_tras_reembolso(
     assert response.status_code == 200
     assert llamadas == []
     assert venta.pagos.count() == 1
+
+
+def test_mis_compras_requiere_login(client):
+    response = client.get('/ventas/mis-compras/')
+    assert response.status_code == 302
+    assert '/usuarios/login/' in response.headers.get('Location', '')
+
+
+@pytest.mark.django_db
+def test_mis_compras_muestra_solo_las_ventas_del_usuario(client_logueado, usuario, producto):
+    otro_usuario = UsuarioModel.objects.create_user(
+        email='otro@example.com',
+        nombre_completo='Otro Cliente',
+        password='TestPass123',
+    )
+    venta = VentaModel.objects.create(
+        usuario=usuario,
+        metodo_envio=VentaModel.MetodoEnvioChoices.RETIRO_LOCAL,
+        metodo_pago=VentaModel.MetodoPagoChoices.EFECTIVO,
+        nombre='Cliente Test',
+        email='cliente@example.com',
+        telefono='3434567890',
+        subtotal=Decimal('15000'),
+        total=Decimal('13500'),
+    )
+    VentaItemModel.objects.create(
+        venta=venta,
+        producto=producto,
+        cantidad=1,
+        precio_unitario=Decimal('15000'),
+        precio_transferencia_unitario=Decimal('13500'),
+    )
+    otra_venta = VentaModel.objects.create(
+        usuario=otro_usuario,
+        metodo_envio=VentaModel.MetodoEnvioChoices.RETIRO_LOCAL,
+        metodo_pago=VentaModel.MetodoPagoChoices.EFECTIVO,
+        nombre='Otro Cliente',
+        email='otro@example.com',
+        telefono='3434567890',
+        subtotal=Decimal('15000'),
+        total=Decimal('13500'),
+    )
+
+    response = client_logueado.get('/ventas/mis-compras/')
+    contenido = response.content.decode()
+
+    assert response.status_code == 200
+    assert f'Pedido #{venta.id}' in contenido
+    assert 'Camiseta básica' in contenido
+    assert '$13.500,00' in contenido
+    assert f'Pedido #{otra_venta.id}' not in contenido
+    assert 'btn-enviar' in contenido
+    assert 'text-bg-warning' in contenido
+    assert 'Pendientes (1)' in contenido
+    assert 'mis_compras.css' in contenido
+    assert 'mis-compras-card' in contenido
+    assert 'mis-compras-portada' in contenido
+    assert 'mis-compras-estado-icon">schedule' in contenido
+    assert 'mis-compras-item' in contenido
+    assert 'ventas-resumen-item-last' not in contenido
+    assert '$15.000,00' in contenido
+    assert 'data-bs-toggle="collapse"' in contenido
+    assert f'data-bs-target="#pedido-{venta.id}"' in contenido
+    assert f'id="pedido-{venta.id}"' in contenido
+    assert f'aria-controls="pedido-{venta.id}"' in contenido
+    assert 'aria-expanded="false"' in contenido
+    assert 'keyboard_arrow_down' in contenido
+    inicio = contenido.index('mis-compras-toggle')
+    fin = contenido.index('class="collapse"', inicio)
+    assert f'Pedido #{venta.id}' in contenido[inicio:fin]
+    assert 'Camiseta básica' in contenido[inicio:fin]
+    assert 'Solicitar cancelación' not in contenido[inicio:fin]
+    cuerpo = contenido[fin:contenido.index('</article>', fin)]
+    assert 'Solicitar cancelación' in cuerpo
+    assert 'Ver pedido' in cuerpo
+    assert cuerpo.count('border-top') == 1
+
+
+@pytest.mark.django_db
+def test_mis_compras_resumen_muestra_primer_producto_y_cantidad(client_logueado, usuario, producto):
+    venta = VentaModel.objects.create(
+        usuario=usuario,
+        metodo_envio=VentaModel.MetodoEnvioChoices.RETIRO_LOCAL,
+        metodo_pago=VentaModel.MetodoPagoChoices.EFECTIVO,
+        nombre='Cliente Test',
+        email='cliente@example.com',
+        telefono='3434567890',
+        subtotal=Decimal('25000'),
+        total=Decimal('22500'),
+    )
+    VentaItemModel.objects.create(
+        venta=venta,
+        producto=producto,
+        nombre_producto='Camiseta básica',
+        cantidad=1,
+        precio_unitario=Decimal('15000'),
+        precio_transferencia_unitario=Decimal('13500'),
+    )
+    VentaItemModel.objects.create(
+        venta=venta,
+        producto=producto,
+        nombre_producto='Pantalón negro',
+        cantidad=2,
+        precio_unitario=Decimal('10000'),
+        precio_transferencia_unitario=Decimal('9000'),
+    )
+
+    contenido = client_logueado.get('/ventas/mis-compras/').content.decode()
+
+    assert 'Camiseta básica y 1 producto más' in contenido
+    assert 'mis-compras-portada' in contenido
+
+
+@pytest.mark.django_db
+def test_mis_compras_muestra_precio_unitario_segun_metodo_pago(client_logueado, usuario, producto):
+    def crear_venta(metodo_pago):
+        return VentaModel.objects.create(
+            usuario=usuario,
+            metodo_envio=VentaModel.MetodoEnvioChoices.RETIRO_LOCAL,
+            metodo_pago=metodo_pago,
+            nombre='Cliente Test',
+            email='cliente@example.com',
+            telefono='3434567890',
+            subtotal=Decimal('15000'),
+            total=Decimal('13500'),
+        )
+
+    def crear_item(venta):
+        return VentaItemModel.objects.create(
+            venta=venta,
+            producto=producto,
+            nombre_producto='Camiseta básica',
+            cantidad=1,
+            precio_unitario=Decimal('15000'),
+            precio_transferencia_unitario=Decimal('13500'),
+            precio_original_unitario=Decimal('18000'),
+            precio_transferencia_original_unitario=Decimal('16000'),
+            promocion='10%',
+        )
+
+    transferencia = crear_venta(VentaModel.MetodoPagoChoices.TRANSFERENCIA)
+    crear_item(transferencia)
+    mercado_pago = crear_venta(VentaModel.MetodoPagoChoices.MERCADO_PAGO)
+    crear_item(mercado_pago)
+
+    contenido = client_logueado.get('/ventas/mis-compras/').content.decode()
+
+    inicio = contenido.index(f'id="pedido-{transferencia.id}"')
+    bloque = contenido[inicio:contenido.index('</article>', inicio)]
+    assert '$13.500,00 con transferencia' in bloque
+    assert '$16.000,00' in bloque
+    assert '$15.000,00' not in bloque
+
+    inicio = contenido.index(f'id="pedido-{mercado_pago.id}"')
+    bloque = contenido[inicio:contenido.index('</article>', inicio)]
+    assert '$15.000,00' in bloque
+    assert '$18.000,00' in bloque
+    assert 'con transferencia' not in bloque
+
+
+@override_settings(DATOS_LOCAL={
+    'nombre': 'Practicasa', 'ciudad': 'Nogoyá', 'direccion': 'Lavalle 994',
+    'horario': '16:00 a 21:00 hs', 'whatsapp': '+54 9 3435 46-8162', 'mapa_url': '',
+})
+@pytest.mark.django_db
+def test_mis_compras_cancelacion_segun_estado_y_metodo_pago(client_logueado, usuario):
+    def crear_venta(metodo_pago, estado=VentaModel.EstadoChoices.PENDIENTE):
+        return VentaModel.objects.create(
+            usuario=usuario,
+            metodo_envio=VentaModel.MetodoEnvioChoices.RETIRO_LOCAL,
+            metodo_pago=metodo_pago,
+            estado=estado,
+            nombre='Cliente Test',
+            email='cliente@example.com',
+            telefono='3434567890',
+            subtotal=Decimal('15000'),
+            total=Decimal('13500'),
+        )
+
+    transferencia = crear_venta(VentaModel.MetodoPagoChoices.TRANSFERENCIA)
+    efectivo_confirmada = crear_venta(
+        VentaModel.MetodoPagoChoices.EFECTIVO, VentaModel.EstadoChoices.CONFIRMADA
+    )
+    mercado_pago = crear_venta(VentaModel.MetodoPagoChoices.MERCADO_PAGO)
+    cancelada = crear_venta(
+        VentaModel.MetodoPagoChoices.EFECTIVO, VentaModel.EstadoChoices.CANCELADA
+    )
+
+    contenido = client_logueado.get('/ventas/mis-compras/').content.decode()
+
+    assert contenido.count('Solicitar cancelación') == 1
+    assert 'https://wa.me/5493435468162' in contenido
+    assert f'%23{transferencia.id}' in contenido
+    assert f'%23{efectivo_confirmada.id}' not in contenido
+    assert f'%23{mercado_pago.id}' not in contenido
+    assert f'%23{cancelada.id}' not in contenido
+    assert 'Continuar pago' not in contenido
+    assert contenido.count('Ver pedido') == 2
+    inicio = contenido.index(f'Pedido #{transferencia.id}')
+    bloque = contenido[inicio:contenido.index('</article>', inicio)]
+    assert bloque.index('Solicitar cancelación') < bloque.index('Ver pedido')
+    inicio = contenido.index(f'id="pedido-{transferencia.id}"')
+    bloque = contenido[inicio:contenido.index('</article>', inicio)]
+    assert 'Solicitar cancelación' in bloque
+    assert 'Ver pedido' in bloque
+    inicio = contenido.index(f'id="pedido-{efectivo_confirmada.id}"')
+    bloque = contenido[inicio:contenido.index('</article>', inicio)]
+    assert 'Solicitar cancelación' not in bloque
+    assert 'text-bg-success' in contenido
+    assert 'text-bg-secondary' in contenido
+    assert 'Pendientes (2)' in contenido
+    assert 'Confirmados (1)' in contenido
+    assert 'Cancelados (1)' in contenido
+    assert contenido.index('Pendientes (2)') < contenido.index('Confirmados (1)')
+    assert contenido.index('Confirmados (1)') < contenido.index('Cancelados (1)')
+
+
+def test_mis_compras_sin_ventas_muestra_mensaje(client_logueado):
+    response = client_logueado.get('/ventas/mis-compras/')
+    contenido = response.content.decode()
+
+    assert response.status_code == 200
+    assert 'Todavía no hiciste compras' in contenido
+    assert 'Pendientes (0)' not in contenido
+
+
+@pytest.mark.django_db
+def test_header_oculta_mis_compras_para_anonimo(client):
+    response = client.get(reverse('contacto'))
+    assert response.status_code == 200
+    assert b'Mis compras' not in response.content
+
+
+def test_header_muestra_mis_compras_para_logueado(client_logueado):
+    response = client_logueado.get(reverse('contacto'))
+    assert response.status_code == 200
+    assert b'Mis compras' in response.content

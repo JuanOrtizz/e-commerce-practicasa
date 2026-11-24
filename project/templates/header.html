@@ -44,6 +44,11 @@
                         <li class="nav-item menu-link fw-bold">
                             <a class="nav-link {% if view_actual == 'index' %}enlace-activo{% endif %}" aria-current="page" href="{% url 'index' %}">Inicio</a>
                         </li>
+                        {% if user.is_authenticated %}
+                            <li class="nav-item menu-link fw-bold">
+                                <a class="nav-link {% if view_actual == 'mis_compras' %}enlace-activo{% endif %}" href="{% url 'mis_compras' %}">Mis compras</a>
+                            </li>
+                        {% endif %}
                         <li class="nav-item menu-link fw-bold">
                             <a class="nav-link {% if view_actual == 'contacto' %}enlace-activo{% endif %}" href="{% url 'contacto'%}">Contacto</a>
                         </li>

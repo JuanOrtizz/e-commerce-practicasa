@@ -10,4 +10,5 @@ urlpatterns = [
     path('pago-local/<int:venta_id>/', views.pago_local, name='pago_local'),
     path('pago/<int:venta_id>/', views.pago, name='pago'),
     path('mp-webhook/', views.mp_webhook, name='mp_webhook'),
+    path('mis-compras/', views.mis_compras, name='mis_compras'),
 ]

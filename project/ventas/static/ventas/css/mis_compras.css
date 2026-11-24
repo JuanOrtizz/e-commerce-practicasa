@@ -1,0 +1,60 @@
+.mis-compras-card {
+    border: 1px solid rgba(162, 86, 48, 0.1);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.mis-compras-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(162, 86, 48, 0.12);
+    border-color: rgba(162, 86, 48, 0.3);
+}
+
+.mis-compras-portada {
+    width: 40px;
+    height: 40px;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+.mis-compras-resumen {
+    font-size: 0.9rem;
+    overflow-wrap: anywhere;
+}
+
+.mis-compras-estado-icon {
+    font-size: 1rem;
+    line-height: 1;
+}
+
+.mis-compras-toggle {
+    padding: 0;
+    color: inherit;
+    background: none;
+    border: 0;
+    cursor: pointer;
+}
+
+.mis-compras-toggle:hover,
+.mis-compras-toggle:focus {
+    color: inherit;
+    text-decoration: none;
+}
+
+.mis-compras-chevron {
+    transition: transform 0.2s ease;
+}
+
+.mis-compras-toggle:not(.collapsed) .mis-compras-chevron {
+    transform: rotate(180deg);
+}
+
+.mis-compras-items {
+    gap: 0.75rem;
+}
+
+.mis-compras-item {
+    background: var(--primary-color);
+    border-radius: 10px;
+    padding: 0.6rem 0.75rem;
+    border-bottom: 0;
+}

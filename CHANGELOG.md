@@ -1,6 +1,25 @@
 # Changelog
 ---
 
+## [v0.22.0] - 2026-11-24
+### Rama: feature/mis-compras
+#### Features
+- Agrego la página "Mis compras" con acceso desde el header para usuarios autenticados y los pedidos agrupados por estado (Pendientes, Confirmados y Cancelados), mostrando solo las secciones con pedidos
+- Hago cada pedido un desplegable que arranca cerrado, con encabezado clickeable (miniatura del primer producto, número de pedido, resumen, fecha y total) y productos y acciones dentro
+- Muestro el precio unitario aplicado según el medio de pago: precio de transferencia con transferencia y precio normal con efectivo o Mercado Pago, con el original tachado cuando hay promoción
+- Unifico el botón "Ver pedido" y su destino según el medio de pago (pago para Mercado Pago, pago_local para efectivo y transferencia)
+#### Fixes
+- Limito la solicitud de cancelación por WhatsApp a pedidos pendientes que no sean de Mercado Pago, ocultándola en pedidos confirmados y cancelados
+#### Style
+- Convierto cada pedido en una card con hover elevado, borde marrón suave y flecha animada al desplegar
+- Reemplazo las líneas internas entre productos por espaciado y fondo suave, dejando solo el separador entre el encabezado y el contenido desplegable
+#### Refactor
+- Muevo los estilos propios de Mis compras a mis_compras.css y renombro las clases a mis-compras-* para no afectar los estilos compartidos del flujo de compra
+#### Tests
+- Agrego tests del servicio y de la vista de mis compras: agrupamiento, desplegables, precios por medio de pago y matriz de cancelación
+#### Docs
+- Actualizo CHANGELOG.md con v0.22.0
+---
 ## [v0.21.0] - 2026-11-16
 ### Rama: feature/db
 #### Features
