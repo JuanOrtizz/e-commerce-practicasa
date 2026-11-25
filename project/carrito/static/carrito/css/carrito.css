@@ -27,23 +27,23 @@
 .carrito-precio-original {
     text-decoration: line-through;
     color: var(--secondary-color-hover);
-    font-size: 0.8rem;
+    font-size: var(--fs-sm);
 }
 
 .carrito-precio-final {
     font-weight: 700;
-    font-size: 0.85rem;
+    font-size: var(--fs-base);
     color: var(--black);
 }
 
 .carrito-precio-transferencia {
     color: var(--tertiary-color);
     font-weight: 600;
-    font-size: 1.05rem;
+    font-size: var(--fs-md);
 }
 
 .carrito-badge-promo {
-    font-size: 0.7rem;
+    font-size: var(--fs-xs);
     font-weight: 600;
     letter-spacing: 0.3px;
     padding: 0.25em 0.6em;
@@ -51,23 +51,23 @@
 }
 
 .carrito-ahorro {
-    font-size: 0.85rem;
+    font-size: var(--fs-sm);
     font-weight: 600;
     color: var(--tertiary-color);
 }
 
 .carrito-qty-input {
-    width: 54px;
+    width: 58px;
     border: 1.5px solid #e0e0e0;
     border-radius: 8px;
     font-weight: 600;
-    font-size: 0.9rem;
+    font-size: var(--fs-base);
     background: var(--primary-color);
 }
 
 .carrito-qty-btn {
-    width: 34px;
-    height: 34px;
+    width: 38px;
+    height: 38px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -75,7 +75,7 @@
     border-radius: 50%;
     background: var(--white);
     cursor: pointer;
-    font-size: 1.15rem;
+    font-size: var(--fs-md);
     font-weight: 500;
     color: #555;
     transition: all 0.2s ease;
@@ -121,7 +121,7 @@
 }
 
 .variante-label {
-    font-size: 0.8rem;
+    font-size: var(--fs-sm);
 }
 
 .carrito-producto-link {
@@ -141,11 +141,11 @@
 }
 
 .carrito-subtotal-label {
-    font-size: 0.85rem;
+    font-size: var(--fs-sm);
 }
 
 .carrito-qty-field {
-    width: 54px;
+    width: 58px;
     height: 38px;
     position: relative;
     display: flex;
