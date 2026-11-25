@@ -1,5 +1,10 @@
-import {textErrorInput, clearErrorText, scrollToFirstError} from './validacionesProducto.js'
+import {textErrorInput, clearErrorText, scrollToFirstError, validarCampos} from './validacionesProducto.js'
 import {successAlertRedirectOnClose, errorAlert} from '/static/js/alertas.js'
+
+const reglas = {
+    categoria: {requerido: true, mensajeRequerido: 'Seleccioná una categoría'},
+    nombre: {requerido: true, min: 2, max: 100, etiqueta: 'Nombre'},
+}
 
 document.addEventListener('DOMContentLoaded', ()=>{
     const form = document.getElementById("form")
@@ -16,6 +21,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
 
     form.addEventListener('submit', (e) =>{
         e.preventDefault()
+        if (!validarCampos(form, reglas)) return
         const formData = new FormData(form)
         postForm(formData, csrfToken, form)
     })

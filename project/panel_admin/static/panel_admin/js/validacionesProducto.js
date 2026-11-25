@@ -57,6 +57,18 @@ export function validateForm(formData){
             if(!validarInputPeso(input, valor)) isValid = false
         }
     }
+
+    if(form.dataset.editar !== 'true'){
+        const promocion = formData.get('promocion')
+        const stock = parseInt(formData.get('stock'))
+        const stockMinimo = promocion === '2x1' ? 2 : promocion === '3x2' ? 3 : null
+        if(stockMinimo !== null && !isNaN(stock) && stock < stockMinimo){
+            const input = document.getElementById("id_promocion")
+            textErrorInput(input, `La promoción ${promocion} requiere al menos ${stockMinimo} unidades de stock`)
+            isValid = false
+        }
+    }
+
     if(!isValid){
         scrollToFirstError()
     }
@@ -91,7 +103,7 @@ function validarInputSku(input, valor){
 
 function validarInputPrecio(input, valor){
     if(parseFloat(valor) <= 0){
-        textErrorInput(input, "El precio de transferencia debe ser mayor a 0")
+        textErrorInput(input, "El precio debe ser mayor a 0")
         return false
     }
     else if(parseFloat(valor) > 99999999.99){
@@ -121,6 +133,10 @@ function validarInputPrecioTransferencia(input, valor){
 function validarInputStock(input, valor){
     if(parseInt(valor) < 0){
         textErrorInput(input, "El stock no puede ser negativo")
+        return false
+    }
+    if(parseInt(valor) > 1000){
+        textErrorInput(input, "El stock no puede superar las 1000 unidades")
         return false
     }
     return true
@@ -167,4 +183,48 @@ export function scrollToElement(selector){
     if (elemento){
         elemento.scrollIntoView({behavior: "smooth", block: "center"})
     }
+}
+
+export function validarCampos(form, reglas){
+    let isValid = true
+
+    form.querySelectorAll(".is-invalid").forEach(el => {
+        clearErrorText(el)
+    })
+
+    for (const [name, regla] of Object.entries(reglas)){
+        const input = form.querySelector(`[name="${name}"]`)
+        if (!input) continue
+
+        const valor = input.value.trim()
+
+        if (regla.requerido && !valor){
+            textErrorInput(input, regla.mensajeRequerido || "El campo está vacío")
+            isValid = false
+            continue
+        }
+
+        if (!valor) continue
+
+        if (regla.min !== undefined || regla.max !== undefined){
+            const min = regla.min ?? 0
+            const max = regla.max ?? Infinity
+            if (valor.length < min || valor.length > max){
+                textErrorInput(input, `${regla.etiqueta || name}: de ${min} a ${max} caracteres`)
+                isValid = false
+                continue
+            }
+        }
+
+        if (regla.pattern && !regla.pattern.test(valor)){
+            textErrorInput(input, regla.mensajePattern || "El formato no es válido")
+            isValid = false
+        }
+    }
+
+    if (!isValid){
+        scrollToFirstError()
+    }
+
+    return isValid
 }

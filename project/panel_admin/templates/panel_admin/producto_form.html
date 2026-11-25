@@ -14,7 +14,7 @@
 </div>
 
 
-<form method="post" enctype="multipart/form-data" id="form" novalidate action="{% if producto %}{% url 'panel_producto_modificar' producto.id %}{% else %}{% url 'panel_producto_nuevo' %}{% endif %}">
+<form method="post" enctype="multipart/form-data" id="form" novalidate data-editar="{% if producto %}true{% else %}false{% endif %}" action="{% if producto %}{% url 'panel_producto_modificar' producto.id %}{% else %}{% url 'panel_producto_nuevo' %}{% endif %}">
     {% csrf_token %}
     <div class="panel-card p-3">
         <div class="row g-0 d-flex flex-column">
