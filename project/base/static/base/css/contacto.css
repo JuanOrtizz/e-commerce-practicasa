@@ -3,5 +3,5 @@
 }
 
 .titulo-contacto {
-    font-size: calc(1.325rem + 0.9vw);
+    font-size: var(--fs-h1);
 }

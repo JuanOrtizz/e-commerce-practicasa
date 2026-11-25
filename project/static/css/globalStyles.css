@@ -9,11 +9,29 @@
     --tertiary-color-hover: #7E4326 ;
     --black: #000000;
     --white: #ffffff;
+    --fs-xs: 0.8125rem;
+    --fs-sm: 0.9375rem;
+    --fs-base: 1rem;
+    --fs-md: 1.125rem;
+    --fs-lg: 1.25rem;
+    --fs-h1: clamp(2rem, 4vw, 2.5rem);
+}
+
+@media (max-width: 991.98px) {
+    :root {
+        --fs-xs: 0.875rem;
+        --fs-sm: 1rem;
+        --fs-base: 1.0625rem;
+        --fs-md: 1.1875rem;
+        --fs-lg: 1.3125rem;
+        --fs-h1: 2rem;
+    }
 }
 
 /* General Design (Body and Main) */
 body {
     font-family: Roboto, sans-serif;
+    font-size: var(--fs-base);
     margin: 0;
     padding: 0;
     background-color: var(--white);
@@ -359,4 +377,50 @@ footer a {
 
 .btn-subir .material-symbols-outlined {
     font-size: 28px;
+}
+
+.colored-toast.swal2-popup {
+    width: 22rem;
+    max-width: calc(100vw - 2rem);
+    overflow: hidden;
+}
+
+.colored-toast .swal2-title {
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    max-width: 100%;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.form-control,
+.form-select {
+    font-size: var(--fs-base);
+}
+
+.header-cart-icon {
+    font-size: 2rem;
+    line-height: 1;
+}
+
+.navbar-toggler-icon {
+    width: 1.5rem;
+    height: 1.5rem;
+}
+
+@media (max-width: 991.98px) {
+    .header-cart-icon {
+        font-size: 2.25rem;
+    }
+
+    .navbar-toggler-icon {
+        width: 1.75rem;
+        height: 1.75rem;
+    }
+
+    header .nav-item button .material-symbols-outlined {
+        font-size: 1.5rem;
+    }
 }
