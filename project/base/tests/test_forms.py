@@ -42,6 +42,8 @@ def test_email_invalido(email, consulta_data):
 @pytest.mark.parametrize('telefono,esperado', [
     ('1122334455', True),
     ('+54 11 1234-5678', True),
+    ('1' * 25, True),
+    ('1' * 26, False),
     ('12', False),
     ('1234ABCD', False),
 ])

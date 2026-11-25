@@ -8,7 +8,7 @@ class ConsultaModel(models.Model):
 
     nombre = models.CharField(max_length=100)
     email = models.EmailField()
-    telefono = models.CharField(max_length=20)
+    telefono = models.CharField(max_length=25)
     mensaje = models.TextField()
     fecha_y_hora = models.DateTimeField(auto_now_add=True, db_index=True)
     estado = models.CharField(max_length=20, choices=Estados.choices, default=Estados.PENDIENTE)

@@ -2,13 +2,29 @@ from decimal import Decimal
 from datetime import timedelta
 import os
 from django.conf import settings
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.utils.text import slugify
 from django.utils import timezone
 
+
+def generar_slug_unico(nombre, modelo, max_length, pk=None):
+    base = slugify(nombre)[:max_length] or 'item'
+    slug = base
+    contador = 2
+    qs = modelo.objects.all()
+    if pk:
+        qs = qs.exclude(pk=pk)
+    while qs.filter(slug=slug).exists():
+        sufijo = f'-{contador}'
+        slug = f'{base[:max_length - len(sufijo)]}{sufijo}'
+        contador += 1
+    return slug
+
+
 class CategoriaModel(models.Model):
     nombre = models.CharField(max_length=100)
-    slug = models.SlugField(unique=True)
+    slug = models.SlugField(max_length=100, unique=True)
 
     class Meta:
         db_table = 'categorias'
@@ -21,7 +37,9 @@ class CategoriaModel(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.slug:
-            self.slug = slugify(self.nombre)
+            self.slug = generar_slug_unico(
+                self.nombre, CategoriaModel, self._meta.get_field('slug').max_length, self.pk
+            )
         super().save(*args, **kwargs)
 
 
@@ -30,7 +48,7 @@ class SubcategoriaModel(models.Model):
         CategoriaModel, on_delete=models.CASCADE, related_name='subcategorias'
     )
     nombre = models.CharField(max_length=100)
-    slug = models.SlugField(unique=True)
+    slug = models.SlugField(max_length=100, unique=True)
 
     class Meta:
         db_table = 'subcategorias'
@@ -43,7 +61,9 @@ class SubcategoriaModel(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.slug:
-            self.slug = slugify(self.nombre)
+            self.slug = generar_slug_unico(
+                self.nombre, SubcategoriaModel, self._meta.get_field('slug').max_length, self.pk
+            )
         super().save(*args, **kwargs)
 
 
@@ -110,7 +130,7 @@ class ProductoModel(models.Model):
     )
     nombre = models.CharField(max_length=200)
     descripcion = models.TextField()
-    slug = models.SlugField(unique=True)
+    slug = models.SlugField(max_length=200, unique=True)
     sku = models.CharField(max_length=50, unique=True)
     precio = models.DecimalField(max_digits=10, decimal_places=2)
     precio_transferencia = models.DecimalField(
@@ -125,7 +145,9 @@ class ProductoModel(models.Model):
         max_digits=10, decimal_places=2, default=0,
         help_text='Precio transferencia final con promoción aplicada (para filtros y display)'
     )
-    stock = models.IntegerField()
+    stock = models.IntegerField(
+        validators=[MinValueValidator(0), MaxValueValidator(1000)]
+    )
     peso = models.DecimalField(
         max_digits=6, decimal_places=2, null=True, blank=True,
         help_text='Peso en kg'
@@ -153,7 +175,9 @@ class ProductoModel(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.slug:
-            self.slug = slugify(self.nombre)
+            self.slug = generar_slug_unico(
+                self.nombre, ProductoModel, self._meta.get_field('slug').max_length, self.pk
+            )
         self._quitar_promocion_sin_stock()
         self._calcular_precios_finales()
         super().save(*args, **kwargs)

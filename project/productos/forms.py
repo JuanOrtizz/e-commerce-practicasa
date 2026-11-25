@@ -122,7 +122,7 @@ class ProductoForm(forms.ModelForm):
             'sku': forms.TextInput(attrs={'class': 'form-control',  'id': 'id_sku', 'placeholder': ''}),
             'precio': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01', 'min': '0',  'id': 'id_precio', 'placeholder': ''}),
             'precio_transferencia': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01', 'min': '0',  'id': 'id_precio_transferencia', 'placeholder': ''}),
-            'stock': forms.NumberInput(attrs={'class': 'form-control', 'min': '0',  'id': 'id_stock', 'placeholder': ''}),
+            'stock': forms.NumberInput(attrs={'class': 'form-control', 'min': '0', 'max': '1000', 'id': 'id_stock', 'placeholder': ''}),
             'peso': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01', 'min': '0',  'id': 'id_peso', 'placeholder': ''}),
             'colores': forms.CheckboxSelectMultiple(),
             'medidas': forms.CheckboxSelectMultiple(),
@@ -184,6 +184,8 @@ class ProductoForm(forms.ModelForm):
         stock = self.cleaned_data.get('stock')
         if stock is not None and stock < 0:
             raise forms.ValidationError('El stock no puede ser negativo.')
+        if stock is not None and stock > 1000:
+            raise forms.ValidationError('El stock no puede superar las 1000 unidades.')
         return stock
 
     def clean_peso(self):

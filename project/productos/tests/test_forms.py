@@ -244,6 +244,19 @@ def test_stock_negativo_invalido(subcategoria_data):
 
 
 @pytest.mark.django_db
+def test_stock_maximo_valido(subcategoria_data):
+    form = ProductoForm(data=producto_form_data(subcategoria_data, stock='1000'))
+    assert form.is_valid()
+
+
+@pytest.mark.django_db
+def test_stock_supera_maximo_invalido(subcategoria_data):
+    form = ProductoForm(data=producto_form_data(subcategoria_data, stock='1001'))
+    assert not form.is_valid()
+    assert 'El stock no puede superar las 1000 unidades.' in form.errors['stock']
+
+
+@pytest.mark.django_db
 def test_peso_cero_invalido(subcategoria_data):
     form = ProductoForm(data=producto_form_data(subcategoria_data, peso='0'))
     assert not form.is_valid()

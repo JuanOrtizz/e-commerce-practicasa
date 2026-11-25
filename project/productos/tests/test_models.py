@@ -422,3 +422,41 @@ def test_crear_producto_imagen_y_str(producto):
     assert imagen.pk is not None
     assert imagen.orden == 0
     assert str(imagen) == 'Camiseta básica - Imagen 0'
+
+
+@pytest.mark.django_db
+def test_slug_producto_admite_nombre_de_200_caracteres(subcategoria_data):
+    producto = ProductoModel.objects.create(
+        subcategoria=subcategoria_data,
+        nombre='a' * 200,
+        descripcion='Test',
+        sku='LARGO-001',
+        precio=100,
+        precio_transferencia=90,
+        stock=1,
+    )
+    assert len(producto.slug) == 200
+
+
+@pytest.mark.django_db
+def test_slug_producto_colision_agrega_sufijo(subcategoria_data, producto):
+    otro = ProductoModel.objects.create(
+        subcategoria=subcategoria_data,
+        nombre='Camiseta basica',
+        descripcion='Test',
+        sku='LARGO-002',
+        precio=100,
+        precio_transferencia=90,
+        stock=1,
+    )
+    assert producto.slug == 'camiseta-basica'
+    assert otro.slug == 'camiseta-basica-2'
+
+
+@pytest.mark.django_db
+def test_slug_categoria_larga_y_colision():
+    categoria = CategoriaModel.objects.create(nombre='a' * 100)
+    otra = CategoriaModel.objects.create(nombre='á' * 100)
+    assert len(categoria.slug) == 100
+    assert len(otra.slug) == 100
+    assert otra.slug.endswith('-2')
