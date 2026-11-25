@@ -672,6 +672,29 @@ def test_venta_detalle_200(admin_client, venta):
 
 
 @pytest.mark.django_db
+def test_venta_detalle_muestra_precios_de_transferencia_en_efectivo(
+    admin_client, venta, producto
+):
+    VentaItemModel.objects.create(
+        venta=venta,
+        producto=producto,
+        cantidad=2,
+        precio_unitario=Decimal('15000'),
+        precio_transferencia_unitario=Decimal('13500'),
+    )
+    venta.subtotal = Decimal('27000')
+    venta.total = Decimal('27000')
+    venta.save(update_fields=['subtotal', 'total'])
+    response = admin_client.get(reverse('panel_venta_detalle', args=[venta.id]))
+    content = response.content.decode()
+    assert response.status_code == 200
+    assert '$13.500,00' in content
+    assert '$27.000,00' in content
+    assert '$15.000,00' not in content
+    assert '$30.000,00' not in content
+
+
+@pytest.mark.django_db
 def test_venta_detalle_muestra_pagos(admin_client, venta):
     PagoModel.objects.create(
         venta=venta, estado=PagoModel.EstadoChoices.APROBADO,

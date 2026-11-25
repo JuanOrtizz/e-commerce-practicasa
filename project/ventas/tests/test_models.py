@@ -22,7 +22,7 @@ def test_subtotales_con_transferencia(carrito, producto, item, usuario, datos_ch
 
     assert venta_item.subtotal == Decimal('30000.00')
     assert venta_item.subtotal_transferencia == Decimal('27000.00')
-    assert venta.subtotal == Decimal('30000.00')
+    assert venta.subtotal == Decimal('27000.00')
     assert venta.subtotal_transferencia == Decimal('27000.00')
     assert venta.total_transferencia == Decimal('27000.00')
 

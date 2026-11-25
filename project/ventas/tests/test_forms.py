@@ -3,6 +3,15 @@ import pytest
 from ventas.forms import CheckoutForm
 
 
+@pytest.mark.parametrize('telefono,esperado', [
+    ('1' * 25, True),
+    ('1' * 26, False),
+])
+def test_checkout_form_telefono_de_hasta_25_caracteres(telefono, esperado, datos_checkout):
+    form = CheckoutForm({**datos_checkout, 'telefono': telefono})
+    assert form.is_valid() == esperado
+
+
 def test_checkout_form_acepta_ciudad_con_digitos(datos_checkout):
     form = CheckoutForm({
         **datos_checkout,

@@ -80,8 +80,20 @@
                             -
                         {% endif %}
                     </td>
-                    <td>${{ item.precio_unitario|format_price }}</td>
-                    <td class="text-end">${{ item.subtotal|format_price }}</td>
+                    <td>
+                        {% if venta.metodo_pago == 'efectivo' or venta.metodo_pago == 'transferencia' %}
+                            ${{ item.precio_transferencia_unitario|format_price }}
+                        {% else %}
+                            ${{ item.precio_unitario|format_price }}
+                        {% endif %}
+                    </td>
+                    <td class="text-end">
+                        {% if venta.metodo_pago == 'efectivo' or venta.metodo_pago == 'transferencia' %}
+                            ${{ item.subtotal_transferencia|format_price }}
+                        {% else %}
+                            ${{ item.subtotal|format_price }}
+                        {% endif %}
+                    </td>
                 </tr>
                 {% endfor %}
             </tbody>

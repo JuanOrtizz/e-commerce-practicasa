@@ -34,7 +34,7 @@ class VentaModel(models.Model):
     )
     nombre = models.CharField(max_length=150)
     email = models.EmailField()
-    telefono = models.CharField(max_length=20)
+    telefono = models.CharField(max_length=25)
     direccion = models.CharField(max_length=255, null=True, blank=True)
     numero = models.CharField(max_length=10, null=True, blank=True)
     ciudad = models.CharField(max_length=100, null=True, blank=True)
@@ -127,7 +127,7 @@ class VentaItemModel(models.Model):
     producto = models.ForeignKey(
         'productos.ProductoModel', on_delete=models.PROTECT
     )
-    nombre_producto = models.CharField(max_length=150, null=True, blank=True)
+    nombre_producto = models.CharField(max_length=200, null=True, blank=True)
     promocion = models.CharField(max_length=20, null=True, blank=True)
     cantidad = models.PositiveIntegerField(default=1)
     precio_unitario = models.DecimalField(max_digits=10, decimal_places=2)

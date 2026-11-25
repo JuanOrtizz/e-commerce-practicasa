@@ -35,9 +35,9 @@ def test_crear_venta_confirmada_descarta_stock_y_vacia_carrito(carrito, producto
     assert venta.estado == VentaModel.EstadoChoices.PENDIENTE
     assert venta.metodo_envio == 'retiro_local'
     assert venta.metodo_pago == 'efectivo'
-    assert venta.subtotal == Decimal('30000')
+    assert venta.subtotal == Decimal('27000')
     assert venta.costo_envio == Decimal('0')
-    assert venta.total == Decimal('30000')
+    assert venta.total == Decimal('27000')
     assert venta.direccion == datos_checkout['direccion']
     assert venta.numero == datos_checkout['numero']
 
@@ -82,8 +82,21 @@ def test_crear_venta_acepta_mercado_pago(carrito, producto, item, usuario, datos
     assert VentaModel.objects.count() == 1
     assert venta.metodo_pago == 'mercado_pago'
     assert venta.estado == VentaModel.EstadoChoices.PENDIENTE
+    assert venta.subtotal == Decimal('30000')
     assert venta.total == Decimal('30000')
     assert carrito.items.count() == 0
+
+
+@pytest.mark.django_db
+def test_crear_venta_transferencia_guarda_precios_de_transferencia(
+    carrito, producto, item, usuario, datos_checkout
+):
+    venta = crear_venta_confirmada_service(
+        usuario, datos_checkout, 'retiro_local', 'transferencia'
+    )
+    assert venta.subtotal == Decimal('27000')
+    assert venta.costo_envio == Decimal('0')
+    assert venta.total == Decimal('27000')
 
 
 @override_settings(MP_ACCESS_TOKEN='')
@@ -125,8 +138,8 @@ def test_get_venta_context_usa_precios_snapshot(carrito, producto, item, usuario
     assert data['tiene_promocion_porcentaje'] is True
     assert data['ahorro'] == Decimal('0')
     assert data['ahorro_transferencia'] == Decimal('0')
-    assert ctx['total'] == venta.subtotal
-    assert ctx['total_transferencia'] == venta.subtotal_transferencia
+    assert ctx['total'] == Decimal('27000.00')
+    assert ctx['total_transferencia'] == Decimal('24300.00')
 
 
 @pytest.mark.django_db
@@ -171,7 +184,7 @@ def test_crear_venta_snapshotea_promocion_2x1(carrito, producto, item, usuario, 
     assert venta_item.etiqueta_promocion == '2x1'
     assert venta_item.cantidad_paga == 1
     assert venta_item.subtotal == producto.precio_final
-    assert venta.subtotal == producto.precio_final
+    assert venta.subtotal == producto.precio_transferencia_final
     assert venta.total == venta.subtotal
 
 
