@@ -62,6 +62,208 @@
     color: var(--tertiary-color) !important;
 }
 
+.card-filtros {
+    background: var(--white);
+    border: 1px solid var(--primary-color);
+    border-radius: 18px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+    padding: 1.25rem;
+}
+
+.filtros-form {
+    display: flex;
+    flex-direction: column;
+}
+
+.filtro-seccion {
+    padding-bottom: 1rem;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid var(--primary-color);
+}
+
+.filtro-seccion:last-of-type {
+    border-bottom: 0;
+    margin-bottom: 0.75rem;
+}
+
+.filtro-titulo {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-bottom: 0.7rem;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--tertiary-color);
+}
+
+.filtro-titulo .material-symbols-outlined {
+    font-size: 1.1rem;
+    line-height: 1;
+}
+
+.filtro-select {
+    border: 1.5px solid var(--primary-color);
+    border-radius: 10px;
+    font-size: var(--fs-sm);
+    padding: 0.5rem 2rem 0.5rem 0.7rem;
+}
+
+.filtro-select:focus {
+    border-color: var(--tertiary-color);
+    box-shadow: 0 0 0 0.2rem rgba(162, 86, 48, 0.15);
+}
+
+.filtro-lista {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+}
+
+.filtro-link {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding: 0.45rem 0.65rem;
+    border-radius: 10px;
+    color: var(--black);
+    font-size: var(--fs-sm);
+    text-decoration: none;
+    transition: background-color 0.18s ease, color 0.18s ease;
+}
+
+.filtro-link:hover {
+    background: var(--primary-color);
+    color: var(--tertiary-color);
+}
+
+.filtro-link.is-activo {
+    background: var(--tertiary-color);
+    color: var(--white);
+    font-weight: 600;
+}
+
+.filtro-link.is-activo::after {
+    content: "check";
+    font-family: "Material Symbols Outlined";
+    font-size: 1rem;
+    line-height: 1;
+}
+
+.filtro-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+}
+
+.filtro-chip {
+    position: relative;
+    margin: 0;
+    cursor: pointer;
+}
+
+.filtro-chip-input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.filtro-chip-contenido {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.4rem 0.7rem;
+    border: 1.5px solid var(--primary-color-hover);
+    border-radius: 999px;
+    background: var(--white);
+    color: var(--black);
+    font-size: var(--fs-sm);
+    line-height: 1;
+    transition: background-color 0.18s ease, border-color 0.18s ease, color 0.18s ease;
+}
+
+.filtro-chip:hover .filtro-chip-contenido {
+    border-color: var(--tertiary-color);
+    color: var(--tertiary-color);
+}
+
+.filtro-chip-input:checked + .filtro-chip-contenido {
+    background: var(--tertiary-color);
+    border-color: var(--tertiary-color);
+    color: var(--white);
+    font-weight: 600;
+}
+
+.filtro-chip-input:focus-visible + .filtro-chip-contenido {
+    box-shadow: 0 0 0 0.2rem rgba(162, 86, 48, 0.25);
+}
+
+.filtro-color {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.filtro-chip-input:checked + .filtro-chip-contenido .filtro-color {
+    border-color: rgba(255, 255, 255, 0.8);
+}
+
+.filtro-precio {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.filtro-acciones {
+    margin-top: 0.25rem;
+}
+
+.filtro-precio-campo {
+    position: relative;
+}
+
+.filtro-precio-signo {
+    position: absolute;
+    top: 50%;
+    left: 0.75rem;
+    transform: translateY(-50%);
+    color: var(--secondary-color-hover);
+    font-size: var(--fs-sm);
+    pointer-events: none;
+}
+
+.filtro-input {
+    border: 1.5px solid var(--primary-color);
+    border-radius: 10px;
+    padding-left: 1.7rem;
+    font-size: var(--fs-sm);
+}
+
+.filtro-input:focus {
+    border-color: var(--tertiary-color);
+    box-shadow: 0 0 0 0.2rem rgba(162, 86, 48, 0.15);
+}
+
+@media (max-width: 991.98px) {
+    .card-filtros {
+        padding: 1rem;
+    }
+
+    .filtro-chip-contenido,
+    .filtro-link,
+    .filtro-input,
+    .filtro-select {
+        font-size: var(--fs-base);
+    }
+}
+
 .breadcrumb-item{
     overflow-wrap: break-word;
 }
