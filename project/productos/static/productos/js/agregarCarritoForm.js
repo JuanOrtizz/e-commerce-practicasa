@@ -1,4 +1,5 @@
 import {successToast, errorToast, infoLoginAlertRedirect} from '/static/js/alertas.js'
+import {actualizarBadgeCarrito} from '/static/js/carritoBadge.js'
 
 document.addEventListener('DOMContentLoaded', ()=>{
     document.querySelectorAll('.agregar-carrito-form').forEach(form => {
@@ -37,6 +38,7 @@ async function postForm(formData, csrfToken, action, form){
             successToast(data.success.message)
             window.gsap?.fromTo(btnSubmit, { scale: 1 }, { scale: 1.08, duration: 0.15, ease: "power2.out", yoyo: true, repeat: 1 })
             actualizarStockRestante(data.success)
+            actualizarBadgeCarrito(data.success.cantidad_total)
         }else{
             if (typeof data.errors === "string") {
                 errorToast(data.errors)

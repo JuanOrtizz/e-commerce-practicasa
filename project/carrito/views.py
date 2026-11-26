@@ -9,6 +9,7 @@ from .services import (
     eliminar_item_service, vaciar_carrito_service, get_carrito_context_service,
     calcular_precios_item_service, get_stock_disponible_item_service,
     get_stock_restante_producto_service, get_stocks_disponibles_producto_service,
+    get_cantidad_total_carrito_service,
 )
 
 
@@ -42,6 +43,7 @@ def agregar_al_carrito(request):
                 'producto_id': item.producto.id,
                 'stock_restante': get_stock_restante_producto_service(request.user, item.producto),
                 'stock_total': item.producto.stock,
+                'cantidad_total': get_cantidad_total_carrito_service(request.user),
             }
         })
     except ValueError as e:
@@ -78,6 +80,7 @@ def actualizar_cantidad(request):
                     'total': str(context['total']),
                     'total_transferencia': str(context['total_transferencia']),
                     'total_ahorro': str(context['total_ahorro']),
+                    'cantidad_total': get_cantidad_total_carrito_service(request.user),
                 }
             }
         }
@@ -121,6 +124,7 @@ def eliminar_item(request):
                     'total': str(context['total']),
                     'total_transferencia': str(context['total_transferencia']),
                     'total_ahorro': str(context['total_ahorro']),
+                    'cantidad_total': get_cantidad_total_carrito_service(request.user),
                 }
             }
         })
@@ -142,6 +146,7 @@ def vaciar_carrito(request):
         return JsonResponse({
             'success': {
                 'message': 'Carrito vaciado',
+                'cantidad_total': 0,
             }
         })
     except Exception:

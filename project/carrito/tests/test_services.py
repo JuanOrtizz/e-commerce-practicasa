@@ -9,6 +9,7 @@ from carrito.services import (
     eliminar_item_service, vaciar_carrito_service, calcular_precios_item_service,
     get_carrito_context_service, get_stock_disponible_item_service,
     get_stock_restante_producto_service, get_stocks_disponibles_producto_service,
+    get_cantidad_total_carrito_service,
 )
 from productos.models import ColorModel, MedidaModel, ProductoModel
 from usuarios.models import UsuarioModel
@@ -469,3 +470,20 @@ def test_get_stocks_disponibles_producto_service(carrito, producto, color_data):
     stocks = get_stocks_disponibles_producto_service(carrito, producto.id)
     assert stocks[item_rojo.id] == 3
     assert stocks[item_azul.id] == 1
+
+@pytest.mark.django_db
+def test_get_cantidad_total_carrito_suma_variantes(carrito, producto, color_data):
+    rojo = ColorModel.objects.create(**color_data)
+    azul = ColorModel.objects.create(nombre='Azul', codigo_hex='#0000FF')
+    CarritoItemModel.objects.create(
+        carrito=carrito, producto=producto, color_nombre=rojo.nombre, cantidad=2
+    )
+    CarritoItemModel.objects.create(
+        carrito=carrito, producto=producto, color_nombre=azul.nombre, cantidad=3
+    )
+    assert get_cantidad_total_carrito_service(carrito.usuario) == 5
+
+
+@pytest.mark.django_db
+def test_get_cantidad_total_carrito_vacio(usuario):
+    assert get_cantidad_total_carrito_service(usuario) == 0

@@ -12,6 +12,12 @@ def get_o_crear_carrito_service(usuario):
     return carrito
 
 
+def get_cantidad_total_carrito_service(usuario):
+    return CarritoItemModel.objects.filter(
+        carrito__usuario=usuario
+    ).aggregate(total=Sum('cantidad'))['total'] or 0
+
+
 def get_cantidades_en_carrito(usuario, producto_ids=None):
     carrito = CarritoModel.objects.filter(usuario=usuario).first()
     if not carrito:

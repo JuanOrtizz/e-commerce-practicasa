@@ -1,4 +1,5 @@
 import {successToast, errorToast, confirmAlert} from '/static/js/alertas.js'
+import {actualizarBadgeCarrito} from '/static/js/carritoBadge.js'
 
 function formatearPrecio(valor) {
     const numero = Number(valor)
@@ -203,6 +204,7 @@ async function actualizarCantidad(input, nuevaCantidad, csrfToken) {
                 actualizarResumen(data.success.carrito)
             }
             actualizarStocksDisponibles(data.success.stocks_disponibles)
+            actualizarBadgeCarrito(data.success.carrito.cantidad_total)
             recargarSiYaNoHaySinStock()
         } else {
             errorToast(data.errors || 'Error al actualizar')
@@ -232,6 +234,7 @@ async function eliminarItem(itemId, csrfToken) {
             quitarItem(card)
             actualizarResumen(data.success.carrito)
             actualizarStocksDisponibles(data.success.stocks_disponibles)
+            actualizarBadgeCarrito(data.success.carrito.cantidad_total)
             recargarSiYaNoHaySinStock()
         } else {
             errorToast(data.errors || 'Error al eliminar')
@@ -252,6 +255,7 @@ async function vaciarCarrito(csrfToken) {
         if (await redirigirSiNoAuth(response)) return
         const data = await response.json()
         if (data.success) {
+            actualizarBadgeCarrito(0)
             location.reload()
         } else {
             errorToast(data.errors || 'Error al vaciar')

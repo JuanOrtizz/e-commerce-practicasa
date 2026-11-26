@@ -70,6 +70,7 @@ def test_agregar_exitoso(client, usuario, producto):
     assert producto.nombre in data['success']['message']
     assert data['success']['producto_id'] == producto.id
     assert data['success']['stock_restante'] == producto.stock - 1
+    assert data['success']['cantidad_total'] == 1
     assert usuario.carrito.items.count() == 1
 
 
@@ -255,6 +256,7 @@ def test_eliminar_exitoso(client, usuario, producto):
     assert response.status_code == 200
     data = response.json()['success']
     assert 'carrito' in data
+    assert data['carrito']['cantidad_total'] == 0
     assert CarritoItemModel.objects.count() == 0
 
 
@@ -299,4 +301,5 @@ def test_vaciar_exitoso(client, usuario, producto):
     response = client.post(reverse('vaciar'))
     assert response.status_code == 200
     assert response.json()['success']['message'] == 'Carrito vaciado'
+    assert response.json()['success']['cantidad_total'] == 0
     assert CarritoItemModel.objects.count() == 0
