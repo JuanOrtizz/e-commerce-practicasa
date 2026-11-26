@@ -469,3 +469,165 @@ footer a {
         font-size: 1.5rem;
     }
 }
+
+.select-moderno {
+    position: relative;
+    width: 100%;
+}
+
+.select-moderno-auto {
+    width: auto;
+    display: inline-block;
+}
+
+.select-moderno-nativo {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    opacity: 0 !important;
+    overflow: hidden;
+    pointer-events: none !important;
+}
+
+.select-moderno-boton {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    width: 100%;
+    padding: 0.55rem 0.9rem;
+    background: var(--white);
+    border: 2px solid var(--primary-color);
+    border-radius: 10px;
+    color: var(--black);
+    font-size: var(--fs-base);
+    line-height: 1.4;
+    text-align: left;
+    cursor: pointer;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.select-moderno-boton:hover {
+    border-color: var(--secondary-color-hover);
+}
+
+.select-moderno-boton:focus-visible {
+    outline: none;
+    border-color: var(--tertiary-color);
+    box-shadow: 0 0 0 0.2rem rgba(162, 86, 48, 0.18);
+}
+
+.select-moderno-boton.is-disabled,
+.select-moderno-boton:disabled {
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+    color: var(--secondary-color-hover);
+    cursor: not-allowed;
+}
+
+.select-moderno-texto {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.select-moderno-chevron {
+    flex-shrink: 0;
+    color: var(--tertiary-color);
+    font-size: 1.3rem;
+    line-height: 1;
+    transition: transform 0.2s ease;
+}
+
+.select-moderno-abierto .select-moderno-chevron {
+    transform: rotate(180deg);
+}
+
+.select-moderno-lista {
+    position: absolute;
+    top: calc(100% + 0.35rem);
+    left: 0;
+    z-index: 1060;
+    width: 100%;
+    max-height: 16rem;
+    padding: 0.35rem;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    background: var(--white);
+    border: 1px solid rgba(162, 86, 48, 0.22);
+    border-radius: 0.75rem;
+    box-shadow: 0 0.75rem 1.75rem rgba(40, 30, 25, 0.16);
+    scrollbar-width: thin;
+    scrollbar-color: rgba(162, 86, 48, 0.45) transparent;
+}
+
+.select-moderno-auto .select-moderno-lista {
+    width: max-content;
+    min-width: 100%;
+    max-width: min(20rem, calc(100vw - 2rem));
+}
+
+.select-moderno-arriba .select-moderno-lista {
+    top: auto;
+    bottom: calc(100% + 0.35rem);
+}
+
+.select-moderno-opcion {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    width: 100%;
+    padding: 0.55rem 0.75rem;
+    background: transparent;
+    border: 0;
+    border-radius: 0.5rem;
+    color: #3a2a22;
+    font-size: var(--fs-base);
+    line-height: 1.25;
+    text-align: left;
+    cursor: pointer;
+    user-select: none;
+}
+
+.select-moderno-opcion:hover,
+.select-moderno-opcion.is-activa {
+    background: rgba(162, 86, 48, 0.12);
+    color: var(--tertiary-color-hover);
+}
+
+.select-moderno-opcion:active {
+    background: rgba(162, 86, 48, 0.18);
+}
+
+.select-moderno-opcion.is-seleccionada::after {
+    content: "check";
+    font-family: "Material Symbols Outlined";
+    font-size: 1.1rem;
+    line-height: 1;
+    color: var(--tertiary-color);
+}
+
+.select-moderno-opcion:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+.select-moderno-sm .select-moderno-boton {
+    padding: 0.3rem 0.6rem;
+    border-width: 1.5px;
+    border-radius: 8px;
+    font-size: var(--fs-xs);
+}
+
+.select-moderno-sm .select-moderno-chevron {
+    font-size: 1.05rem;
+}
+
+.select-moderno-sm .select-moderno-opcion {
+    padding: 0.4rem 0.6rem;
+    font-size: var(--fs-xs);
+}
