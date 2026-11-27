@@ -56,7 +56,6 @@ def contacto(request):
                 'asunto': 'Consulta en la web | Practicasa',
                 'mensaje': consulta.mensaje,
                 'fecha': timezone.localtime(timezone.now()).strftime('%d/%m/%Y %H:%M'),
-                'logo_url': request.build_absolute_uri('/static/img/logo_practicasa.png'),
             }
             html = render_to_string('email/email_consulta.html', context)
             enviar_email(

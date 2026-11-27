@@ -443,7 +443,7 @@ def pago_estado(request, id):
         return JsonResponse({"success": False, "message": str(e)})
     mensaje = f"Pago {pago.payment_id or pago.id} marcado como {pago.get_estado_display().lower()}."
     if nuevo == PagoModel.EstadoChoices.REEMBOLSADO:
-        enviar_email_reembolso_service(venta, request)
+        enviar_email_reembolso_service(venta)
         if venta.estado == VentaModel.EstadoChoices.CANCELADA:
             mensaje += " La venta quedó cancelada y el stock se repuso."
     elif venta.estado == VentaModel.EstadoChoices.CONFIRMADA:

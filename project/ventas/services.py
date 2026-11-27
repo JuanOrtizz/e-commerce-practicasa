@@ -305,7 +305,7 @@ def eliminar_venta_service(venta):
         revertir_stock_venta_service(venta)
     venta.delete()
 
-def _render_factura_venta(venta, request, titulo):
+def _render_factura_venta(venta, titulo):
     pago = venta.pagos.filter(
         estado=PagoModel.EstadoChoices.APROBADO
     ).order_by('-created_at').first()
@@ -313,22 +313,21 @@ def _render_factura_venta(venta, request, titulo):
         'titulo': titulo,
         'venta': venta,
         'pago': pago,
-        'logo_url': request.build_absolute_uri('/static/img/logo_practicasa.png'),
     }
     return render_to_string('email/email_factura.html', contexto)
 
 
-def enviar_factura_venta_service(venta, request):
+def enviar_factura_venta_service(venta):
     enviar_email(
         asunto=f'Tu pedido #{venta.id} | Practicasa',
         mensaje_texto=f'Tu pedido #{venta.id} fue registrado. Total: ${venta.total}.',
-        mensaje_html=_render_factura_venta(venta, request, '¡Gracias por tu compra!'),
+        mensaje_html=_render_factura_venta(venta, '¡Gracias por tu compra!'),
         destinatarios=[venta.email],
     )
     enviar_email(
         asunto=f'Nuevo pedido #{venta.id} | Practicasa',
         mensaje_texto=f'Nuevo pedido #{venta.id} de {venta.nombre} ({venta.email}).',
-        mensaje_html=_render_factura_venta(venta, request, 'Nuevo pedido recibido'),
+        mensaje_html=_render_factura_venta(venta, 'Nuevo pedido recibido'),
         destinatarios=[settings.EMAIL_COMERCIO],
     )
 
@@ -424,14 +423,11 @@ def actualizar_estado_pago_service(pago, nuevo_estado):
     return venta
 
 
-def enviar_email_reembolso_service(venta, request):
-    logo_url = request.build_absolute_uri('/static/img/logo_practicasa.png')
-
+def enviar_email_reembolso_service(venta):
     def _html(para_comercio):
         return render_to_string('email/email_reembolso.html', {
             'titulo': 'Pago reembolsado',
             'venta': venta,
-            'logo_url': logo_url,
             'para_comercio': para_comercio,
         })
 
@@ -587,7 +583,7 @@ def sincronizar_pago_service(pago_data, venta, request):
                 _alertar_reversion_pago(venta)
             else:
                 if estado_anterior != confirmada and venta.estado == confirmada:
-                    enviar_factura_venta_service(venta, request)
+                    enviar_factura_venta_service(venta)
         elif not ya_aprobado:
             pago.estado = aprobado
             pago.save(update_fields=['estado', 'mp_preference_id', 'monto', 'external_reference'])

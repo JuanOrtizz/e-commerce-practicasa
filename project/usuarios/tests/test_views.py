@@ -1,4 +1,5 @@
 import pytest
+from django.conf import settings
 from django.core import mail
 from django.core.cache import cache
 from django.test.utils import override_settings
@@ -147,6 +148,9 @@ def test_password_reset_post_envia_email(client, user_data):
     assert data["success"] is True
     assert len(mail.outbox) == 1
     assert "Restablecé tu contraseña" in mail.outbox[0].subject
+    html = mail.outbox[0].alternatives[0][0]
+    assert settings.SITE_URL in html
+    assert "logo_practicasa.png" in html
 
 
 @pytest.mark.django_db

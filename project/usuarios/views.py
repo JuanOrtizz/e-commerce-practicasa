@@ -7,6 +7,7 @@ from django.urls import reverse, reverse_lazy
 from django.utils.decorators import method_decorator
 from django.views.generic.edit import CreateView
 from django_ratelimit.decorators import ratelimit
+from project.services import get_email_logo_url
 from .forms import RegistroForm, LoginForm, LoginAdminTiendaForm, CustomSetPasswordForm, CustomPasswordResetForm
 from .services import es_administrador
 
@@ -97,6 +98,7 @@ class CustomPasswordResetView(PasswordResetView):
     success_url = reverse_lazy("password_reset_done")
 
     def form_valid(self, form):
+        self.extra_email_context = {'logo_url': get_email_logo_url()}
         response = super().form_valid(form)
         if self.request.headers.get("X-Requested-With") == "XMLHttpRequest":
             return JsonResponse({"success": True, "redirect": str(self.success_url)})

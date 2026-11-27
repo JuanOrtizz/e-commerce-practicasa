@@ -219,7 +219,7 @@ def confirmacion(request):
             vaciar_carrito_service(get_o_crear_carrito_service(request.user))
             return redirect(init_point)
 
-        enviar_factura_venta_service(venta, request)
+        enviar_factura_venta_service(venta)
         return redirect('pago_local', venta_id=venta.id)
 
     return render(request, 'ventas/confirmacion.html', context)
